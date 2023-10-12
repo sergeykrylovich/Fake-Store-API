@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'io.freefair.lombok' version('8.2.2')
-    id 'io.qameta.allure' version('2.10.0')
+    //id 'io.qameta.allure' version('2.10.0')
 }
 
 group = 'com.platzi.fakeapi'
@@ -13,14 +13,16 @@ repositories {
 
 def junitVersion = "5.9.2",
     slf4jVersion = "1.7.32",
-    allureVersion = "2.19.0",
-    restAssuredVersion = "5.3.0"
+    //allureVersion = "2.19.0",
+    restAssuredVersion = "5.3.0",
+    jacksonVersion = "2.15.2"
 
 dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testImplementation "org.slf4j:slf4j-simple:$slf4jVersion"
-    testImplementation "io.qameta.allure:allure-rest-assured:$allureVersion"
+    //testImplementation "io.qameta.allure:allure-rest-assured:$allureVersion"
     testImplementation "io.rest-assured:rest-assured:$restAssuredVersion"
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
 }
 
 test {
