@@ -19,7 +19,7 @@ public class FakeStoreAPISpecs {
                 .build();
     }
 
-    public static ResponseSpecification responseSpecification() {
+    public static ResponseSpecification responseSpecification200() {
         return new ResponseSpecBuilder()
                 .expectStatusCode(200)
                 .expectContentType("application/json; charset=utf-8")

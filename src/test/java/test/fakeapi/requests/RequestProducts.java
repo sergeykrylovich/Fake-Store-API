@@ -1,31 +1,28 @@
 package test.fakeapi.requests;
 
 
-import io.restassured.response.Response;
-import org.junit.jupiter.api.Test;
+import test.fakeapi.pojo.ProductsPOJO;
 
+
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static test.fakeapi.specs.FakeStoreAPISpecs.*;
 
 public class RequestProducts {
     public final String BASEPATH = "/products";
-    @Test
-    public Response getAllProducts() {
 
-        installSpecification(requestSpecification(BASEPATH), responseSpecification());
+
+    public List<ProductsPOJO> getAllProducts() {
+
+        installSpecification(requestSpecification(BASEPATH), responseSpecification200());
 
         return given()
                 .when()
                 .get()
                 .then()
                 .log().all()
-                .extract().response();
-
-
+                .extract().jsonPath().getList("", ProductsPOJO.class);
     }
-
-
-
 
 }
