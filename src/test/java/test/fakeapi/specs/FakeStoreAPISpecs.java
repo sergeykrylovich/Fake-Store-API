@@ -25,6 +25,12 @@ public class FakeStoreAPISpecs {
                 .expectContentType("application/json; charset=utf-8")
                 .build();
     }
+    public static ResponseSpecification responseSpecification201() {
+        return new ResponseSpecBuilder()
+                .expectStatusCode(201)
+                .expectContentType("application/json; charset=utf-8")
+                .build();
+    }
 
     public static void installSpecification(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
         RestAssured.requestSpecification = requestSpecification;
