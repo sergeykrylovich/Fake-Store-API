@@ -37,19 +37,18 @@ public class GetAllProductsTest {
     }
     @Test
     void updateProductTest() {
-        String title = "String";
+        String title = "AAAAAAAAAAA";
         Integer price = 123;
         String description = "AAAAAA";
-        Integer categoryId = 1;
         List<String> images= List.of("https://shop.bowandtie.ru/image/cache/data/foto/noski-baboon/Noski-v-beluyu-i-krasnuyu-polosku-BAB-S-36-1000x1200.jpg");
 
-        ProductsPOJO createProductItem = requestProducts.createProduct(title,
+        ProductsPOJO createProductItem = requestProducts.updateProduct(title,
                 1234,
                 "only for me!!",
-                1,
-                images);
+                images,
+                233);
 
-        System.out.println(createProductItem);
+        System.out.println(createProductItem.getTitle());
     }
     @Test
     @Tag("delete")
