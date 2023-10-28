@@ -13,11 +13,12 @@ public class RequestProducts {
     public final String BASEPATH = "/products";
 
 
-    public List<ProductsPOJO> getAllProducts() {
+    public List<ProductsPOJO> getAllProducts(String bearerToken) {
 
         installSpecification(requestSpecification(BASEPATH), responseSpecification200());
 
         return given()
+                .header("Authorization", "Bearer " + bearerToken)
                 .when()
                 .get()
                 .then()
@@ -25,11 +26,16 @@ public class RequestProducts {
                 .extract().jsonPath().getList("", ProductsPOJO.class);
     }
 
-    public ProductsPOJO getSingleProduct(int productId) {
+    public ProductsPOJO getSingleProduct(int productId, String bearerToken) {
+
+
 
         installSpecification(requestSpecification(BASEPATH), responseSpecification200());
 
+
         return given()
+                .header("Authorization", "Bearer " + bearerToken)
+                .log().all()
                 .when()
                 .get("/" + productId)
                 .then()
@@ -39,11 +45,16 @@ public class RequestProducts {
 
     public ProductsPOJO createProduct(String title, Integer price,
                                       String description, Integer categoryId,
-                                      List<String> images) {
+                                      List<String> images, String bearerToken) {
+
 
         installSpecification(requestSpecification(BASEPATH), responseSpecification201());
+
+
         CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, categoryId, images);
         return given()
+                .header("Authorization", "Bearer " + bearerToken)
+                .log().all()
                 .body(createProductPOJO)
                 .when()
                 .post("/")
@@ -54,11 +65,13 @@ public class RequestProducts {
 
     public ProductsPOJO updateProduct(String title, Integer price,
                                       String description,
-                                      List<String> images, Integer productId) {
+                                      List<String> images, Integer productId, String bearerToken) {
         CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, null, images);
+
         installSpecification(requestSpecification(BASEPATH), responseSpecification200());
 
         return given()
+                .header("Authorization", "Bearer " + bearerToken)
                 .body(createProductPOJO)
                 .when()
                 .put("/" + productId)
@@ -67,11 +80,14 @@ public class RequestProducts {
                 .extract().jsonPath().getObject("", ProductsPOJO.class);
     }
 
-    public String deleteSingleProduct(Integer productId) {
+    public String deleteSingleProduct(Integer productId, String bearerToken) {
+
 
         installSpecification(requestSpecification(BASEPATH), responseSpecification200());
 
+
         return given()
+                .header("Authorization", "Bearer " + bearerToken)
                 .when()
                 .delete("/" + productId)
                 .then()

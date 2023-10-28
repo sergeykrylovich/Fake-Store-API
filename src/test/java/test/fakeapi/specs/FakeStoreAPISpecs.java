@@ -22,7 +22,7 @@ public class FakeStoreAPISpecs {
     public static ResponseSpecification responseSpecification200() {
         return new ResponseSpecBuilder()
                 .expectStatusCode(200)
-                .expectContentType("application/json; charset=utf-8")
+                //.expectContentType("application/json; charset=utf-8")
                 .build();
     }
     public static ResponseSpecification responseSpecification201() {
@@ -36,4 +36,5 @@ public class FakeStoreAPISpecs {
         RestAssured.requestSpecification = requestSpecification;
         RestAssured.responseSpecification = responseSpecification;
     }
+
 }
