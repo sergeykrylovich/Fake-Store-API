@@ -13,6 +13,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class ProductsTests {
+
+    Faker faker = new Faker();
     RequestProducts requestProducts = new RequestProducts();
     @Test
     @Tag("ProductTest")
@@ -36,50 +38,42 @@ public class ProductsTests {
     @Tag("ProductTest")
      void createProductTest() {
 
+        //Get access token
         String bearerToken = AuthenticationRequest.getAccessToken();
 
-        String title = "String";
-        Integer price = 123;
-        String description = "AAAAAA";
-        Integer categoryId = 1;
-        List<String> images= List.of("https://shop.bowandtie.ru/image/cache/data/foto/noski-baboon/Nosk1-v-beluyu-i-krasnuyu-polosku-BAB-S-36-1000x1200.jpg");
+        //Create fake data for create product API
+        String title = faker.brand().watch();
+        Integer price = faker.number().numberBetween(0, 1000);
+        String description = faker.text().text(10, 100);
+        Integer categoryId = faker.number().numberBetween(1, 5);
+        List<String> images= List.of(faker.internet().image());
+        //List<String> images= List.of("https://shop.bowandtie.ru/image/cache/data/foto/noski-baboon/Nosk1-v-beluyu-i-krasnuyu-polosku-BAB-S-36-1000x1200.jpg");
 
+        //Creating product
         ProductsPOJO createProductItem = requestProducts.createProduct(title,
-                1234,
-                "only for me!!",
-                1,
+                price,
+                description,
+                categoryId,
                 images,
                 bearerToken);
 
-        System.out.println(createProductItem);
+        assertThat(createProductItem.getTitle()).isEqualTo(title);
+        assertThat(createProductItem.getPrice()).isEqualTo(price);
+        assertThat(createProductItem.getDescription()).isEqualTo(description);
+        assertThat(createProductItem.getCategory().getId()).isEqualTo(categoryId);
+        assertThat(createProductItem.getImages().get(0)).isEqualTo(images.get(0));
+
+        //Delete product after all tests
+        String resultOfDelete = requestProducts.deleteSingleProduct(createProductItem.getId(), bearerToken);
+
+        assertThat(resultOfDelete).isEqualTo("true");
     }
 
-    @Test
-    @Tag("ProductTest")
-     void createAuthTest() {
-
-        String bearerToken = AuthenticationRequest.getAccessToken();
-
-        String title = "String1";
-        Integer price = 124;
-        String description = "AAAAAAs";
-        Integer categoryId = 1;
-        List<String> images= List.of("https://shop.bowandtie.ru/image/cache/data/foto/noski-baboon/Nosk1-v-beluyu-i-krasnuyu-polosku-BAB-S-36-1000x1200.jpg");
-
-        ProductsPOJO createProductItem = requestProducts.createProduct(title,
-                1234,
-                "only for me!!",
-                1,
-                images,
-                bearerToken);
-
-        System.out.println(createProductItem);
-    }
 
     @Test
     @Tag("ProductTest")
     void updateProductTest() {
-        Faker faker = new Faker();
+
         String bearerToken = AuthenticationRequest.getAccessToken();
 
         String title = faker.brand().watch();

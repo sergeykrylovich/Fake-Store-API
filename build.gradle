@@ -16,7 +16,8 @@ def junitVersion = "5.9.2",
     //allureVersion = "2.19.0",
     restAssuredVersion = "5.3.0",
     jacksonVersion = "2.15.2",
-    assertJVersion = "3.23.1"
+    assertJVersion = "3.23.1",
+    fakerVersion = "2.0.2"
 
 dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
@@ -24,6 +25,7 @@ dependencies {
     //testImplementation "io.qameta.allure:allure-rest-assured:$allureVersion"
     testImplementation "io.rest-assured:rest-assured:$restAssuredVersion"
     testImplementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    testImplementation "net.datafaker:datafaker:$fakerVersion"
     implementation "org.assertj:assertj-core:$assertJVersion"
 }
 

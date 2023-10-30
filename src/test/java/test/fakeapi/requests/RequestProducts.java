@@ -54,7 +54,7 @@ public class RequestProducts {
         CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, categoryId, images);
         return given()
                 .header("Authorization", "Bearer " + bearerToken)
-                .log().all()
+                //.log().all()
                 .body(createProductPOJO)
                 .when()
                 .post("/")
