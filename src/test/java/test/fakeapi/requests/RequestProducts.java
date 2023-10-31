@@ -28,8 +28,6 @@ public class RequestProducts {
 
     public ProductsPOJO getSingleProduct(int productId, String bearerToken) {
 
-
-
         installSpecification(requestSpecification(BASEPATH), responseSpecification200());
 
 

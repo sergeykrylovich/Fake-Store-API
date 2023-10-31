@@ -30,8 +30,26 @@ public class ProductsTests {
 
         String bearerToken = AuthenticationRequest.getAccessToken();
 
-        ProductsPOJO response = requestProducts.getSingleProduct(253, bearerToken);
-        assertThat(response.getId()).isEqualTo(253);
+        String title = faker.brand().watch();
+        Integer price = faker.number().numberBetween(0, 1000);
+        String description = faker.text().text(10, 100);
+        Integer categoryId = faker.number().numberBetween(1, 5);
+        List<String> images= List.of(faker.internet().image());
+        //List<String> images= List.of("https://shop.bowandtie.ru/image/cache/data/foto/noski-baboon/Nosk1-v-beluyu-i-krasnuyu-polosku-BAB-S-36-1000x1200.jpg");
+
+        //Creating product
+        ProductsPOJO createProductItem = requestProducts.createProduct(title,
+                price,
+                description,
+                categoryId,
+                images,
+                bearerToken);
+
+        ProductsPOJO singleProductResponse = requestProducts.getSingleProduct(createProductItem.getId(), bearerToken);
+        System.out.println(singleProductResponse.getId());
+        assertThat(singleProductResponse.getId()).isEqualTo(createProductItem.getId());
+
+        requestProducts.deleteSingleProduct(singleProductResponse.getId(), bearerToken);
     }
 
     @Test
