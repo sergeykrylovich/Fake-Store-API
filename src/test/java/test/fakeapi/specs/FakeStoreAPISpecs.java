@@ -12,6 +12,7 @@ public class FakeStoreAPISpecs {
 
 
     public static RequestSpecification requestSpecification(String BasePath) {
+
         return new RequestSpecBuilder()
                 .setBaseUri(BASEURL)
                 .setBasePath(BasePath)
@@ -19,22 +20,17 @@ public class FakeStoreAPISpecs {
                 .build();
     }
 
-    public static ResponseSpecification responseSpecification200() {
+    public static ResponseSpecification responseSpecification(int statusCode) {
         return new ResponseSpecBuilder()
-                .expectStatusCode(200)
-                //.expectContentType("application/json; charset=utf-8")
-                .build();
-    }
-    public static ResponseSpecification responseSpecification201() {
-        return new ResponseSpecBuilder()
-                .expectStatusCode(201)
-                .expectContentType("application/json; charset=utf-8")
+                .expectStatusCode(statusCode)
                 .build();
     }
 
     public static void installSpecification(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
         RestAssured.requestSpecification = requestSpecification;
         RestAssured.responseSpecification = responseSpecification;
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+
     }
 
 }

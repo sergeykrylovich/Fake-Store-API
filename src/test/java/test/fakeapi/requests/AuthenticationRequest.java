@@ -11,7 +11,7 @@ public class AuthenticationRequest {
     private static final String AUTHPATH = "/auth/login";
 
     public static String getAccessToken() {
-        installSpecification(requestSpecification(AUTHPATH), responseSpecification201());
+        installSpecification(requestSpecification(AUTHPATH), responseSpecification(201));
 
         Map<String, String> loginMap = new HashMap<>();
         loginMap.put("email", "john@mail.com");

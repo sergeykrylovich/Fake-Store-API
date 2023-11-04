@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'io.freefair.lombok' version('8.2.2')
-    //id 'io.qameta.allure' version('2.10.0')
+    id 'io.qameta.allure' version('2.10.0')
 }
 
 group = 'com.platzi.fakeapi'
@@ -11,24 +11,50 @@ repositories {
     mavenCentral()
 }
 
+
+
 def junitVersion = "5.9.2",
     slf4jVersion = "1.7.32",
-    //allureVersion = "2.19.0",
+    allureVersion = "2.19.0",
     restAssuredVersion = "5.3.0",
     jacksonVersion = "2.15.2",
     assertJVersion = "3.23.1",
     fakerVersion = "2.0.2"
 
+allure {
+    report {
+        version.set(allureVersion)
+
+    }
+    adapter {
+        aspectjWeaver.set(true)
+        frameworks {
+            junit5 {
+                adapterVersion.set(allureVersion)
+            }
+        }
+    }
+}
+
 dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testImplementation "org.slf4j:slf4j-simple:$slf4jVersion"
-    //testImplementation "io.qameta.allure:allure-rest-assured:$allureVersion"
+    testImplementation "io.qameta.allure:allure-rest-assured:$allureVersion"
     testImplementation "io.rest-assured:rest-assured:$restAssuredVersion"
     testImplementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-    testImplementation "net.datafaker:datafaker:$fakerVersion"
     implementation "org.assertj:assertj-core:$assertJVersion"
+    testImplementation "net.datafaker:datafaker:$fakerVersion"
 }
 
-test {
+tasks.withType(Test) {
+    //systemProperties(System.getProperties())
     useJUnitPlatform()
+
+    testLogging {
+        lifecycle {
+            events "started", "skipped", "failed", "standard_error", "standard_out"
+            exceptionFormat "full"
+            //showStandardStreams = true
+        }
+    }
 }

@@ -1,6 +1,12 @@
 package test.fakeapi.tests;
 
+import io.qameta.allure.Epic;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.restassured.AllureRestAssured;
+import io.restassured.RestAssured;
 import net.datafaker.Faker;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.fakeapi.pojo.ProductsPOJO;
@@ -11,13 +17,14 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
+@Epic("API of products")
 public class ProductsTests {
 
     Faker faker = new Faker();
     RequestProducts requestProducts = new RequestProducts();
     @Test
     @Tag("ProductTest")
+    @DisplayName("Get all products")
     void getAllProductsWithoutTest() {
 
         String bearerToken = AuthenticationRequest.getAccessToken();
@@ -26,6 +33,7 @@ public class ProductsTests {
     }
     @Test
     @Tag("ProductTest")
+    @DisplayName("Get an existing single product")
     void getSingleProductTest() {
 
         String bearerToken = AuthenticationRequest.getAccessToken();
@@ -35,7 +43,7 @@ public class ProductsTests {
         String description = faker.text().text(10, 100);
         Integer categoryId = faker.number().numberBetween(1, 5);
         List<String> images= List.of(faker.internet().image());
-        //List<String> images= List.of("https://shop.bowandtie.ru/image/cache/data/foto/noski-baboon/Nosk1-v-beluyu-i-krasnuyu-polosku-BAB-S-36-1000x1200.jpg");
+
 
         //Creating product
         ProductsPOJO createProductItem = requestProducts.createProduct(title,
@@ -49,15 +57,19 @@ public class ProductsTests {
         System.out.println(singleProductResponse.getId());
         assertThat(singleProductResponse.getId()).isEqualTo(createProductItem.getId());
 
-        requestProducts.deleteSingleProduct(singleProductResponse.getId(), bearerToken);
+        requestProducts.deleteSingleProduct(singleProductResponse.getId(), bearerToken, 200);
     }
 
     @Test
+    @Severity(SeverityLevel.CRITICAL)
     @Tag("ProductTest")
+    @DisplayName("Create product")
      void createProductTest() {
 
+        RestAssured.filters(new AllureRestAssured());
         //Get access token
         String bearerToken = AuthenticationRequest.getAccessToken();
+
 
         //Create fake data for create product API
         String title = faker.brand().watch();
@@ -65,7 +77,6 @@ public class ProductsTests {
         String description = faker.text().text(10, 100);
         Integer categoryId = faker.number().numberBetween(1, 5);
         List<String> images= List.of(faker.internet().image());
-        //List<String> images= List.of("https://shop.bowandtie.ru/image/cache/data/foto/noski-baboon/Nosk1-v-beluyu-i-krasnuyu-polosku-BAB-S-36-1000x1200.jpg");
 
         //Creating product
         ProductsPOJO createProductItem = requestProducts.createProduct(title,
@@ -82,7 +93,7 @@ public class ProductsTests {
         assertThat(createProductItem.getImages().get(0)).isEqualTo(images.get(0));
 
         //Delete product after all tests
-        String resultOfDelete = requestProducts.deleteSingleProduct(createProductItem.getId(), bearerToken);
+        String resultOfDelete = requestProducts.deleteSingleProduct(createProductItem.getId(), bearerToken, 200);
 
         assertThat(resultOfDelete).isEqualTo("true");
     }
@@ -90,6 +101,7 @@ public class ProductsTests {
 
     @Test
     @Tag("ProductTest")
+    @DisplayName("Update an existing single product")
     void updateProductTest() {
 
         String bearerToken = AuthenticationRequest.getAccessToken();
@@ -98,13 +110,16 @@ public class ProductsTests {
         Integer price = faker.number().numberBetween(0, 1000);
         String description = faker.text().text(10, 100);
         List<String> images= List.of(faker.internet().image());
-        //"https://shop.bowandtie.ru/image/cache/data/foto/noski-baboon/Noski-v-beluyu-i-krasnuyu-polosku-BAB-S-36-1000x1200.jpg"
+
+        List<ProductsPOJO> listOfProducts =  requestProducts.getAllProducts(bearerToken);
+        Integer lastProductId = listOfProducts.get(listOfProducts.size() - 1).getId();
+
 
         ProductsPOJO createProductItem = requestProducts.updateProduct(title,
                 price,
                 description,
                 images,
-                251,
+                444,
                 bearerToken);
 
         assertThat(createProductItem.getTitle()).isEqualTo(title);
@@ -115,27 +130,51 @@ public class ProductsTests {
 
     @Test
     @Tag("ProductTest")
-    void deleteProductTest() {
+    @DisplayName("Delete an existing product")
+    void deleteProductPositiveTest() {
 
         //Get access token
         String bearerToken = AuthenticationRequest.getAccessToken();
 
+        String title = faker.brand().watch();
+        Integer price = faker.number().numberBetween(0, 1000);
+        String description = faker.text().text(10, 100);
+        Integer categoryId = faker.number().numberBetween(1, 5);
+        List<String> images= List.of(faker.internet().image());
+
         //Create new product
-        Integer productId = requestProducts.createProduct("Title",
-                200,
-                "HEEELP",
-                1,
-                List.of("https://shop.bowandtie.ru/image/cache/data/foto/noski-baboon/Nosk1-v-beluyu-i-krasnuyu-polosku-BAB-S-36-1000x1200.jpg"),
+        Integer productId = requestProducts.createProduct(title,
+                price,
+                description,
+                categoryId,
+                images,
                 bearerToken).getId();
+
         System.out.println("Product id = " + productId);
 
         //Delete product
-        String resultOfDelete = requestProducts.deleteSingleProduct(productId, bearerToken);
+        String resultOfDelete = requestProducts.deleteSingleProduct(productId, bearerToken, 200);
 
         assertThat(resultOfDelete).isEqualTo("true");
-
-
     }
+    @Test
+    @Tag("ProductTest")
+    @DisplayName("Delete a non-existing product")
+    void deleteProductNegativeTest() {
+
+        //Get access token
+        String bearerToken = AuthenticationRequest.getAccessToken();
+
+        List<ProductsPOJO> listOfProducts =  requestProducts.getAllProducts(bearerToken);
+        Integer lastId = listOfProducts.get(listOfProducts.size() - 1).getId();
+        //Create new product
 
 
+        System.out.println("Product id = " + lastId);
+
+        //Delete product
+        String resultOfDelete = requestProducts.deleteSingleProduct(lastId + 1 , bearerToken, 400);
+
+        //assertThat(resultOfDelete).isEqualTo("true");
+    }
 }
