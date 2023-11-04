@@ -1,6 +1,7 @@
 package test.fakeapi.requests;
 
 
+import net.datafaker.Faker;
 import test.fakeapi.pojo.CreateProductPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
 
@@ -45,6 +46,25 @@ public class RequestProducts {
 
         installSpecification(requestSpecification(BASEPATH), responseSpecification(201));
 
+
+        CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, categoryId, images);
+        return given()
+                .header("Authorization", "Bearer " + bearerToken)
+                .body(createProductPOJO)
+                .when()
+                .post("/")
+                .then()
+                .extract().jsonPath().getObject("", ProductsPOJO.class);
+    }
+    public ProductsPOJO createProductWithoutArgs(String bearerToken) {
+
+        Faker faker = new Faker();
+        installSpecification(requestSpecification(BASEPATH), responseSpecification(201));
+        String title = faker.brand().watch();
+        Integer price = faker.number().numberBetween(0, 1000);
+        String description = faker.text().text(10, 100);
+        Integer categoryId = faker.number().numberBetween(1, 5);
+        List<String> images= List.of(faker.internet().image());
 
         CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, categoryId, images);
         return given()
