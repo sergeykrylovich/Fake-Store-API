@@ -44,6 +44,7 @@ dependencies {
     testImplementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     implementation "org.assertj:assertj-core:$assertJVersion"
     testImplementation "net.datafaker:datafaker:$fakerVersion"
+    testImplementation "org.aspectj:aspectjweaver:1.9.20.1"
 }
 
 tasks.withType(Test) {

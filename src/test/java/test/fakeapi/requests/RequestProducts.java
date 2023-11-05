@@ -1,6 +1,7 @@
 package test.fakeapi.requests;
 
 
+import io.qameta.allure.Step;
 import net.datafaker.Faker;
 import test.fakeapi.pojo.CreateProductPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
@@ -11,12 +12,12 @@ import static io.restassured.RestAssured.given;
 import static test.fakeapi.specs.FakeStoreAPISpecs.*;
 
 public class RequestProducts {
-    public static final String BASEPATH = "/products";
+    public static final String PRODUCTBASEPATH = "/products";
 
-
+    @Step(value = "get all products")
     public List<ProductsPOJO> getAllProducts(String bearerToken) {
 
-        installSpecification(requestSpecification(BASEPATH), responseSpecification(200));
+        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification(200));
 
         return given()
                 .header("Authorization", "Bearer " + bearerToken)
@@ -25,10 +26,10 @@ public class RequestProducts {
                 .then()
                 .extract().jsonPath().getList("", ProductsPOJO.class);
     }
-
+    @Step(value = "get single product by product id")
     public ProductsPOJO getSingleProduct(int productId, String bearerToken) {
 
-        installSpecification(requestSpecification(BASEPATH), responseSpecification(200));
+        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification(200));
 
 
         return given()
@@ -39,12 +40,13 @@ public class RequestProducts {
                 .extract().jsonPath().getObject("", ProductsPOJO.class);
     }
 
+    @Step(value = "create product with arguments")
     public ProductsPOJO createProduct(String title, Integer price,
                                       String description, Integer categoryId,
                                       List<String> images, String bearerToken) {
 
 
-        installSpecification(requestSpecification(BASEPATH), responseSpecification(201));
+        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification(201));
 
 
         CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, categoryId, images);
@@ -56,10 +58,11 @@ public class RequestProducts {
                 .then()
                 .extract().jsonPath().getObject("", ProductsPOJO.class);
     }
+    @Step(value = "create product with without arguments")
     public ProductsPOJO createProductWithoutArgs(String bearerToken) {
 
         Faker faker = new Faker();
-        installSpecification(requestSpecification(BASEPATH), responseSpecification(201));
+        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification(201));
         String title = faker.brand().watch();
         Integer price = faker.number().numberBetween(0, 1000);
         String description = faker.text().text(10, 100);
@@ -76,12 +79,13 @@ public class RequestProducts {
                 .extract().jsonPath().getObject("", ProductsPOJO.class);
     }
 
+    @Step(value = "update product with arguments")
     public ProductsPOJO updateProduct(String title, Integer price,
                                       String description,
                                       List<String> images, Integer productId, String bearerToken) {
         CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, null, images);
 
-        installSpecification(requestSpecification(BASEPATH), responseSpecification(200));
+        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification(200));
 
         return given()
                 .header("Authorization", "Bearer " + bearerToken)
@@ -92,9 +96,10 @@ public class RequestProducts {
                 .extract().jsonPath().getObject("", ProductsPOJO.class);
     }
 
+    @Step(value = "delete product by product id")
     public String deleteSingleProduct(Integer productId, String bearerToken, int statusCode) {
 
-        installSpecification(requestSpecification(BASEPATH), responseSpecification(statusCode));
+        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification(statusCode));
 
         return given()
                 .header("Authorization", "Bearer " + bearerToken)

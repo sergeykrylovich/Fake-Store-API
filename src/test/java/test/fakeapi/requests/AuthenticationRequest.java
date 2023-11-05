@@ -1,5 +1,7 @@
 package test.fakeapi.requests;
 
+import io.qameta.allure.Step;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,6 +12,7 @@ public class AuthenticationRequest {
 
     private static final String AUTHPATH = "/auth/login";
 
+    @Step("Get access token by credentials")
     public static String getAccessToken() {
         installSpecification(requestSpecification(AUTHPATH), responseSpecification(201));
 

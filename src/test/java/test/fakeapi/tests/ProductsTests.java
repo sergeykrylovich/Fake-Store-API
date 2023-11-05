@@ -6,6 +6,7 @@ import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import net.datafaker.Faker;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,14 @@ public class ProductsTests {
 
     Faker faker = new Faker();
     RequestProducts requestProducts = new RequestProducts();
+
+    @BeforeAll
+    static void setUp() {
+        RestAssured.filters(new AllureRestAssured());
+    }
+
     @Test
+    @Severity(SeverityLevel.NORMAL)
     @Tag("ProductTest")
     @DisplayName("Get all products")
     void getAllProductsTest() {
@@ -50,6 +58,7 @@ public class ProductsTests {
     }
 
     @Test
+    @Severity(SeverityLevel.NORMAL)
     @Tag("ProductTest")
     @DisplayName("Get an existing single product")
     void getSingleProductTest() {
@@ -82,9 +91,9 @@ public class ProductsTests {
     @Severity(SeverityLevel.CRITICAL)
     @Tag("ProductTest")
     @DisplayName("Create product")
-     void createProductTest() {
+    void createProductTest() {
 
-        RestAssured.filters(new AllureRestAssured());
+
         //Get access token
         String bearerToken = AuthenticationRequest.getAccessToken();
 
@@ -118,6 +127,7 @@ public class ProductsTests {
 
 
     @Test
+    @Severity(SeverityLevel.CRITICAL)
     @Tag("ProductTest")
     @DisplayName("Update an existing single product")
     void updateProductTest() {
@@ -147,6 +157,7 @@ public class ProductsTests {
     }
 
     @Test
+    @Severity(SeverityLevel.CRITICAL)
     @Tag("ProductTest")
     @DisplayName("Delete an existing product")
     void deleteProductPositiveTest() {
@@ -176,6 +187,7 @@ public class ProductsTests {
         assertThat(resultOfDelete).isEqualTo("true");
     }
     @Test
+    @Severity(SeverityLevel.CRITICAL)
     @Tag("ProductTest")
     @DisplayName("Delete a non-existing product")
     void deleteProductNegativeTest() {
