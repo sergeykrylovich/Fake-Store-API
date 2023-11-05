@@ -1,5 +1,6 @@
 package test.fakeapi.tests;
 
+import io.qameta.allure.Epic;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import org.junit.jupiter.api.DisplayName;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.RequestUsers;
 
+@Epic("API of User")
 public class UsersTests {
 
     RequestUsers requestUsers = new RequestUsers();
@@ -25,5 +27,14 @@ public class UsersTests {
                 user.getName(),
                 user.getPassword(),
                 user.getRole()));
+    }
+    @Test
+    @Severity(SeverityLevel.NORMAL)
+    @Tag("CheckEmail")
+    @DisplayName("Check email of user")
+    public void getAllUsersTest() {
+        Boolean isAvailable = requestUsers.checkEmail();
+
+        System.out.println(isAvailable);
     }
 }

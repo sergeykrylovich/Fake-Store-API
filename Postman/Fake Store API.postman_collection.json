@@ -72,10 +72,20 @@
 				{
 					"name": "Get single product",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://api.escuelajs.co/api/v1/products/213",
+							"raw": "https://api.escuelajs.co/api/v1/products/253",
 							"protocol": "https",
 							"host": [
 								"api",
@@ -86,7 +96,7 @@
 								"api",
 								"v1",
 								"products",
-								"213"
+								"253"
 							]
 						}
 					},
@@ -95,10 +105,26 @@
 				{
 					"name": "Delete product",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "https://api.escuelajs.co/api/v1/products/213",
+							"raw": "https://api.escuelajs.co/api/v1/products/400",
 							"protocol": "https",
 							"host": [
 								"api",
@@ -109,7 +135,7 @@
 								"api",
 								"v1",
 								"products",
-								"213"
+								"400"
 							]
 						}
 					},
@@ -122,7 +148,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"title\": \"BEst socks ever\",\r\n  \"price\": 150,\r\n  \"description\": \"My maaaan!\",\r\n  \"categoryId\": 1,\r\n  \"images\": [\"https://shop.bowandtie.ru/image/cache/data/foto/noski-baboon/Noski-v-beluyu-i-krasnuyu-polosku-BAB-S-36-1000x1200.jpg\"]\r\n}",
+							"raw": "{\r\n  \"title\": \"ssss\",\r\n  \"price\": 111,\r\n  \"description\": \"sssaaaaa\",\r\n  \"categoryId\": 1,\r\n  \"images\": [\"https://shop.bowandtie.ru/image/cache/data/foto/noski-baboon/Noski-v-beluyu-i-krasnuyu-polosku-BAB-S-36-1000x1200.jpg\"]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -130,7 +156,7 @@
 							}
 						},
 						"url": {
-							"raw": "https://api.escuelajs.co/api/v1/products/",
+							"raw": "https://api.escuelajs.co/api/v1/products",
 							"protocol": "https",
 							"host": [
 								"api",
@@ -140,8 +166,7 @@
 							"path": [
 								"api",
 								"v1",
-								"products",
-								""
+								"products"
 							]
 						}
 					},
@@ -214,6 +239,117 @@
 					"response": []
 				},
 				{
+					"name": "Get all products by category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/categories/1/products",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"1",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create category",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"New Category\",\r\n  \"image\": \"https://placeimg.com/640/480/any\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/categories/",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update category",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Change title\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/categories/3",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get single category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/categories/1",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Delete category",
 					"request": {
 						"method": "DELETE",
@@ -259,11 +395,21 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"john@mail.com\",\r\n  \"password\": \"changeme\"\r\n}",
+							"raw": "{\r\n  \"email\": \"sergiomy@gmail.com\",\r\n  \"password\": \"4444\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -296,7 +442,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{acces_toke}}",
+									"value": "{{access_token}}",
 									"type": "string"
 								}
 							]
@@ -310,7 +456,7 @@
 							}
 						],
 						"url": {
-							"raw": "https://api.escuelajs.co/api/v1/auth/logi",
+							"raw": "https://api.escuelajs.co/api/v1/auth/profile",
 							"protocol": "https",
 							"host": [
 								"api",
@@ -321,7 +467,7 @@
 								"api",
 								"v1",
 								"auth",
-								"logi"
+								"profile"
 							]
 						}
 					},
@@ -385,6 +531,152 @@
 								"v1",
 								"auth",
 								"refresh-token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get all users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/users",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get single user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/users/4",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Sergio\",\r\n  \"email\": \"sergiomy@gmail.com\",\r\n  \"password\": \"4444\",\r\n  \"avatar\": \"https://api.lorem.space/image/face?w=640&h=480&r=867\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/users/",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Nicolas\",\r\n  \"email\": \"nico@gmail.com\",\r\n  \"password\": \"1234\",\r\n  \"avatar\": \"https://api.lorem.space/image/face?w=640&h=480&r=867\",\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/users/1",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check email",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"john@mail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/users/is-available",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"is-available"
 							]
 						}
 					},
