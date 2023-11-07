@@ -1,6 +1,7 @@
 package test.fakeapi.requests;
 
 import io.qameta.allure.Step;
+import io.restassured.module.jsv.JsonSchemaValidator;
 import net.datafaker.Faker;
 import test.fakeapi.pojo.UserPOJO;
 
@@ -70,9 +71,10 @@ public class RequestUsers {
 
         return given()
                 .when()
-                .get("/" + userId)
+                .put("/" + userId)
                 .then()
                 .log().all()
+                .assertThat().body(JsonSchemaValidator.matchesJsonSchemaInClasspath("user-json-scheme.json"))
                 .extract().body().jsonPath().getObject("", UserPOJO.class);
     }
 

@@ -37,4 +37,15 @@ public class UsersTests {
 
         System.out.println(isAvailable);
     }
+
+    @Test
+    @Severity(SeverityLevel.NORMAL)
+    @Tag("UpdateUser")
+    @Tag("UserTest")
+    @DisplayName("Update user by id")
+    public void updateUserTest() {
+        requestUsers.updateUser(13);
+
+
+    }
 }

@@ -45,6 +45,7 @@ dependencies {
     implementation "org.assertj:assertj-core:$assertJVersion"
     testImplementation "net.datafaker:datafaker:$fakerVersion"
     testImplementation "org.aspectj:aspectjweaver:1.9.20.1"
+    testImplementation "io.rest-assured:json-schema-validator:5.3.2"
 }
 
 tasks.withType(Test) {
