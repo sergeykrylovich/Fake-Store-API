@@ -1,7 +1,7 @@
 package test.fakeapi.requests;
 
 import io.qameta.allure.Step;
-import io.restassured.module.jsv.JsonSchemaValidator;
+import io.restassured.path.json.JsonPath;
 import net.datafaker.Faker;
 import test.fakeapi.pojo.UserPOJO;
 
@@ -14,13 +14,15 @@ import static test.fakeapi.specs.FakeStoreAPISpecs.*;
 
 public class RequestUsers {
 
-    private static final String USERBASEPATH = "/users";
+    public static final String USERBASEPATH = "/users";
+    public static final String JSONSCHEME = "user-json-scheme.json";
+    public static final String JSONSCHEMEARRAY = "user-json-scheme-array.json";
     Faker faker = new Faker();
 
     @Step(value = "Create user")
     public UserPOJO createUser() {
 
-        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(201));
+        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(201, JSONSCHEME));
 
         String name = faker.name().firstName();
         String email = faker.internet().emailAddress();
@@ -34,65 +36,57 @@ public class RequestUsers {
                 .when()
                 .post("/")
                 .then()
-                .log().all()
                 .extract().body().jsonPath().getObject("", UserPOJO.class);
     }
     @Step(value = "Get all users")
     public List<UserPOJO> getAllUsers() {
 
-        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200));
-
+        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, JSONSCHEMEARRAY));
 
         return given()
                 .when()
                 .get("/")
                 .then()
-                .log().all()
                 .extract().body().jsonPath().getList("", UserPOJO.class);
     }
     @Step(value = "Get single user")
     public UserPOJO getSingleUser(int userId) {
 
-        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200));
-
+        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, JSONSCHEME));
 
         return given()
                 .when()
                 .get("/" + userId)
                 .then()
-                .log().all()
                 .extract().body().jsonPath().getObject("", UserPOJO.class);
     }
     @Step(value = "Update single user")
     public UserPOJO updateUser(int userId) {
 
-        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200));
-
+        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, JSONSCHEME));
 
         return given()
                 .when()
                 .put("/" + userId)
                 .then()
-                .log().all()
-                .assertThat().body(JsonSchemaValidator.matchesJsonSchemaInClasspath("user-json-scheme.json"))
                 .extract().body().jsonPath().getObject("", UserPOJO.class);
     }
 
     @Step(value = "Check email of user")
-    public Boolean checkEmail() {
+    public JsonPath checkEmail(String email) {
 
         installSpecification(requestSpecification(USERBASEPATH), responseSpecification(201));
-        Map<String, String> email = new HashMap<>();
-        email.put("email", "john@mail.com");
+
+        Map<String, String> emailMap = new HashMap<>();
+        emailMap.put("email", email);
 
 
         return given()
-                .body(email)
+                .body(emailMap)
                 .when()
                 .post("/is-available")
                 .then()
-                .log().all()
-                .extract().body().jsonPath().get("isAvailable");
+                .extract().body().jsonPath();
     }
 
 

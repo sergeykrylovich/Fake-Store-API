@@ -3,16 +3,29 @@ package test.fakeapi.tests;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.restassured.AllureRestAssured;
+import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
+import net.datafaker.Faker;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.RequestUsers;
 
+import java.util.List;
+
 @Epic("API of User")
 public class UsersTests {
 
     RequestUsers requestUsers = new RequestUsers();
+    Faker faker = new Faker();
+
+    @BeforeAll
+    static void setUp() {
+        RestAssured.filters(new AllureRestAssured());
+    }
 
     @Test
     @Severity(SeverityLevel.CRITICAL)
@@ -33,9 +46,19 @@ public class UsersTests {
     @Tag("CheckEmail")
     @DisplayName("Check email of user")
     public void getAllUsersTest() {
-        Boolean isAvailable = requestUsers.checkEmail();
+        List<UserPOJO> listOfUsers = requestUsers.getAllUsers();
 
-        System.out.println(isAvailable);
+        System.out.println(listOfUsers.get(0).getId());
+    }
+
+    @Test
+    @Severity(SeverityLevel.NORMAL)
+    @Tag("CheckEmail")
+    @DisplayName("Check email of user")
+    public void getSingleUserTest() {
+        UserPOJO user = requestUsers.getSingleUser(1);
+
+        System.out.println(user.getId());
     }
 
     @Test
@@ -47,5 +70,18 @@ public class UsersTests {
         requestUsers.updateUser(13);
 
 
+    }
+    @Test
+    @Severity(SeverityLevel.NORMAL)
+    @Tag("CheckEmail")
+    @Tag("UserTest")
+    @DisplayName("Check email")
+    public void checkEmailPositiveTest() {
+
+        String email = faker.internet().emailAddress();
+        JsonPath check = requestUsers.checkEmail(email);
+        boolean result = check.get("isAvailable");
+
+        System.out.println(result);
     }
 }
