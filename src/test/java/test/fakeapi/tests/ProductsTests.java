@@ -6,6 +6,7 @@ import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import net.datafaker.Faker;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -113,11 +114,12 @@ public class ProductsTests {
                 images,
                 bearerToken);
 
-        assertThat(createProductItem.getTitle()).isEqualTo(title);
-        assertThat(createProductItem.getPrice()).isEqualTo(price);
-        assertThat(createProductItem.getDescription()).isEqualTo(description);
-        assertThat(createProductItem.getCategory().getId()).isEqualTo(categoryId);
-        assertThat(createProductItem.getImages().get(0)).isEqualTo(images.get(0));
+        SoftAssertions softAssert = new SoftAssertions();
+        softAssert.assertThat(createProductItem.getTitle()).isEqualTo(title);
+        softAssert.assertThat(createProductItem.getPrice()).isEqualTo(price);
+        softAssert.assertThat(createProductItem.getDescription()).isEqualTo(description);
+        softAssert.assertThat(createProductItem.getCategory().getId()).isEqualTo(categoryId);
+        softAssert.assertThat(createProductItem.getImages().get(0)).isEqualTo(images.get(0));
 
         //Delete product after all tests
         String resultOfDelete = requestProducts.deleteSingleProduct(createProductItem.getId(), bearerToken, 200);

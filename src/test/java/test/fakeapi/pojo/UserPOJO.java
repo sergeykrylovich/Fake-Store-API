@@ -20,4 +20,11 @@ public class UserPOJO{
 	private String creationAt;
 	private String updatedAt;
 
+	public UserPOJO(String name, String email, String password, String role, String avatar) {
+		this.name = name;
+		this.email = email;
+		this.password = password;
+		this.role = role;
+		this.avatar = avatar;
+	}
 }

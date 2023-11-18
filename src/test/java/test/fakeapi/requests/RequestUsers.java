@@ -28,7 +28,7 @@ public class RequestUsers {
         String password = faker.internet().password(4, 8);
         String role = "admin";
         String avatar = faker.internet().image();
-        UserPOJO user = new UserPOJO(name, email, password, role, avatar, null, null, null);
+        UserPOJO user = new UserPOJO(name, email, password, role, avatar);
 
         return given()
                 .body(user)
@@ -37,6 +37,7 @@ public class RequestUsers {
                 .then()
                 .extract().body().jsonPath().getObject("", UserPOJO.class);
     }
+
     @Step(value = "Get all users")
     public List<UserPOJO> getAllUsers() {
 
@@ -48,6 +49,7 @@ public class RequestUsers {
                 .then()
                 .extract().body().jsonPath().getList("", UserPOJO.class);
     }
+
     @Step(value = "Get single user")
     public UserPOJO getSingleUser(int userId) {
 
@@ -59,6 +61,7 @@ public class RequestUsers {
                 .then()
                 .extract().body().jsonPath().getObject("", UserPOJO.class);
     }
+
     @Step(value = "Update single user")
     public UserPOJO updateUser(int userId) {
 

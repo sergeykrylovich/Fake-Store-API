@@ -45,8 +45,8 @@ public class UsersTests {
     }
     @Test
     @Severity(SeverityLevel.NORMAL)
-    @Tag("CheckEmail")
-    @DisplayName("Check email of user")
+    @Tag("GetAllUser")
+    @DisplayName("Get all users")
     public void getAllUsersTest() {
         List<UserPOJO> listOfUsers = requestUsers.getAllUsers();
 
@@ -55,8 +55,8 @@ public class UsersTests {
 
     @Test
     @Severity(SeverityLevel.NORMAL)
-    @Tag("CheckEmail")
-    @DisplayName("Check email of user")
+    @Tag("GetSingleUser")
+    @DisplayName("Get single user")
     public void getSingleUserTest() {
         UserPOJO user = requestUsers.getSingleUser(1);
 
