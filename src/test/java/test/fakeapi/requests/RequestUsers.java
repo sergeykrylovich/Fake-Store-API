@@ -16,7 +16,6 @@ public class RequestUsers {
 
     public static final String USERBASEPATH = "/users";
     public static final String JSONSCHEME = "user-json-scheme.json";
-    public static final String JSONSCHEMEARRAY = "user-json-scheme-array.json";
     Faker faker = new Faker();
 
     @Step(value = "Create user")
@@ -41,7 +40,7 @@ public class RequestUsers {
     @Step(value = "Get all users")
     public List<UserPOJO> getAllUsers() {
 
-        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, JSONSCHEMEARRAY));
+        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, JSONSCHEME));
 
         return given()
                 .when()

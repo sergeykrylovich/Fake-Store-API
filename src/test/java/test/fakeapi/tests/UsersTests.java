@@ -16,6 +16,8 @@ import test.fakeapi.requests.RequestUsers;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @Epic("API of User")
 public class UsersTests {
 
@@ -82,6 +84,8 @@ public class UsersTests {
         JsonPath check = requestUsers.checkEmail(email);
         boolean result = check.get("isAvailable");
 
-        System.out.println(result);
+        assertThat(result).isFalse();
+
+
     }
 }

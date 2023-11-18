@@ -1,40 +1,58 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer"
+  "anyOf": [
+    {
+      "type": "object",
+      "$ref": "#/definitions/myObject"
     },
-    "email": {
-      "type": "string"
-    },
-    "password": {
-      "type": "string"
-    },
-    "name": {
-      "type": "string"
-    },
-    "role": {
-      "type": "string"
-    },
-    "avatar": {
-      "type": "string"
-    },
-    "creationAt": {
-      "type": "string"
-    },
-    "updatedAt": {
-      "type": "string"
+    {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/myObject"
+      }
     }
-  },
-  "required": [
-    "id",
-    "email",
-    "password",
-    "name",
-    "role",
-    "avatar",
-    "creationAt",
-    "updatedAt"
-  ]
+  ],
+  "definitions": {
+    "myObject": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string"
+        },
+        "creationAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "password",
+        "name",
+        "role",
+        "avatar",
+        "creationAt",
+        "updatedAt"
+      ]
+    }
+
+  }
+
 }
