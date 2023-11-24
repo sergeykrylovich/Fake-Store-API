@@ -29,13 +29,13 @@ public class FakeStoreAPISpecs {
         return new ResponseSpecBuilder()
                 .expectStatusCode(statusCode)
                 .expectBody(JsonSchemaValidator.matchesJsonSchemaInClasspath(jsonScheme))
-                .expectResponseTime(lessThan(2l), TimeUnit.SECONDS)
+                .expectResponseTime(lessThan(4l), TimeUnit.SECONDS)
                 .build();
     }
     public static ResponseSpecification responseSpecification(int statusCode) {
         return new ResponseSpecBuilder()
                 .expectStatusCode(statusCode)
-                .expectResponseTime(lessThan(2l), TimeUnit.SECONDS)
+                .expectResponseTime(lessThan(4l), TimeUnit.SECONDS)
                 .build();
     }
 

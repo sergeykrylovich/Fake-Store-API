@@ -11,7 +11,7 @@ public class ProductsPOJO {
 	private Integer price;
 	private String description;
 	private List<String> images;
-	private ProductsCategoryPOJO category;
+	private CategoryPOJO category;
 	private Integer id;
 	private String creationAt;
 	private String updatedAt;
