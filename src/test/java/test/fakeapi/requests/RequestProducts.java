@@ -13,6 +13,7 @@ import static test.fakeapi.specs.FakeStoreAPISpecs.*;
 
 public class RequestProducts {
     public static final String PRODUCTBASEPATH = "/products";
+    public static final String PRODUCTSSCHEMA = "products-json-schema.json";
 
     @Step(value = "get all products")
     public List<ProductsPOJO> getAllProducts(String bearerToken) {

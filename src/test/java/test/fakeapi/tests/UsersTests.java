@@ -32,6 +32,7 @@ public class UsersTests {
     @Test
     @Severity(SeverityLevel.CRITICAL)
     @Tag("CreateUser")
+    @Tag("Integration")
     @DisplayName("Create new user")
     public void createUserTest() {
         UserPOJO user = requestUsers.createUser();

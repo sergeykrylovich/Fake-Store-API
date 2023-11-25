@@ -16,12 +16,13 @@ public class RequestUsers {
 
     public static final String USERBASEPATH = "/users";
     public static final String JSONSCHEME = "user-json-scheme.json";
+    static ThreadLocal<String> userSchema = ThreadLocal.withInitial(() -> JSONSCHEME);
     Faker faker = new Faker();
 
     @Step(value = "Create user")
     public UserPOJO createUser() {
 
-        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(201, JSONSCHEME));
+        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(201, userSchema.get()));
 
         String name = faker.name().firstName();
         String email = faker.internet().emailAddress();

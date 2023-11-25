@@ -50,7 +50,9 @@ dependencies {
 
 tasks.withType(Test) {
     //systemProperties(System.getProperties())
-    useJUnitPlatform()
+    useJUnitPlatform() {
+        //includeTags("Integration")
+    }
 
     testLogging {
         lifecycle {

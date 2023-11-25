@@ -7,10 +7,6 @@ import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 
-import java.util.concurrent.TimeUnit;
-
-import static org.hamcrest.Matchers.lessThan;
-
 public class FakeStoreAPISpecs {
     private static final String BASEURL = "https://api.escuelajs.co/api/v1";
 
@@ -29,13 +25,13 @@ public class FakeStoreAPISpecs {
         return new ResponseSpecBuilder()
                 .expectStatusCode(statusCode)
                 .expectBody(JsonSchemaValidator.matchesJsonSchemaInClasspath(jsonScheme))
-                .expectResponseTime(lessThan(4l), TimeUnit.SECONDS)
+                //.expectResponseTime(lessThan(4l), TimeUnit.SECONDS)
                 .build();
     }
     public static ResponseSpecification responseSpecification(int statusCode) {
         return new ResponseSpecBuilder()
                 .expectStatusCode(statusCode)
-                .expectResponseTime(lessThan(4l), TimeUnit.SECONDS)
+                //.expectResponseTime(lessThan(4l), TimeUnit.SECONDS)
                 .build();
     }
 

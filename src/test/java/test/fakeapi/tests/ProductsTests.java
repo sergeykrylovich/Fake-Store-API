@@ -33,6 +33,7 @@ public class ProductsTests {
     @Test
     @Severity(SeverityLevel.NORMAL)
     @Tag("ProductTest")
+    @Tag("Integration")
     @DisplayName("Get all products")
     void getAllProductsTest() {
 
@@ -61,6 +62,7 @@ public class ProductsTests {
     @Test
     @Severity(SeverityLevel.NORMAL)
     @Tag("ProductTest")
+    @Tag("Integration")
     @DisplayName("Get an existing single product")
     void getSingleProductTest() {
 
@@ -91,6 +93,7 @@ public class ProductsTests {
     @Test
     @Severity(SeverityLevel.CRITICAL)
     @Tag("ProductTest")
+    @Tag("Integration")
     @DisplayName("Create product")
     void createProductTest() {
 
@@ -131,6 +134,7 @@ public class ProductsTests {
     @Test
     @Severity(SeverityLevel.CRITICAL)
     @Tag("ProductTest")
+    @Tag("Integration")
     @DisplayName("Update an existing single product")
     void updateProductTest() {
 

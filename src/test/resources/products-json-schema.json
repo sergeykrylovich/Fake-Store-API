@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "anyOf": [
+    {
+      "type": "object",
+      "$ref": "#/definitions/product"
+    },
+    {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/product"
+      }
+    }
+  ],
+  "definitions": {
+    "product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "price": {
+          "type": "integer"
+        },
+        "description": {
+          "type": "string"
+        },
+        "images": {
+          "type": "array",
+          "items": [
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "creationAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        },
+        "category": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "image": {
+              "type": "string"
+            },
+            "creationAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "image",
+            "creationAt",
+            "updatedAt"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "price",
+        "description",
+        "images",
+        "creationAt",
+        "updatedAt",
+        "category"
+      ]
+    }
+  }
+}

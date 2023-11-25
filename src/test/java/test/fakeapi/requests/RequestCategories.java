@@ -1,9 +1,12 @@
 package test.fakeapi.requests;
 
 import io.restassured.path.json.JsonPath;
-import jdk.security.jarsigner.JarSigner;
+ import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
+import test.fakeapi.pojo.ProductsPOJO;
 
 import java.util.HashMap;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static test.fakeapi.specs.FakeStoreAPISpecs.*;
@@ -12,6 +15,11 @@ public class RequestCategories {
 
     public static final String CATEGORYBASEPATH = "/categories";
     public static final String CATEGORYSCHEMA = "categories-json-schema.json";
+    static ThreadLocal<String> categorySchema = ThreadLocal.withInitial(() -> CATEGORYSCHEMA);
+
+
+
+
 
     public static JsonPath getAllCategories() {
 
@@ -37,13 +45,13 @@ public class RequestCategories {
                 .jsonPath();
     }
 
-    public static JsonPath createCategory() {
+    public static JsonPath createCategory(String name, String image) {
 
-        installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(201, CATEGORYSCHEMA));
+        installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(201, categorySchema.get()));
 
         HashMap<String, String> bodyForCreateCategory = new HashMap<>();
-        bodyForCreateCategory.put("name", "Plane");
-        bodyForCreateCategory.put("image", "https://placeimg.com/640/480/any");
+        bodyForCreateCategory.put("name", name);
+        bodyForCreateCategory.put("image", image);
 
         return given()
                 .body(bodyForCreateCategory)
@@ -54,44 +62,43 @@ public class RequestCategories {
                 .jsonPath();
     }
 
-    public static JsonPath updateCategory() {
+    public static JsonPath updateCategory(int categoryId, String name, String image) {
 
-        installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(201, CATEGORYSCHEMA));
+        installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200, categorySchema.get()));
 
         HashMap<String, String> bodyForCreateCategory = new HashMap<>();
-        bodyForCreateCategory.put("name", "Plane");
-        bodyForCreateCategory.put("image", "https://placeimg.com/640/480/any");
+        bodyForCreateCategory.put("name", name);
+        bodyForCreateCategory.put("image", image);
 
         return given()
                 .body(bodyForCreateCategory)
                 .when()
-                .post("/")
+                .put("/" + categoryId)
                 .then()
                 .extract()
                 .jsonPath();
     }
-    public static JsonPath deleteCategory(int categoryId) {
+    public static ExtractableResponse<Response> deleteCategory(int categoryId) {
 
-        installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(201, CATEGORYSCHEMA));
+        installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200));
 
         return given()
                 .when()
                 .delete("/" + categoryId)
                 .then()
-                .extract()
-                .jsonPath();
+                .extract();
     }
 
-    public static JsonPath getAllProductsByCategory(int categoryId) {
+    public static List<ProductsPOJO> getAllProductsByCategory(int categoryId) {
 
-        installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200, CATEGORYSCHEMA));
+        installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200, RequestProducts.PRODUCTSSCHEMA));
 
         return given()
                 .when()
-                .delete("/" + categoryId + "/products")
+                .get("/" + categoryId + "/products")
                 .then()
                 .extract()
-                .jsonPath();
+                .jsonPath().getList("", ProductsPOJO.class);
     }
 
 
