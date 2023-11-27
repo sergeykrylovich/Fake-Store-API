@@ -1,5 +1,6 @@
 package test.fakeapi.requests;
 
+import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.path.json.JsonPath;
  import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -47,24 +48,27 @@ public class RequestCategories {
 
     public static JsonPath createCategory(String name, String image) {
 
-        installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(201, categorySchema.get()));
+        //installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification1(201, categorySchema.get()));
 
         HashMap<String, String> bodyForCreateCategory = new HashMap<>();
         bodyForCreateCategory.put("name", name);
         bodyForCreateCategory.put("image", image);
 
         return given()
+                .spec(requestSpecification(CATEGORYBASEPATH))
                 .body(bodyForCreateCategory)
                 .when()
                 .post("/")
                 .then()
+                .statusCode(201)
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(categorySchema.get()))
                 .extract()
                 .jsonPath();
     }
 
     public static JsonPath updateCategory(int categoryId, String name, String image) {
 
-        installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200, categorySchema.get()));
+        installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification1(200, categorySchema.get()));
 
         HashMap<String, String> bodyForCreateCategory = new HashMap<>();
         bodyForCreateCategory.put("name", name);

@@ -14,7 +14,7 @@ public class AuthenticationRequest {
 
     @Step("Get access token by credentials")
     public static String getAccessToken() {
-        installSpecification(requestSpecification(AUTHPATH), responseSpecification(201));
+        installSpecification(requestSpecification(AUTHPATH), responseSpecification1(201));
 
         Map<String, String> loginMap = new HashMap<>();
         loginMap.put("email", "john@mail.com");

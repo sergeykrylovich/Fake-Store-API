@@ -37,12 +37,12 @@ public class UsersTests {
     public void createUserTest() {
         UserPOJO user = requestUsers.createUser();
 
-        System.out.println(String.format("Id = %s, email = %s, name = %s, password = %s, role = %s",
-                user.getId(),
-                user.getEmail(),
-                user.getName(),
-                user.getPassword(),
-                user.getRole()));
+//        System.out.println(String.format("Id = %s, email = %s, name = %s, password = %s, role = %s",
+//                user.getId(),
+//                user.getEmail(),
+//                user.getName(),
+//                user.getPassword(),
+//                user.getRole()));
     }
     @Test
     @Severity(SeverityLevel.NORMAL)

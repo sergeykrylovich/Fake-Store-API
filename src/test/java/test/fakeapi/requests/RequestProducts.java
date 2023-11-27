@@ -18,7 +18,7 @@ public class RequestProducts {
     @Step(value = "get all products")
     public List<ProductsPOJO> getAllProducts(String bearerToken) {
 
-        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification(200));
+        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification1(200));
 
         return given()
                 .header("Authorization", "Bearer " + bearerToken)
@@ -30,7 +30,7 @@ public class RequestProducts {
     @Step(value = "get single product by product id")
     public ProductsPOJO getSingleProduct(int productId, String bearerToken) {
 
-        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification(200));
+        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification1(200));
 
 
         return given()
@@ -47,7 +47,7 @@ public class RequestProducts {
                                       List<String> images, String bearerToken) {
 
 
-        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification(201));
+        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification1(201));
 
 
         CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, categoryId, images);
@@ -63,7 +63,7 @@ public class RequestProducts {
     public ProductsPOJO createProductWithoutArgs(String bearerToken) {
 
         Faker faker = new Faker();
-        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification(201));
+        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification1(201));
         String title = faker.brand().watch();
         Integer price = faker.number().numberBetween(0, 1000);
         String description = faker.text().text(10, 100);
@@ -86,7 +86,7 @@ public class RequestProducts {
                                       List<String> images, Integer productId, String bearerToken) {
         CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, null, images);
 
-        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification(200));
+        installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification1(200));
 
         return given()
                 .header("Authorization", "Bearer " + bearerToken)
