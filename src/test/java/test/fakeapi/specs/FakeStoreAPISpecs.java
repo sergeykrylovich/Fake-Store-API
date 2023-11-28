@@ -17,19 +17,19 @@ public class FakeStoreAPISpecs {
 
     public static RequestSpecification requestSpecification(String BasePath) {
 
-        requestSpecificationThreadLocal.set(new RequestSpecBuilder()
-                .setBaseUri(BASEURL)
-                .setBasePath(BasePath)
-                .setContentType("application/json; charset=utf-8")
-                .build());
-
-        return requestSpecificationThreadLocal.get();
-
-//        return new RequestSpecBuilder()
+//        requestSpecificationThreadLocal.set(new RequestSpecBuilder()
 //                .setBaseUri(BASEURL)
 //                .setBasePath(BasePath)
 //                .setContentType("application/json; charset=utf-8")
-//                .build();
+//                .build());
+//
+//        return requestSpecificationThreadLocal.get();
+
+        return new RequestSpecBuilder()
+                .setBaseUri(BASEURL)
+                .setBasePath(BasePath)
+                .setContentType("application/json; charset=utf-8")
+                .build();
     }
 
     public static ResponseSpecification responseSpecification(int statusCode, String jsonScheme) {

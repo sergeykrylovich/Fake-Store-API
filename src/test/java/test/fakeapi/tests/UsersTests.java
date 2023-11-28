@@ -24,13 +24,16 @@ public class UsersTests {
     RequestUsers requestUsers = new RequestUsers();
     Faker faker = new Faker();
 
-    @BeforeAll
-    static void setUp() {
-        RestAssured.filters(new AllureRestAssured());
-    }
+
+//    @BeforeAll
+//    static void setUp() {
+//        RestAssured.filters(new AllureRestAssured());
+//    }
+
 
     @Test
     @Severity(SeverityLevel.CRITICAL)
+    @Tag("API")
     @Tag("CreateUser")
     @Tag("Integration")
     @DisplayName("Create new user")
@@ -45,6 +48,7 @@ public class UsersTests {
 //                user.getRole()));
     }
     @Test
+    @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("GetAllUser")
     @DisplayName("Get all users")
@@ -55,6 +59,7 @@ public class UsersTests {
     }
 
     @Test
+    @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("GetSingleUser")
     @DisplayName("Get single user")
@@ -65,6 +70,7 @@ public class UsersTests {
     }
 
     @Test
+    @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("UpdateUser")
     @Tag("UserTest")
@@ -75,6 +81,7 @@ public class UsersTests {
 
     }
     @Test
+    @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("CheckEmail")
     @Tag("UserTest")

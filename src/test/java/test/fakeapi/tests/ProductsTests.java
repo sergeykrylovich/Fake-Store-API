@@ -25,13 +25,14 @@ public class ProductsTests {
     Faker faker = new Faker();
     RequestProducts requestProducts = new RequestProducts();
 
-    @BeforeAll
-    static void setUp() {
-        RestAssured.filters(new AllureRestAssured());
-    }
+//    @BeforeAll
+//    static void setUp() {
+//        RestAssured.filters(new AllureRestAssured());
+//    }
 
     @Test
     @Severity(SeverityLevel.NORMAL)
+    @Tag("API")
     @Tag("ProductTest")
     @Tag("Integration")
     @DisplayName("Get all products")
@@ -61,10 +62,11 @@ public class ProductsTests {
 
     @Test
     @Severity(SeverityLevel.NORMAL)
+    @Tag("API")
     @Tag("ProductTest")
     @Tag("Integration")
     @DisplayName("Get an existing single product")
-    void getSingleProductTest() {
+    void getSingleProductTest() throws InterruptedException {
 
         String bearerToken = AuthenticationRequest.getAccessToken();
 
@@ -84,14 +86,15 @@ public class ProductsTests {
                 bearerToken);
 
         ProductsPOJO singleProductResponse = requestProducts.getSingleProduct(createProductItem.getId(), bearerToken);
-        System.out.println(singleProductResponse.getId());
+        //System.out.println(singleProductResponse.getId());
         assertThat(singleProductResponse.getId()).isEqualTo(createProductItem.getId());
-
+        Thread.sleep(100);
         requestProducts.deleteSingleProduct(singleProductResponse.getId(), bearerToken, 200);
     }
 
     @Test
     @Severity(SeverityLevel.CRITICAL)
+    @Tag("API")
     @Tag("ProductTest")
     @Tag("Integration")
     @DisplayName("Create product")
@@ -133,6 +136,7 @@ public class ProductsTests {
 
     @Test
     @Severity(SeverityLevel.CRITICAL)
+    @Tag("API")
     @Tag("ProductTest")
     @Tag("Integration")
     @DisplayName("Update an existing single product")
@@ -164,6 +168,7 @@ public class ProductsTests {
 
     @Test
     @Severity(SeverityLevel.CRITICAL)
+    @Tag("API")
     @Tag("ProductTest")
     @DisplayName("Delete an existing product")
     void deleteProductPositiveTest() {
@@ -194,6 +199,7 @@ public class ProductsTests {
     }
     @Test
     @Severity(SeverityLevel.CRITICAL)
+    @Tag("API")
     @Tag("ProductTest")
     @DisplayName("Delete a non-existing product")
     void deleteProductNegativeTest() {

@@ -1,7 +1,11 @@
 package test.fakeapi.tests;
 
+import io.qameta.allure.Epic;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.restassured.AllureRestAssured;
+import io.restassured.RestAssured;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -14,9 +18,15 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static test.fakeapi.requests.RequestCategories.*;
 
+@Epic("API of Categories")
 public class CategoriesTests {
 
     RequestCategories requestCategories = new RequestCategories();
+
+//    @BeforeAll
+//    static void setUp() {
+//        RestAssured.filters(new AllureRestAssured());
+//    }
 
     @Test
     void getAllCategoriesTest() {
@@ -24,6 +34,7 @@ public class CategoriesTests {
     }
 
     @Test
+    @Tag("API")
     void getSingleCategoriesTest() {
         CategoryPOJO responseSingleCategory = getSingleCategory(1).getObject("", CategoryPOJO.class);
 
@@ -31,6 +42,7 @@ public class CategoriesTests {
     }
 
     @Test
+    @Tag("API")
     @Tag("CreateCategory")
     @Tag("CategoriesTest")
     @Tag("Integration")
@@ -47,8 +59,8 @@ public class CategoriesTests {
     }
 
     @Test
+    @Tag("API")
     @Tag("UpdateCategory")
-    @Tag("CategoriesTest")
     @Tag("Integration")
     @DisplayName("Update category")
     @Severity(SeverityLevel.NORMAL)
@@ -63,6 +75,7 @@ public class CategoriesTests {
     }
 
     @Test
+    @Tag("API")
     @Tag("DeleteCategory")
     @Tag("CategoriesTest")
     @DisplayName("Delete category")
@@ -76,6 +89,7 @@ public class CategoriesTests {
     }
 
     @Test
+    @Tag("API")
     @Tag("GetAllProductsByCategory")
     @Tag("CategoriesTest")
     @DisplayName("Get all products by category")
@@ -84,7 +98,7 @@ public class CategoriesTests {
         int id = 1;
         List<ProductsPOJO> response = getAllProductsByCategory(id);
 
-        assertThat(response.get(0).getId()).isEqualTo(5);
+        assertThat(response.get(0).getId()).isEqualTo(54);
 
     }
 }

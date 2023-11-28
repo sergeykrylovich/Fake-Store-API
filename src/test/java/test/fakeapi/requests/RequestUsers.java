@@ -1,6 +1,7 @@
 package test.fakeapi.requests;
 
 import io.qameta.allure.Step;
+import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.path.json.JsonPath;
 import net.datafaker.Faker;
@@ -12,13 +13,14 @@ import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.SC_CREATED;
+import static org.apache.http.HttpStatus.SC_OK;
 import static test.fakeapi.specs.FakeStoreAPISpecs.*;
 
 public class RequestUsers {
 
     public static final String USERBASEPATH = "/users";
-    public static final String JSONSCHEME = "user-json-scheme.json";
-    static ThreadLocal<String> userSchema = ThreadLocal.withInitial(() -> JSONSCHEME);
+    public static final String userScheme = "user-json-scheme.json";
+    static ThreadLocal<String> userSchema = ThreadLocal.withInitial(() -> userScheme);
     static ThreadLocal<String> userPath = ThreadLocal.withInitial(() -> USERBASEPATH);
     static ThreadLocal<Integer> statusOk = ThreadLocal.withInitial(() -> 201);
     Faker faker = new Faker();
@@ -36,12 +38,13 @@ public class RequestUsers {
         UserPOJO user = new UserPOJO(name, email, password, role, avatar);
 
         return given()
+                .filters(new AllureRestAssured())
                 .spec(requestSpecification(userPath.get()))
                 .body(user)
                 .when()
                 .post("/")
                 .then()
-                .statusCode(201)
+                .statusCode(SC_CREATED)
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema.get()))
                 .extract().body().jsonPath().getObject("", UserPOJO.class);
     }
@@ -49,53 +52,68 @@ public class RequestUsers {
     @Step(value = "Get all users")
     public List<UserPOJO> getAllUsers() {
 
-        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, JSONSCHEME));
+        //installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, JSONSCHEME));
 
         return given()
+                .filters(new AllureRestAssured())
+                .spec(requestSpecification(USERBASEPATH))
                 .when()
                 .get("/")
                 .then()
+                .statusCode(SC_OK)
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userScheme))
                 .extract().body().jsonPath().getList("", UserPOJO.class);
     }
 
     @Step(value = "Get single user")
     public UserPOJO getSingleUser(int userId) {
 
-        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, JSONSCHEME));
+        //installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, userScheme));
 
         return given()
+                .filters(new AllureRestAssured())
+                .spec(requestSpecification(USERBASEPATH))
                 .when()
                 .get("/" + userId)
                 .then()
+                .statusCode(SC_OK)
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userScheme))
                 .extract().body().jsonPath().getObject("", UserPOJO.class);
     }
 
     @Step(value = "Update single user")
     public UserPOJO updateUser(int userId) {
 
-        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, JSONSCHEME));
+        //installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, userScheme));
 
         return given()
+                .filters(new AllureRestAssured())
+                .spec(requestSpecification(USERBASEPATH))
                 .when()
                 .put("/" + userId)
                 .then()
+                .statusCode(SC_OK)
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userScheme))
                 .extract().body().jsonPath().getObject("", UserPOJO.class);
     }
 
     @Step(value = "Check email of user")
     public JsonPath checkEmail(String email) {
 
-        installSpecification(requestSpecification(USERBASEPATH), responseSpecification(201));
+        //installSpecification(requestSpecification(USERBASEPATH), responseSpecification(201));
 
         Map<String, String> emailMap = new HashMap<>();
         emailMap.put("email", email);
 
 
         return given()
+                .filters(new AllureRestAssured())
+                .spec(requestSpecification(USERBASEPATH))
                 .body(emailMap)
                 .when()
                 .post("/is-available")
                 .then()
+                .statusCode(SC_CREATED)
                 .extract().body().jsonPath();
     }
 
