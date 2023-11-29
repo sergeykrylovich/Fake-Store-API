@@ -3,8 +3,10 @@ package test.fakeapi.tests;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Step;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import test.fakeapi.pojo.CategoryPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
 import test.fakeapi.requests.RequestCategories;
+import test.fakeapi.requests.RequestProducts;
 
 import java.util.List;
 
@@ -30,13 +33,13 @@ public class CategoriesTests {
 
     @Test
     void getAllCategoriesTest() {
-        getAllCategories();
+        requestCategories.getAllCategories();
     }
 
     @Test
     @Tag("API")
     void getSingleCategoriesTest() {
-        CategoryPOJO responseSingleCategory = getSingleCategory(1).getObject("", CategoryPOJO.class);
+        CategoryPOJO responseSingleCategory = requestCategories.getSingleCategory(1).getObject("", CategoryPOJO.class);
 
         assertThat(responseSingleCategory.getId()).isEqualTo(1);
     }
@@ -52,7 +55,7 @@ public class CategoriesTests {
         String name = "BMW";
         String image = "https://placeimg.com/649/480/any";
 
-        CategoryPOJO response= createCategory(name, image).getObject("", CategoryPOJO.class);
+        CategoryPOJO response = requestCategories.createCategory(name, image).getObject("", CategoryPOJO.class);
 
         assertThat(response.getName()).isEqualTo(name);
         assertThat(response.getImage()).isEqualTo(image);
@@ -68,7 +71,7 @@ public class CategoriesTests {
         int id = 3;
         String name = "Audi";
         String image = "https://placeimg.com/648/480/any";
-        CategoryPOJO response= updateCategory(id, name, image).getObject("", CategoryPOJO.class);
+        CategoryPOJO response = requestCategories.updateCategory(id, name, image).getObject("", CategoryPOJO.class);
 
         assertThat(response.getName()).isEqualTo(name);
         assertThat(response.getImage()).isEqualTo(image);
@@ -81,8 +84,9 @@ public class CategoriesTests {
     @DisplayName("Delete category")
     @Severity(SeverityLevel.NORMAL)
     void deleteCategoryTest() {
-        int id = 17;
-        String response= deleteCategory(id).htmlPath().get("html.body");
+
+        JsonPath createdCategory = requestCategories.createCategory("Maps", "https://placeimg.com/640/480/any");
+        String response = requestCategories.deleteCategory(createdCategory.get("id")).htmlPath().get("html.body");
 
         assertThat(response).isEqualTo("true");
 
@@ -95,10 +99,18 @@ public class CategoriesTests {
     @DisplayName("Get all products by category")
     @Severity(SeverityLevel.NORMAL)
     void getAllProductsByCategoryTest() {
-        int id = 1;
-        List<ProductsPOJO> response = getAllProductsByCategory(id);
+        RequestProducts requestProducts = new RequestProducts();
 
-        assertThat(response.get(0).getId()).isEqualTo(54);
+        int id = 2;
+        List<ProductsPOJO> response = requestCategories.getAllProductsByCategory(id);
+
+        int idInResponseList = response.get(0).getId();
+        int idInSingleProduct = requestProducts
+                .getSingleProduct(idInResponseList)
+                .getObject("", ProductsPOJO.class)
+                .getId();
+
+        assertThat(idInResponseList).isEqualTo(idInSingleProduct);
 
     }
 }

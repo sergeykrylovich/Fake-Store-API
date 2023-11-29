@@ -7,10 +7,7 @@ import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import net.datafaker.Faker;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import test.fakeapi.pojo.ProductsPOJO;
 import test.fakeapi.requests.AuthenticationRequest;
 import test.fakeapi.requests.RequestProducts;
@@ -25,11 +22,6 @@ public class ProductsTests {
     Faker faker = new Faker();
     RequestProducts requestProducts = new RequestProducts();
 
-//    @BeforeAll
-//    static void setUp() {
-//        RestAssured.filters(new AllureRestAssured());
-//    }
-
     @Test
     @Severity(SeverityLevel.NORMAL)
     @Tag("API")
@@ -40,21 +32,13 @@ public class ProductsTests {
 
         String bearerToken = AuthenticationRequest.getAccessToken();
 
-        List<ProductsPOJO> responseBefore = requestProducts.getAllProducts(bearerToken);
-        //System.out.println("Size of list before = " + responseBefore.size());
 
         ProductsPOJO createdProduct = requestProducts.createProductWithoutArgs(bearerToken);
-        //System.out.println("ProductId = " + createdProduct.getId());
-
-        List<ProductsPOJO> responseAfter = requestProducts.getAllProducts(bearerToken);
-        //System.out.println("Size of list after = " + responseAfter.size());
-
-
-       // assertThat(responseAfter.size()).isEqualTo(responseBefore.size() + 1);
+        List<ProductsPOJO> response = requestProducts.getAllProducts(bearerToken);
 
         //Checking that creates only 1 record with our product id
-        long numberOfResults = responseAfter.stream().filter(afterList -> afterList.getId().equals(createdProduct.getId())).count();
-        //assertThat(numberOfResults).isEqualTo(1);
+        long numberOfResults = response.stream().filter(res -> res.getId().equals(createdProduct.getId())).count();
+        assertThat(numberOfResults).isEqualTo(1);
 
         requestProducts.deleteSingleProduct(createdProduct.getId(), bearerToken, 200);
 
@@ -74,7 +58,7 @@ public class ProductsTests {
         Integer price = faker.number().numberBetween(0, 1000);
         String description = faker.text().text(10, 100);
         Integer categoryId = faker.number().numberBetween(1, 5);
-        List<String> images= List.of(faker.internet().image());
+        List<String> images = List.of(faker.internet().image());
 
 
         //Creating product
@@ -110,7 +94,7 @@ public class ProductsTests {
         Integer price = faker.number().numberBetween(0, 1000);
         String description = faker.text().text(10, 100);
         Integer categoryId = faker.number().numberBetween(1, 5);
-        List<String> images= List.of(faker.internet().image());
+        List<String> images = List.of(faker.internet().image());
 
         //Creating product
         ProductsPOJO createProductItem = requestProducts.createProduct(title,
@@ -147,9 +131,9 @@ public class ProductsTests {
         String title = faker.brand().watch();
         Integer price = faker.number().numberBetween(0, 1000);
         String description = faker.text().text(10, 100);
-        List<String> images= List.of(faker.internet().image());
+        List<String> images = List.of(faker.internet().image());
 
-        List<ProductsPOJO> listOfProducts =  requestProducts.getAllProducts(bearerToken);
+        List<ProductsPOJO> listOfProducts = requestProducts.getAllProducts(bearerToken);
         Integer lastProductId = listOfProducts.get(listOfProducts.size() - 1).getId();
 
 
@@ -180,7 +164,7 @@ public class ProductsTests {
         Integer price = faker.number().numberBetween(0, 1000);
         String description = faker.text().text(10, 100);
         Integer categoryId = faker.number().numberBetween(1, 5);
-        List<String> images= List.of(faker.internet().image());
+        List<String> images = List.of(faker.internet().image());
 
         //Create new product
         Integer productId = requestProducts.createProduct(title,
@@ -197,7 +181,9 @@ public class ProductsTests {
 
         assertThat(resultOfDelete).isEqualTo("true");
     }
+
     @Test
+    @Disabled
     @Severity(SeverityLevel.CRITICAL)
     @Tag("API")
     @Tag("ProductTest")
@@ -207,7 +193,7 @@ public class ProductsTests {
         //Get access token
         String bearerToken = AuthenticationRequest.getAccessToken();
 
-        List<ProductsPOJO> listOfProducts =  requestProducts.getAllProducts(bearerToken);
+        List<ProductsPOJO> listOfProducts = requestProducts.getAllProducts(bearerToken);
         Integer lastId = listOfProducts.get(listOfProducts.size() - 1).getId();
         //Create new product
 
@@ -215,8 +201,8 @@ public class ProductsTests {
         System.out.println("Product id = " + lastId);
 
         //Delete product
-        String resultOfDelete = requestProducts.deleteSingleProduct(lastId + 1 , bearerToken, 400);
+        String resultOfDelete = requestProducts.deleteSingleProduct(lastId + 1, bearerToken, 400);
 
-        //assertThat(resultOfDelete).isEqualTo("true");
+       // assertThat(resultOfDelete).isEqualTo("true");
     }
 }

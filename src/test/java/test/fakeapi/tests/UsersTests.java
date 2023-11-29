@@ -40,6 +40,10 @@ public class UsersTests {
     public void createUserTest() {
         UserPOJO user = requestUsers.createUser();
 
+        UserPOJO singleUser = requestUsers.getSingleUser(user.getId());
+
+        assertThat(user.getId()).isEqualTo(singleUser.getId());
+
 //        System.out.println(String.format("Id = %s, email = %s, name = %s, password = %s, role = %s",
 //                user.getId(),
 //                user.getEmail(),
@@ -66,7 +70,7 @@ public class UsersTests {
     public void getSingleUserTest() {
         UserPOJO user = requestUsers.getSingleUser(1);
 
-        System.out.println(user.getId());
+        assertThat(user.getId()).isEqualTo(1);
     }
 
     @Test
@@ -76,8 +80,11 @@ public class UsersTests {
     @Tag("UserTest")
     @DisplayName("Update user by id")
     public void updateUserTest() {
-        requestUsers.updateUser(13);
 
+        UserPOJO user = requestUsers.createUser();
+        UserPOJO updatedUser = requestUsers.updateUser(user.getId());
+
+        assertThat(user.getId()).isEqualTo(updatedUser.getId());
 
     }
     @Test

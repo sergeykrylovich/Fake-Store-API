@@ -28,8 +28,6 @@ public class RequestUsers {
     @Step(value = "Create user")
     public UserPOJO createUser() {
 
-        //installSpecification(requestSpecification(userPath.get()), responseSpecification1(statusOk.get(), userSchema.get()));
-
         String name = faker.name().firstName();
         String email = faker.internet().emailAddress();
         String password = faker.internet().password(4, 8);

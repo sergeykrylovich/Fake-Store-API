@@ -4,6 +4,7 @@ package test.fakeapi.requests;
 import io.qameta.allure.Step;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.module.jsv.JsonSchemaValidator;
+import io.restassured.path.json.JsonPath;
 import net.datafaker.Faker;
 import test.fakeapi.pojo.CreateProductPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
@@ -22,7 +23,6 @@ public class RequestProducts {
     @Step(value = "get all products")
     public List<ProductsPOJO> getAllProducts(String bearerToken) {
 
-
         return given()
                 .filters(new AllureRestAssured())
                 .spec(requestSpecification(PRODUCTBASEPATH))
@@ -38,9 +38,6 @@ public class RequestProducts {
     @Step(value = "get single product by product id")
     public ProductsPOJO getSingleProduct(int productId, String bearerToken) {
 
-        //installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification1(200));
-
-
         return given()
                 .filters(new AllureRestAssured())
                 .spec(requestSpecification(PRODUCTBASEPATH))
@@ -52,15 +49,25 @@ public class RequestProducts {
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTSSCHEMA))
                 .extract().jsonPath().getObject("", ProductsPOJO.class);
     }
+    @Step(value = "get single product by product id")
+    public JsonPath getSingleProduct(int productId) {
+
+        return given()
+                .filters(new AllureRestAssured())
+                .spec(requestSpecification(PRODUCTBASEPATH))
+                //.header("Authorization", "Bearer " + bearerToken)
+                .when()
+                .get("/" + productId)
+                .then()
+                .statusCode(SC_OK)
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTSSCHEMA))
+                .extract().jsonPath();
+    }
 
     @Step(value = "create product with arguments")
     public ProductsPOJO createProduct(String title, Integer price,
                                       String description, Integer categoryId,
                                       List<String> images, String bearerToken) {
-
-
-        //installSpecification(requestSpecification(PRODUCTBASEPATH), responseSpecification1(201));
-
 
         CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, categoryId, images);
         return given()
@@ -129,7 +136,7 @@ public class RequestProducts {
                 .when()
                 .delete("/" + productId)
                 .then()
-                .statusCode(SC_OK)
+                .statusCode(statusCode)
                 .extract().htmlPath().get("html.body");
     }
 

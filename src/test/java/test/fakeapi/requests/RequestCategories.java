@@ -1,5 +1,6 @@
 package test.fakeapi.requests;
 
+import io.qameta.allure.Step;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.path.json.JsonPath;
@@ -23,8 +24,8 @@ public class RequestCategories {
 
 
 
-
-    public static JsonPath getAllCategories() {
+    @Step(value = "Get all categories")
+    public JsonPath getAllCategories() {
 
         //installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200, CATEGORYSCHEMA));
 
@@ -40,7 +41,8 @@ public class RequestCategories {
                 .jsonPath();
     }
 
-    public static JsonPath getSingleCategory(int categoryId) {
+    @Step(value = "Get a single category by category ID")
+    public JsonPath getSingleCategory(int categoryId) {
 
        // installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200, CATEGORYSCHEMA));
 
@@ -56,7 +58,8 @@ public class RequestCategories {
                 .jsonPath();
     }
 
-    public static JsonPath createCategory(String name, String image) {
+    @Step(value = "Create category with name and image arguments")
+    public JsonPath createCategory(String name, String image) {
 
         //installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification1(201, categorySchema.get()));
 
@@ -77,7 +80,8 @@ public class RequestCategories {
                 .jsonPath();
     }
 
-    public static JsonPath updateCategory(int categoryId, String name, String image) {
+    @Step(value = "Update data of category with id, name  and image arguments")
+    public JsonPath updateCategory(int categoryId, String name, String image) {
 
         //installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification1(200, categorySchema.get()));
 
@@ -97,7 +101,9 @@ public class RequestCategories {
                 .extract()
                 .jsonPath();
     }
-    public static ExtractableResponse<Response> deleteCategory(int categoryId) {
+
+    @Step(value = "Delete category by category ID")
+    public ExtractableResponse<Response> deleteCategory(int categoryId) {
 
         //installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200));
 
@@ -111,7 +117,8 @@ public class RequestCategories {
                 .extract();
     }
 
-    public static List<ProductsPOJO> getAllProductsByCategory(int categoryId) {
+    @Step(value = "Get all products by selected category")
+    public List<ProductsPOJO> getAllProductsByCategory(int categoryId) {
 
         //installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200, RequestProducts.PRODUCTSSCHEMA));
 
@@ -126,6 +133,5 @@ public class RequestCategories {
                 .extract()
                 .jsonPath().getList("", ProductsPOJO.class);
     }
-
 
 }
