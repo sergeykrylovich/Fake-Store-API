@@ -1,14 +1,15 @@
 package test.fakeapi.specs;
 
-import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.builder.ResponseSpecBuilder;
-import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.specification.RequestSpecification;
-import io.restassured.specification.ResponseSpecification;
 
 public class FakeStoreAPISpecs {
-    private static final String BASEURL = "https://api.escuelajs.co/api/v1";
+    public static final String BASEURL = "https://api.escuelajs.co/api/v1";
+    public static final String MESSAGE = "Could not find any entity of type";
+    public static final String NAME = "EntityNotFoundError";
+    public static final String PATH = "/api/v1";
+
+
 
     public static RequestSpecification requestSpecification(String BasePath) {
 

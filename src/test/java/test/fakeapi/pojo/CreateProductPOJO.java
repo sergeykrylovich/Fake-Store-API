@@ -21,4 +21,12 @@ public class CreateProductPOJO {
     private Integer categoryId;
     private List<String> images;
 
+    public CreateProductPOJO(String title, Integer price, String description, List<String> images) {
+        this.title = title;
+        this.price = price;
+        this.description = description;
+        this.images = images;
+    }
+
+
 }

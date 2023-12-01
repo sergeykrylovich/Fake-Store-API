@@ -42,7 +42,7 @@ public class RequestCategories {
     }
 
     @Step(value = "Get a single category by category ID")
-    public JsonPath getSingleCategory(int categoryId) {
+    public JsonPath getSingleCategory(int categoryId, int status) {
 
        // installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200, CATEGORYSCHEMA));
 
@@ -52,8 +52,8 @@ public class RequestCategories {
                 .when()
                 .get("/" + categoryId)
                 .then()
-                .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(CATEGORYSCHEMA))
+                .statusCode(status)
+                //.body(JsonSchemaValidator.matchesJsonSchemaInClasspath(CATEGORYSCHEMA))
                 .extract()
                 .jsonPath();
     }

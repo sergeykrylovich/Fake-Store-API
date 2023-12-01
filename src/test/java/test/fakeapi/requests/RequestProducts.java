@@ -5,6 +5,8 @@ import io.qameta.allure.Step;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.path.json.JsonPath;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import net.datafaker.Faker;
 import test.fakeapi.pojo.CreateProductPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
@@ -49,6 +51,7 @@ public class RequestProducts {
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTSSCHEMA))
                 .extract().jsonPath().getObject("", ProductsPOJO.class);
     }
+
     @Step(value = "get single product by product id")
     public JsonPath getSingleProduct(int productId) {
 
@@ -82,6 +85,7 @@ public class RequestProducts {
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTSSCHEMA))
                 .extract().jsonPath().getObject("", ProductsPOJO.class);
     }
+
     @Step(value = "create product without arguments")
     public ProductsPOJO createProductWithoutArgs(String bearerToken) {
 
@@ -90,7 +94,7 @@ public class RequestProducts {
         Integer price = faker.number().numberBetween(0, 1000);
         String description = faker.text().text(10, 100);
         Integer categoryId = faker.number().numberBetween(1, 5);
-        List<String> images= List.of(faker.internet().image());
+        List<String> images = List.of(faker.internet().image());
 
         CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, categoryId, images);
         return given()
@@ -111,7 +115,7 @@ public class RequestProducts {
                                       String description,
                                       List<String> images, Integer productId, String bearerToken) {
 
-        CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, null, images);
+        CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, images);
 
         return given()
                 .filters(new AllureRestAssured())
@@ -127,7 +131,7 @@ public class RequestProducts {
     }
 
     @Step(value = "delete product by product id")
-    public String deleteSingleProduct(Integer productId, String bearerToken, int statusCode) {
+    public ExtractableResponse<Response> deleteSingleProduct(Integer productId, String bearerToken, int statusCode) {
 
         return given()
                 .filters(new AllureRestAssured())
@@ -136,8 +140,9 @@ public class RequestProducts {
                 .when()
                 .delete("/" + productId)
                 .then()
+                .log().body()
                 .statusCode(statusCode)
-                .extract().htmlPath().get("html.body");
+                .extract();
     }
 
 }
