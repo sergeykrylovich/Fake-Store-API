@@ -3,18 +3,18 @@
   "anyOf": [
     {
       "type": "object",
-      "$ref": "#/definitions/product"
+      "$ref": "#/definitions/productObj"
     },
     {
       "type": "array",
       "minItems": 1,
       "items": {
-        "$ref": "#/definitions/product"
+        "$ref": "#/definitions/productObj"
       }
     }
   ],
   "definitions": {
-    "product": {
+    "productObj": {
       "type": "object",
       "properties": {
         "id": {

@@ -7,6 +7,7 @@ import io.restassured.path.json.JsonPath;
 import net.datafaker.Faker;
 import test.fakeapi.pojo.UserPOJO;
 
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,11 +19,9 @@ import static test.fakeapi.specs.FakeStoreAPISpecs.*;
 
 public class RequestUsers {
 
-    public static final String USERBASEPATH = "/users";
-    public static final String userScheme = "user-json-scheme.json";
-    static ThreadLocal<String> userSchema = ThreadLocal.withInitial(() -> userScheme);
-    static ThreadLocal<String> userPath = ThreadLocal.withInitial(() -> USERBASEPATH);
-    static ThreadLocal<Integer> statusOk = ThreadLocal.withInitial(() -> 201);
+    public static final String userBasePATH = "/users";
+    public static final String userSchema = "user-json-scheme.json";
+
     Faker faker = new Faker();
 
     @Step(value = "Create user")
@@ -37,13 +36,13 @@ public class RequestUsers {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(userPath.get()))
+                .spec(requestSpecification(userBasePATH))
                 .body(user)
                 .when()
                 .post("/")
                 .then()
                 .statusCode(SC_CREATED)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema.get()))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema))
                 .extract().body().jsonPath().getObject("", UserPOJO.class);
     }
 
@@ -54,12 +53,12 @@ public class RequestUsers {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(USERBASEPATH))
+                .spec(requestSpecification(userBasePATH))
                 .when()
                 .get("/")
                 .then()
                 .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userScheme))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema))
                 .extract().body().jsonPath().getList("", UserPOJO.class);
     }
 
@@ -70,12 +69,12 @@ public class RequestUsers {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(USERBASEPATH))
+                .spec(requestSpecification(userBasePATH))
                 .when()
                 .get("/" + userId)
                 .then()
                 .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userScheme))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema))
                 .extract().body().jsonPath().getObject("", UserPOJO.class);
     }
 
@@ -86,12 +85,12 @@ public class RequestUsers {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(USERBASEPATH))
+                .spec(requestSpecification(userBasePATH))
                 .when()
                 .put("/" + userId)
                 .then()
                 .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userScheme))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema))
                 .extract().body().jsonPath().getObject("", UserPOJO.class);
     }
 
@@ -106,7 +105,7 @@ public class RequestUsers {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(USERBASEPATH))
+                .spec(requestSpecification(userBasePATH))
                 .body(emailMap)
                 .when()
                 .post("/is-available")

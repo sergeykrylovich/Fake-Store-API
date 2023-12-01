@@ -9,8 +9,10 @@ import net.datafaker.Faker;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.*;
 import test.fakeapi.pojo.ProductsPOJO;
+import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.AuthenticationRequest;
 import test.fakeapi.requests.RequestProducts;
+import test.fakeapi.requests.RequestUsers;
 
 import java.util.List;
 
@@ -19,8 +21,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Epic("API of products")
 public class ProductsTests {
 
+
+
+    public static String bearerToken = "";
     Faker faker = new Faker();
     RequestProducts requestProducts = new RequestProducts();
+
+    @BeforeAll
+    public void createAuthToken() {
+        RequestUsers requestUsers = new RequestUsers();
+        UserPOJO user = requestUsers.createUser();
+        bearerToken = AuthenticationRequest.getAccessToken(user.getEmail(), user.getPassword());
+    }
 
     @Test
     @Severity(SeverityLevel.NORMAL)
@@ -30,7 +42,8 @@ public class ProductsTests {
     @DisplayName("Get all products")
     void getAllProductsTest() {
 
-        String bearerToken = AuthenticationRequest.getAccessToken();
+
+        System.out.println(bearerToken + " - 1");
 
 
         ProductsPOJO createdProduct = requestProducts.createProductWithoutArgs(bearerToken);
@@ -40,7 +53,9 @@ public class ProductsTests {
         long numberOfResults = response.stream().filter(res -> res.getId().equals(createdProduct.getId())).count();
         assertThat(numberOfResults).isEqualTo(1);
 
+        System.out.println(bearerToken + "2");
         requestProducts.deleteSingleProduct(createdProduct.getId(), bearerToken, 200);
+
 
     }
 
@@ -51,8 +66,6 @@ public class ProductsTests {
     @Tag("Integration")
     @DisplayName("Get an existing single product")
     void getSingleProductTest() throws InterruptedException {
-
-        String bearerToken = AuthenticationRequest.getAccessToken();
 
         String title = faker.brand().watch();
         Integer price = faker.number().numberBetween(0, 1000);
@@ -72,7 +85,7 @@ public class ProductsTests {
         ProductsPOJO singleProductResponse = requestProducts.getSingleProduct(createProductItem.getId(), bearerToken);
         //System.out.println(singleProductResponse.getId());
         assertThat(singleProductResponse.getId()).isEqualTo(createProductItem.getId());
-        Thread.sleep(100);
+        //Thread.sleep(100);
         requestProducts.deleteSingleProduct(singleProductResponse.getId(), bearerToken, 200);
     }
 
@@ -83,11 +96,6 @@ public class ProductsTests {
     @Tag("Integration")
     @DisplayName("Create product")
     void createProductTest() {
-
-
-        //Get access token
-        String bearerToken = AuthenticationRequest.getAccessToken();
-
 
         //Create fake data for create product API
         String title = faker.brand().watch();
@@ -126,8 +134,6 @@ public class ProductsTests {
     @DisplayName("Update an existing single product")
     void updateProductTest() {
 
-        String bearerToken = AuthenticationRequest.getAccessToken();
-
         String title = faker.brand().watch();
         Integer price = faker.number().numberBetween(0, 1000);
         String description = faker.text().text(10, 100);
@@ -135,7 +141,6 @@ public class ProductsTests {
 
         List<ProductsPOJO> listOfProducts = requestProducts.getAllProducts(bearerToken);
         Integer lastProductId = listOfProducts.get(listOfProducts.size() - 1).getId();
-
 
         ProductsPOJO createProductItem = requestProducts.updateProduct(title,
                 price,
@@ -157,9 +162,6 @@ public class ProductsTests {
     @DisplayName("Delete an existing product")
     void deleteProductPositiveTest() {
 
-        //Get access token
-        String bearerToken = AuthenticationRequest.getAccessToken();
-
         String title = faker.brand().watch();
         Integer price = faker.number().numberBetween(0, 1000);
         String description = faker.text().text(10, 100);
@@ -174,7 +176,7 @@ public class ProductsTests {
                 images,
                 bearerToken).getId();
 
-        System.out.println("Product id = " + productId);
+
 
         //Delete product
         String resultOfDelete = requestProducts.deleteSingleProduct(productId, bearerToken, 200);
@@ -190,15 +192,9 @@ public class ProductsTests {
     @DisplayName("Delete a non-existing product")
     void deleteProductNegativeTest() {
 
-        //Get access token
-        String bearerToken = AuthenticationRequest.getAccessToken();
-
         List<ProductsPOJO> listOfProducts = requestProducts.getAllProducts(bearerToken);
         Integer lastId = listOfProducts.get(listOfProducts.size() - 1).getId();
         //Create new product
-
-
-        System.out.println("Product id = " + lastId);
 
         //Delete product
         String resultOfDelete = requestProducts.deleteSingleProduct(lastId + 1, bearerToken, 400);

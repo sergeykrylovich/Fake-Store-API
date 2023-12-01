@@ -14,12 +14,12 @@ public class AuthenticationRequest {
     private static final String AUTHPATH = "/auth/login";
 
     @Step("Get access token by credentials")
-    public static String getAccessToken() {
+    public static String getAccessToken(String email, String password) {
         //installSpecification(requestSpecification(AUTHPATH), responseSpecification1(201));
 
         Map<String, String> loginMap = new HashMap<>();
-        loginMap.put("email", "john@mail.com");
-        loginMap.put("password", "changeme");
+        loginMap.put("email", email);
+        loginMap.put("password", password);
 
         return given()
                 .spec(requestSpecification(AUTHPATH))
@@ -30,5 +30,6 @@ public class AuthenticationRequest {
                 .statusCode(SC_CREATED)
                 .extract().body().jsonPath().getString("access_token");
     }
+
 
 }
