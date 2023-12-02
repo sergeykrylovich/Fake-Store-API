@@ -51,7 +51,7 @@ dependencies {
 tasks.withType(Test) {
     //systemProperties(System.getProperties())
     useJUnitPlatform() {
-        includeTags("API")
+        //includeTags("ProductTest")
     }
 
     testLogging {

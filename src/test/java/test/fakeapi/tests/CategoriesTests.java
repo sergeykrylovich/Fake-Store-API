@@ -4,6 +4,7 @@ import io.qameta.allure.Epic;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.restassured.path.json.JsonPath;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -54,9 +55,12 @@ public class CategoriesTests {
 
         CategoryPOJO responseSingleCategory = requestCategories.getSingleCategory(1, 200).getObject("", CategoryPOJO.class);
 
-        assertThat(responseSingleCategory.getId()).isEqualTo(1);
-        assertThat(responseSingleCategory.getName()).isNotEmpty();
-        assertThat(responseSingleCategory.getImage()).isNotEmpty();
+        SoftAssertions.assertSoftly(softly -> {
+            assertThat(responseSingleCategory.getId()).isEqualTo(1);
+            assertThat(responseSingleCategory.getName()).isNotEmpty();
+            assertThat(responseSingleCategory.getImage()).isNotEmpty();
+        });
+
     }
 
     @Test
@@ -64,27 +68,49 @@ public class CategoriesTests {
     @Tag("API")
     @Tag("CategoriesTest")
     @Tag("GetSingleCategory")
-    @Tag("PositiveTest")
+    @Tag("NegativeTest")
     @DisplayName("Get single category")
     public void getSingleCategoriesWithNonExistentId() {
         int categoryId = 1000;
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
+
         RecordForError responseSingleCategory = requestCategories.getSingleCategory(categoryId, 400).getObject("", RecordForError.class);
 
-        assertThat(responseSingleCategory.name()).isEqualTo(NAME);
-        assertThat(responseSingleCategory.message()).startsWith(MESSAGE);
-        assertThat(responseSingleCategory.path()).isEqualTo(PATH + CATEGORYBASEPATH + "/" + categoryId);
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
         LocalDateTime date = LocalDateTime.parse(responseSingleCategory.timestamp(), dateTimeFormatter);
-        assertThat(date.getMinute()).isEqualTo(LocalDateTime.now(ZoneOffset.UTC).getMinute());
-        assertThat(date.getHour()).isEqualTo(LocalDateTime.now(ZoneOffset.UTC).getHour());
-        //assertThat(date.getSecond()).isEqualTo(LocalDateTime.now(ZoneOffset.UTC).getSecond());
+
+        SoftAssertions.assertSoftly(softly -> {
+            assertThat(responseSingleCategory.name()).isEqualTo(NAMENOTFOUND);
+            assertThat(responseSingleCategory.message()).startsWith(MESSAGENOTFOUND);
+            assertThat(responseSingleCategory.path()).isEqualTo(PATH + CATEGORYBASEPATH + "/" + categoryId);
+            assertThat(date.getMinute()).isEqualTo(LocalDateTime.now(ZoneOffset.UTC).getMinute());
+            assertThat(date.getHour()).isEqualTo(LocalDateTime.now(ZoneOffset.UTC).getHour());
+        });
+    }
+
+    @Test
+    @Severity(SeverityLevel.NORMAL)
+    @Tag("API")
+    @Tag("CategoriesTest")
+    @Tag("GetSingleCategory")
+    @Tag("NegativeTest")
+    @DisplayName("Get single category")
+    public void getSingleCategoriesWithIdNotNumber() {
+        String categoryId = "22N";
+
+        JsonPath responseFailed = requestCategories.getSingleCategory(categoryId, 400);
+
+        SoftAssertions.assertSoftly(softly -> {
+            assertThat(responseFailed.getString("message")).isEqualTo(MESSAGEFAILED);
+            assertThat(responseFailed.getString("error")).isEqualTo(ERRORREQUEST);
+            assertThat(responseFailed.getString("statusCode")).isEqualTo("400");
+        });
     }
 
     @Test
     @Tag("API")
     @Tag("CreateCategory")
     @Tag("CategoriesTest")
-    @Tag("Integration")
+    @Tag("PositiveTest")
     @DisplayName("Create category")
     @Severity(SeverityLevel.NORMAL)
     void createCategoryTest() {
@@ -100,7 +126,7 @@ public class CategoriesTests {
     @Test
     @Tag("API")
     @Tag("UpdateCategory")
-    @Tag("Integration")
+    @Tag("PositiveTest")
     @DisplayName("Update category")
     @Severity(SeverityLevel.NORMAL)
     void updateCategoryTest() {
@@ -117,6 +143,7 @@ public class CategoriesTests {
     @Tag("API")
     @Tag("DeleteCategory")
     @Tag("CategoriesTest")
+    @Tag("PositiveTest")
     @DisplayName("Delete category")
     @Severity(SeverityLevel.NORMAL)
     void deleteCategoryTest() {
@@ -125,13 +152,13 @@ public class CategoriesTests {
         String response = requestCategories.deleteCategory(createdCategory.get("id")).htmlPath().get("html.body");
 
         assertThat(response).isEqualTo("true");
-
     }
 
     @Test
     @Tag("API")
     @Tag("GetAllProductsByCategory")
     @Tag("CategoriesTest")
+    @Tag("PositiveTest")
     @DisplayName("Get all products by category")
     @Severity(SeverityLevel.NORMAL)
     void getAllProductsByCategoryTest() {
@@ -147,6 +174,5 @@ public class CategoriesTests {
                 .getId();
 
         assertThat(idInResponseList).isEqualTo(idInSingleProduct);
-
     }
 }
