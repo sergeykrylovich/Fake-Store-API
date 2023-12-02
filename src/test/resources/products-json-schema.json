@@ -11,6 +11,14 @@
       "items": {
         "$ref": "#/definitions/productObj"
       }
+    },
+    {
+      "type": "object",
+      "$ref": "#/definitions/notFoundError"
+    },
+    {
+      "type": "object",
+      "$ref": "#/definitions/validationError"
     }
   ],
   "definitions": {
@@ -80,6 +88,48 @@
         "creationAt",
         "updatedAt",
         "category"
+      ]
+    },
+    "notFoundError": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "timestamp",
+        "name",
+        "message"
+      ]
+    },
+    "validationError": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string"
+        },
+        "statusCode": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "message",
+        "error",
+        "statusCode"
       ]
     }
   }

@@ -38,7 +38,7 @@ public class RequestProducts {
     }
 
     @Step(value = "get single product by product id")
-    public ProductsPOJO getSingleProduct(int productId, String bearerToken) {
+    public JsonPath getSingleProduct(Object productId, String bearerToken, int statusCode) {
 
         return given()
                 .filters(new AllureRestAssured())
@@ -47,9 +47,9 @@ public class RequestProducts {
                 .when()
                 .get("/" + productId)
                 .then()
-                .statusCode(SC_OK)
+                .statusCode(statusCode)
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTSSCHEMA))
-                .extract().jsonPath().getObject("", ProductsPOJO.class);
+                .extract().jsonPath();
     }
 
     @Step(value = "get single product by product id")
