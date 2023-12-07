@@ -1,16 +1,18 @@
 package test.fakeapi.tests;
 
 import io.qameta.allure.Epic;
+import io.qameta.allure.Issue;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
+import jdk.security.jarsigner.JarSigner;
 import net.datafaker.Faker;
-import org.junit.jupiter.api.BeforeAll;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.RequestUsers;
 
@@ -25,41 +27,17 @@ public class UsersTests {
     Faker faker = new Faker();
 
 
-//    @BeforeAll
-//    static void setUp() {
-//        RestAssured.filters(new AllureRestAssured());
-//    }
-
-
-    @Test
-    @Severity(SeverityLevel.CRITICAL)
-    @Tag("API")
-    @Tag("CreateUser")
-    @Tag("Integration")
-    @DisplayName("Create new user")
-    public void createUserTest() {
-        UserPOJO user = requestUsers.createUser();
-
-        UserPOJO singleUser = requestUsers.getSingleUser(user.getId());
-
-        assertThat(user.getId()).isEqualTo(singleUser.getId());
-
-//        System.out.println(String.format("Id = %s, email = %s, name = %s, password = %s, role = %s",
-//                user.getId(),
-//                user.getEmail(),
-//                user.getName(),
-//                user.getPassword(),
-//                user.getRole()));
-    }
     @Test
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("GetAllUser")
     @DisplayName("Get all users")
     public void getAllUsersTest() {
-        List<UserPOJO> listOfUsers = requestUsers.getAllUsers();
+        List<UserPOJO> listOfUsers = requestUsers
+                .getAllUsers()
+                .getList("", UserPOJO.class);
 
-        System.out.println(listOfUsers.get(0).getId());
+        assertThat(listOfUsers.size()).isGreaterThan(0);
     }
 
     @Test
@@ -68,38 +46,99 @@ public class UsersTests {
     @Tag("GetSingleUser")
     @DisplayName("Get single user")
     public void getSingleUserTest() {
-        UserPOJO user = requestUsers.getSingleUser(1);
+        int userId = 1;
+        UserPOJO user = requestUsers
+                .getSingleUser(userId)
+                .getObject("", UserPOJO.class);
 
-        assertThat(user.getId()).isEqualTo(1);
+        assertThat(user.getId()).isEqualTo(userId);
     }
 
     @Test
+    @Severity(SeverityLevel.CRITICAL)
+    @Tag("API")
+    @Tag("CreateUser")
+    @Tag("Integration")
+    @DisplayName("Create new user")
+    public void createUserTest() {
+        UserPOJO createdUser = requestUsers
+                .createUserWithoutArguments()
+                .getObject("", UserPOJO.class);
+
+        UserPOJO singleUser = requestUsers
+                .getSingleUser(createdUser.getId())
+                .getObject("", UserPOJO.class);
+
+        assertThat(createdUser.getId()).isEqualTo(singleUser.getId());
+        assertThat(createdUser.getName()).isEqualTo(singleUser.getName());
+        assertThat(createdUser.getRole()).isEqualTo(singleUser.getRole());
+        assertThat(createdUser.getAvatar()).isEqualTo(singleUser.getAvatar());
+        assertThat(createdUser.getPassword()).isEqualTo(singleUser.getPassword());
+
+    }
+
+    @MethodSource(value = "test.fakeapi.data.DataFotTests#dataForUpdateUser")
+    @ParameterizedTest()
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("UpdateUser")
     @Tag("UserTest")
     @DisplayName("Update user by id")
-    public void updateUserTest() {
+    public void updateUserTestWithAllArguments(String name, String email, String password, String avatar, String role) {
 
-        UserPOJO user = requestUsers.createUser();
-        UserPOJO updatedUser = requestUsers.updateUser(user.getId());
+        UserPOJO user = requestUsers
+                .createUserWithoutArguments()
+                .getObject("", UserPOJO.class);
 
-        assertThat(user.getId()).isEqualTo(updatedUser.getId());
+        UserPOJO updatedUser = requestUsers
+                .updateUser(user.getId(),200, name, email, password, avatar, role)
+                .getObject("", UserPOJO.class);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(user.getId()).isEqualTo(updatedUser.getId());
+            softly.assertThat(updatedUser.getName()).isEqualTo(name);
+            softly.assertThat(updatedUser.getAvatar()).isEqualTo(avatar);
+            softly.assertThat(updatedUser.getEmail()).isEqualTo(email);
+            softly.assertThat(updatedUser.getRole()).isEqualTo(role);
+            softly.assertThat(updatedUser.getPassword()).isEqualTo(password);
+        });
 
     }
+    @MethodSource(value = "test.fakeapi.data.DataFotTests#dataForUpdateUserNegative")
+    @ParameterizedTest()
+    @Tag("API")
+    @Severity(SeverityLevel.NORMAL)
+    @Tag("UpdateUser")
+    @Tag("UserTest")
+    @Tag("NegativeTest")
+    @DisplayName("Update user by id without role")
+    public void updateUserTestWithoutRole(String name, String email, String password, String avatar, String role) {
+
+        UserPOJO user = requestUsers
+                .createUserWithoutArguments()
+                .getObject("", UserPOJO.class);
+        JsonPath errorUpdatedUser = requestUsers
+                .updateUser(user.getId(), 400, name, email, password, avatar, role);
+
+       assertThat(errorUpdatedUser.getList("message").get(0)).isEqualTo("role must be one of the following values: admin, customer");
+
+    }
+
     @Test
+    @Issue(value = "https://support.mycompany.by/JIRA-1")
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("CheckEmail")
     @Tag("UserTest")
-    @DisplayName("Check email")
+    @DisplayName("Check that email is available")
     public void checkEmailPositiveTest() {
 
         String email = faker.internet().emailAddress();
-        JsonPath check = requestUsers.checkEmail(email);
-        boolean result = check.get("isAvailable");
+        boolean result = requestUsers
+                .checkEmail(email)
+                .get("isAvailable");
 
-        assertThat(result).isFalse();
+        assertThat(result).isTrue();
 
 
     }

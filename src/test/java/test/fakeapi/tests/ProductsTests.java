@@ -14,7 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.fakeapi.pojo.ProductsPOJO;
-import test.fakeapi.pojo.RecordForError;
+import test.fakeapi.pojo.RecordNotFound;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.AuthenticationRequest;
 import test.fakeapi.requests.RequestProducts;
@@ -36,13 +36,14 @@ public class ProductsTests {
     public static String bearerToken = "";
     Faker faker = new Faker();
     RequestProducts requestProducts = new RequestProducts();
-    public static SoftAssertions softAssert = new SoftAssertions();
 
 
     @BeforeAll
     public static void createAuthToken() {
         RequestUsers requestUsers = new RequestUsers();
-        UserPOJO user = requestUsers.createUser();
+        UserPOJO user = requestUsers
+                .createUserWithoutArguments()
+                .getObject("", UserPOJO.class);;
         bearerToken = AuthenticationRequest.getAccessToken(user.getEmail(), user.getPassword());
     }
 
@@ -104,7 +105,9 @@ public class ProductsTests {
         int nonExistingId = requestProducts.getAllProducts(bearerToken).size() + 100;
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
 
-        RecordForError singleProductResponse = requestProducts.getSingleProduct(nonExistingId, bearerToken, 400).getObject("", RecordForError.class);
+        RecordNotFound singleProductResponse = requestProducts
+                .getSingleProduct(nonExistingId, bearerToken, 400)
+                .getObject("", RecordNotFound.class);
         LocalDateTime date = LocalDateTime.parse(singleProductResponse.timestamp(), dateTimeFormatter);
 
         SoftAssertions.assertSoftly(softly -> {

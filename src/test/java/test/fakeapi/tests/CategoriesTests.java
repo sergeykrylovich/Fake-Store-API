@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.fakeapi.pojo.CategoryPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
-import test.fakeapi.pojo.RecordForError;
+import test.fakeapi.pojo.RecordNotFound;
 import test.fakeapi.requests.RequestCategories;
 import test.fakeapi.requests.RequestProducts;
 
@@ -74,7 +74,7 @@ public class CategoriesTests {
         int categoryId = 1000;
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
 
-        RecordForError responseSingleCategory = requestCategories.getSingleCategory(categoryId, 400).getObject("", RecordForError.class);
+        RecordNotFound responseSingleCategory = requestCategories.getSingleCategory(categoryId, 400).getObject("", RecordNotFound.class);
 
         LocalDateTime date = LocalDateTime.parse(responseSingleCategory.timestamp(), dateTimeFormatter);
 

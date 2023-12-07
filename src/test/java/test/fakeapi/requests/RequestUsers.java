@@ -11,10 +11,12 @@ import test.fakeapi.pojo.UserPOJO;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
+import static org.hamcrest.Matchers.lessThan;
 import static test.fakeapi.specs.FakeStoreAPISpecs.*;
 
 public class RequestUsers {
@@ -22,15 +24,17 @@ public class RequestUsers {
     public static final String userBasePATH = "/users";
     public static final String userSchema = "user-json-scheme.json";
 
+    public static final String[] roles = {"admin", "customer"};
+
     Faker faker = new Faker();
 
     @Step(value = "Create user")
-    public UserPOJO createUser() {
+    public JsonPath createUserWithoutArguments() {
 
         String name = faker.name().firstName();
         String email = faker.internet().emailAddress();
         String password = faker.internet().password(4, 8);
-        String role = "admin";
+        String role = roles[faker.random().nextInt(0, 1)];
         String avatar = faker.internet().image();
         UserPOJO user = new UserPOJO(name, email, password, role, avatar);
 
@@ -38,18 +42,18 @@ public class RequestUsers {
                 .filters(new AllureRestAssured())
                 .spec(requestSpecification(userBasePATH))
                 .body(user)
+                .log().body()
                 .when()
                 .post("/")
                 .then()
                 .statusCode(SC_CREATED)
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema))
-                .extract().body().jsonPath().getObject("", UserPOJO.class);
+                .log().body()
+                .extract().jsonPath();
     }
 
     @Step(value = "Get all users")
-    public List<UserPOJO> getAllUsers() {
-
-        //installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, JSONSCHEME));
+    public JsonPath getAllUsers() {
 
         return given()
                 .filters(new AllureRestAssured())
@@ -58,12 +62,13 @@ public class RequestUsers {
                 .get("/")
                 .then()
                 .statusCode(SC_OK)
+                .time(lessThan(8l), TimeUnit.SECONDS)
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema))
-                .extract().body().jsonPath().getList("", UserPOJO.class);
+                .extract().jsonPath();
     }
 
     @Step(value = "Get single user")
-    public UserPOJO getSingleUser(int userId) {
+    public JsonPath getSingleUser(int userId) {
 
         //installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, userScheme));
 
@@ -75,23 +80,26 @@ public class RequestUsers {
                 .then()
                 .statusCode(SC_OK)
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema))
-                .extract().body().jsonPath().getObject("", UserPOJO.class);
+                .log().body()
+                .extract().jsonPath();
     }
 
     @Step(value = "Update single user")
-    public UserPOJO updateUser(int userId) {
+    public JsonPath updateUser(int userId,int statusCode, String name, String email, String password, String avatar, String role) {
 
         //installSpecification(requestSpecification(USERBASEPATH), responseSpecification(200, userScheme));
+        UserPOJO updatableUser = new UserPOJO(name, email, password, role, avatar);
 
         return given()
                 .filters(new AllureRestAssured())
                 .spec(requestSpecification(userBasePATH))
+                .body(updatableUser)
                 .when()
                 .put("/" + userId)
                 .then()
-                .statusCode(SC_OK)
+                .statusCode(statusCode)
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema))
-                .extract().body().jsonPath().getObject("", UserPOJO.class);
+                .extract().jsonPath();
     }
 
     @Step(value = "Check email of user")
