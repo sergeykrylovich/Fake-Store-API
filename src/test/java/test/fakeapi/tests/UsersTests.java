@@ -1,8 +1,10 @@
 package test.fakeapi.tests;
 
-import io.qameta.allure.*;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import io.restassured.path.json.JsonPath;
-import jdk.security.jarsigner.JarSigner;
 import net.datafaker.Faker;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
@@ -13,11 +15,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.RequestUsers;
 
-
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static test.fakeapi.requests.RequestUsers.*;
+import static test.fakeapi.requests.RequestUsers.passwordLongerMessage;
 
 @Epic("API of User")
 public class UsersTests {
@@ -30,6 +31,7 @@ public class UsersTests {
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("GetAllUser")
+    @Tag("ForTest")
     @DisplayName("Get all users")
     public void getAllUsersTest() {
         List<UserPOJO> listOfUsers = requestUsers
@@ -37,6 +39,7 @@ public class UsersTests {
                 .getList("", UserPOJO.class);
 
         assertThat(listOfUsers.size()).isGreaterThan(0);
+
     }
 
     @Test

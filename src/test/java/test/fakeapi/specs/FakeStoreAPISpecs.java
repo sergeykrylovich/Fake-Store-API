@@ -2,14 +2,17 @@ package test.fakeapi.specs;
 
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.specification.RequestSpecification;
+import org.aeonbits.owner.ConfigFactory;
 
 public class FakeStoreAPISpecs {
-    public static final String BASEURL = "https://api.escuelajs.co/api/v1";
+
+    public static APIConfig apiConfig = ConfigFactory.create(APIConfig.class);
+    public static final String BASEURL = apiConfig.baseUrl();
     public static final String MESSAGENOTFOUND = "Could not find any entity of type";
     public static final String MESSAGEFAILED = "Validation failed (numeric string is expected)";
     public static final String ERRORREQUEST = "Bad Request";
     public static final String NAMENOTFOUND = "EntityNotFoundError";
-    public static final String PATH = "/api/v1";
+    public static final String PATH = apiConfig.path();
 
 
 
