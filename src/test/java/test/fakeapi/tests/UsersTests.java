@@ -1,9 +1,6 @@
 package test.fakeapi.tests;
 
-import io.qameta.allure.Epic;
-import io.qameta.allure.Issue;
-import io.qameta.allure.Severity;
-import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.*;
 import io.restassured.path.json.JsonPath;
 import jdk.security.jarsigner.JarSigner;
 import net.datafaker.Faker;
@@ -16,9 +13,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.RequestUsers;
 
+
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static test.fakeapi.requests.RequestUsers.*;
 
 @Epic("API of User")
 public class UsersTests {
@@ -83,6 +82,7 @@ public class UsersTests {
     @Severity(SeverityLevel.NORMAL)
     @Tag("UpdateUser")
     @Tag("UserTest")
+    @Tag("ForTest")
     @DisplayName("Update user by id")
     public void updateUserTestWithAllArguments(String name, String email, String password, String avatar, String role) {
 
@@ -91,11 +91,11 @@ public class UsersTests {
                 .getObject("", UserPOJO.class);
 
         UserPOJO updatedUser = requestUsers
-                .updateUser(user.getId(),200, name, email, password, avatar, role)
+                .updateUser(user.getId(), 200, name, email, password, avatar, role)
                 .getObject("", UserPOJO.class);
 
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(user.getId()).isEqualTo(updatedUser.getId());
+            softly.assertThat(user.getId()).as("User id").isEqualTo(updatedUser.getId());
             softly.assertThat(updatedUser.getName()).isEqualTo(name);
             softly.assertThat(updatedUser.getAvatar()).isEqualTo(avatar);
             softly.assertThat(updatedUser.getEmail()).isEqualTo(email);
@@ -104,6 +104,7 @@ public class UsersTests {
         });
 
     }
+
     @MethodSource(value = "test.fakeapi.data.DataFotTests#dataForUpdateUserNegative")
     @ParameterizedTest()
     @Tag("API")
@@ -120,7 +121,35 @@ public class UsersTests {
         JsonPath errorUpdatedUser = requestUsers
                 .updateUser(user.getId(), 400, name, email, password, avatar, role);
 
-       assertThat(errorUpdatedUser.getList("message").get(0)).isEqualTo("role must be one of the following values: admin, customer");
+        assertThat(errorUpdatedUser.getList("message").get(0)).isEqualTo("role must be one of the following values: admin, customer");
+
+    }
+
+    @MethodSource(value = "test.fakeapi.data.DataFotTests#dataForUpdateUserWithWrongAvatarAndPassword")
+    @ParameterizedTest()
+    @Tag("API")
+    @Severity(SeverityLevel.NORMAL)
+    @Tag("UpdateUser")
+    @Tag("UserTest")
+    @Tag("NegativeTest")
+    @DisplayName("Update user by id without role")
+    public void updateUserTestWithWrongFormatOfPasswordAndAvatar(String name, String email, String password, String avatar, String role) {
+
+        UserPOJO user = requestUsers
+                .createUserWithoutArguments()
+                .getObject("", UserPOJO.class);
+        JsonPath errorUpdatedUser = requestUsers
+                .updateUser(user.getId(), 400, name, email, password, avatar, role);
+
+
+/*            assertThat(errorUpdatedUser.getList("message"))
+                    .contains(passwordLongerMessage)
+                    .contains(passwordOnlyNumbersAndLettersMessage)
+                    .contains(avatarMustBeURLMessage);*/
+        assertThat(errorUpdatedUser.getList("message")).contains(passwordLongerMessage);
+
+        assertThat(errorUpdatedUser.getList("message").get(0)).isEqualTo("password must be longer than or equal to 4 characters");
+
 
     }
 

@@ -25,6 +25,9 @@ public class RequestUsers {
     public static final String userSchema = "user-json-scheme.json";
 
     public static final String[] roles = {"admin", "customer"};
+    public static final String passwordLongerMessage = "password must be longer than or equal to 4 characters";
+    public static final String passwordOnlyNumbersAndLettersMessage = "password must contain only letters and numbers";
+    public static final String avatarMustBeURLMessage = "avatar must be a URL address";
 
     Faker faker = new Faker();
 
