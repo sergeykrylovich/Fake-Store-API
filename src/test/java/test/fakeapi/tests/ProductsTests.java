@@ -8,7 +8,6 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import net.datafaker.Faker;
 import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.SoftAssertionsProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -28,7 +27,7 @@ import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static test.fakeapi.requests.RequestProducts.PRODUCTBASEPATH;
-import static test.fakeapi.specs.FakeStoreAPISpecs.*;
+import static test.fakeapi.specs.Constants.*;
 
 @Epic("API of products")
 public class ProductsTests {
@@ -111,8 +110,8 @@ public class ProductsTests {
         LocalDateTime date = LocalDateTime.parse(singleProductResponse.timestamp(), dateTimeFormatter);
 
         SoftAssertions.assertSoftly(softly -> {
-            assertThat(singleProductResponse.name()).isEqualTo(NAMENOTFOUND);
-            assertThat(singleProductResponse.message()).startsWith(MESSAGENOTFOUND);
+            assertThat(singleProductResponse.name()).isEqualTo(NOT_FOUND_ERROR);
+            assertThat(singleProductResponse.message()).startsWith(NOT_FIND_ANY_ENTITY_OF_TYPE);
             assertThat(singleProductResponse.path()).isEqualTo(PATH + PRODUCTBASEPATH + "/" + nonExistingId);
             assertThat(date.getMinute()).isEqualTo(LocalDateTime.now(ZoneOffset.UTC).getMinute());
             assertThat(date.getHour()).isEqualTo(LocalDateTime.now(ZoneOffset.UTC).getHour());
@@ -134,8 +133,8 @@ public class ProductsTests {
         JsonPath responseFailed = requestProducts.getSingleProduct(categoryId, bearerToken, 400);
 
         SoftAssertions.assertSoftly(softly -> {
-            assertThat(responseFailed.getString("message")).isEqualTo(MESSAGEFAILED);
-            assertThat(responseFailed.getString("error")).isEqualTo(ERRORREQUEST);
+            assertThat(responseFailed.getString("message")).isEqualTo(NUMERIC_STRING_IS_EXPECTED);
+            assertThat(responseFailed.getString("error")).isEqualTo(BAD_REQUEST);
             assertThat(responseFailed.getString("statusCode")).isEqualTo("400");
         });
     }
@@ -163,7 +162,7 @@ public class ProductsTests {
                 images,
                 bearerToken);
 
-        SoftAssertionsProvider.assertSoftly(SoftAssertions.class, softly -> {
+        SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(createProductItem.getTitle()).isEqualTo(title);
             softly.assertThat(createProductItem.getPrice()).isEqualTo(price);
             softly.assertThat(createProductItem.getDescription()).isEqualTo(description);
@@ -200,7 +199,7 @@ public class ProductsTests {
                 bearerToken);
 
 
-        SoftAssertionsProvider.assertSoftly(SoftAssertions.class, softly -> {
+        SoftAssertions.assertSoftly(softly -> {
             assertThat(updateProductItem.getTitle()).isEqualTo(title);
             assertThat(updateProductItem.getPrice()).isEqualTo(price);
             assertThat(updateProductItem.getDescription()).isEqualTo(description);
@@ -251,9 +250,9 @@ public class ProductsTests {
         //Delete product
         ExtractableResponse<Response> resultOfDelete = requestProducts.deleteSingleProduct(lastId + 1000, bearerToken, 400);
 
-        SoftAssertionsProvider.assertSoftly(SoftAssertions.class, softly -> {
-            softly.assertThat(resultOfDelete.jsonPath().getString("name")).isEqualTo(NAMENOTFOUND);
-            softly.assertThat(resultOfDelete.jsonPath().getString("message")).startsWith(MESSAGENOTFOUND);
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(resultOfDelete.jsonPath().getString("name")).isEqualTo(NOT_FOUND_ERROR);
+            softly.assertThat(resultOfDelete.jsonPath().getString("message")).startsWith(NOT_FIND_ANY_ENTITY_OF_TYPE);
         });
     }
 }

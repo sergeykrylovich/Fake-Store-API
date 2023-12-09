@@ -9,7 +9,6 @@ import test.fakeapi.pojo.UserPOJO;
 
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -21,13 +20,13 @@ import static test.fakeapi.specs.FakeStoreAPISpecs.*;
 
 public class RequestUsers {
 
-    public static final String userBasePATH = "/users";
-    public static final String userSchema = "user-json-scheme.json";
+    public static final String USER_BASE_PATH = "/users";
+    public static final String USER_JSON_SCHEMA = "user-json-scheme.json";
 
-    public static final String[] roles = {"admin", "customer"};
-    public static final String passwordLongerMessage = "password must be longer than or equal to 4 characters";
-    public static final String passwordOnlyNumbersAndLettersMessage = "password must contain only letters and numbers";
-    public static final String avatarMustBeURLMessage = "avatar must be a URL address";
+    public static final String[] ROLES = {"admin", "customer"};
+    public static final String PASS_LONGER_OR_EQUAL_4_CHARS = "password must be longer than or equal to 4 characters";
+    public static final String ONLY_LETTERS_AND_NUMBERS = "password must contain only letters and numbers";
+    public static final String AVATAR_MUST_BE_A_URL_ADDRESS = "avatar must be a URL address";
 
     Faker faker = new Faker();
 
@@ -37,20 +36,20 @@ public class RequestUsers {
         String name = faker.name().firstName();
         String email = faker.internet().emailAddress();
         String password = faker.internet().password(4, 8);
-        String role = roles[faker.random().nextInt(0, 1)];
+        String role = ROLES[faker.random().nextInt(0, 1)];
         String avatar = faker.internet().image();
         UserPOJO user = new UserPOJO(name, email, password, role, avatar);
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(userBasePATH))
+                .spec(requestSpecification(USER_BASE_PATH))
                 .body(user)
                 .log().body()
                 .when()
                 .post("/")
                 .then()
                 .statusCode(SC_CREATED)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(USER_JSON_SCHEMA))
                 .log().body()
                 .extract().jsonPath();
     }
@@ -60,13 +59,13 @@ public class RequestUsers {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(userBasePATH))
+                .spec(requestSpecification(USER_BASE_PATH))
                 .when()
                 .get("/")
                 .then()
                 .statusCode(SC_OK)
                 .time(lessThan(8l), TimeUnit.SECONDS)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(USER_JSON_SCHEMA))
                 .extract().jsonPath();
     }
 
@@ -77,12 +76,12 @@ public class RequestUsers {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(userBasePATH))
+                .spec(requestSpecification(USER_BASE_PATH))
                 .when()
                 .get("/" + userId)
                 .then()
                 .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(USER_JSON_SCHEMA))
                 .log().body()
                 .extract().jsonPath();
     }
@@ -95,13 +94,13 @@ public class RequestUsers {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(userBasePATH))
+                .spec(requestSpecification(USER_BASE_PATH))
                 .body(updatableUser)
                 .when()
                 .put("/" + userId)
                 .then()
                 .statusCode(statusCode)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(userSchema))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(USER_JSON_SCHEMA))
                 .extract().jsonPath();
     }
 
@@ -116,7 +115,7 @@ public class RequestUsers {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(userBasePATH))
+                .spec(requestSpecification(USER_BASE_PATH))
                 .body(emailMap)
                 .when()
                 .post("/is-available")

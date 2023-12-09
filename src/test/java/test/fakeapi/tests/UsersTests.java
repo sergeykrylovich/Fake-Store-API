@@ -18,7 +18,7 @@ import test.fakeapi.requests.RequestUsers;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static test.fakeapi.requests.RequestUsers.passwordLongerMessage;
+import static test.fakeapi.requests.RequestUsers.*;
 
 @Epic("API of User")
 public class UsersTests {
@@ -85,7 +85,6 @@ public class UsersTests {
     @Severity(SeverityLevel.NORMAL)
     @Tag("UpdateUser")
     @Tag("UserTest")
-    @Tag("ForTest")
     @DisplayName("Update user by id")
     public void updateUserTestWithAllArguments(String name, String email, String password, String avatar, String role) {
 
@@ -141,19 +140,15 @@ public class UsersTests {
         UserPOJO user = requestUsers
                 .createUserWithoutArguments()
                 .getObject("", UserPOJO.class);
+
         JsonPath errorUpdatedUser = requestUsers
                 .updateUser(user.getId(), 400, name, email, password, avatar, role);
 
 
-/*            assertThat(errorUpdatedUser.getList("message"))
-                    .contains(passwordLongerMessage)
-                    .contains(passwordOnlyNumbersAndLettersMessage)
-                    .contains(avatarMustBeURLMessage);*/
-        assertThat(errorUpdatedUser.getList("message")).contains(passwordLongerMessage);
-
-        assertThat(errorUpdatedUser.getList("message").get(0)).isEqualTo("password must be longer than or equal to 4 characters");
-
-
+        assertThat(errorUpdatedUser.getList("message"))
+                .contains(PASS_LONGER_OR_EQUAL_4_CHARS)
+                .contains(ONLY_LETTERS_AND_NUMBERS)
+                .contains(AVATAR_MUST_BE_A_URL_ADDRESS);
     }
 
     @Test

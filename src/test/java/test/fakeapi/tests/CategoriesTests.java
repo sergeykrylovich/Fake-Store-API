@@ -13,6 +13,7 @@ import test.fakeapi.pojo.ProductsPOJO;
 import test.fakeapi.pojo.RecordNotFound;
 import test.fakeapi.requests.RequestCategories;
 import test.fakeapi.requests.RequestProducts;
+import test.fakeapi.specs.Constants;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -22,7 +23,7 @@ import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static test.fakeapi.requests.RequestCategories.CATEGORYBASEPATH;
-import static test.fakeapi.specs.FakeStoreAPISpecs.*;
+import static test.fakeapi.specs.Constants.*;
 
 @Epic("API of Categories")
 public class CategoriesTests {
@@ -79,8 +80,8 @@ public class CategoriesTests {
         LocalDateTime date = LocalDateTime.parse(responseSingleCategory.timestamp(), dateTimeFormatter);
 
         SoftAssertions.assertSoftly(softly -> {
-            assertThat(responseSingleCategory.name()).isEqualTo(NAMENOTFOUND);
-            assertThat(responseSingleCategory.message()).startsWith(MESSAGENOTFOUND);
+            assertThat(responseSingleCategory.name()).isEqualTo(Constants.NOT_FOUND_ERROR);
+            assertThat(responseSingleCategory.message()).startsWith(NOT_FIND_ANY_ENTITY_OF_TYPE);
             assertThat(responseSingleCategory.path()).isEqualTo(PATH + CATEGORYBASEPATH + "/" + categoryId);
             assertThat(date.getMinute()).isEqualTo(LocalDateTime.now(ZoneOffset.UTC).getMinute());
             assertThat(date.getHour()).isEqualTo(LocalDateTime.now(ZoneOffset.UTC).getHour());
@@ -100,8 +101,8 @@ public class CategoriesTests {
         JsonPath responseFailed = requestCategories.getSingleCategory(categoryId, 400);
 
         SoftAssertions.assertSoftly(softly -> {
-            assertThat(responseFailed.getString("message")).isEqualTo(MESSAGEFAILED);
-            assertThat(responseFailed.getString("error")).isEqualTo(ERRORREQUEST);
+            assertThat(responseFailed.getString("message")).isEqualTo(NUMERIC_STRING_IS_EXPECTED);
+            assertThat(responseFailed.getString("error")).isEqualTo(BAD_REQUEST);
             assertThat(responseFailed.getString("statusCode")).isEqualTo("400");
         });
     }

@@ -2,7 +2,6 @@ package test.fakeapi.data;
 
 import net.datafaker.Faker;
 import org.junit.jupiter.params.provider.Arguments;
-import test.fakeapi.requests.RequestUsers;
 
 import java.util.stream.Stream;
 
@@ -18,7 +17,7 @@ public class DataFotTests {
                 faker.internet().emailAddress(),
                 faker.internet().password(4,8),
                 faker.internet().image(),
-                roles[faker.random().nextInt(0, 1)]));
+                ROLES[faker.random().nextInt(0, 1)]));
     }
     public static Stream<Arguments> dataForUpdateUserNegative() {
 
@@ -40,6 +39,6 @@ public class DataFotTests {
                 faker.internet().emailAddress(),
                 faker.emoji().smiley(),
                 faker.text().text(1, 3),
-                roles[faker.random().nextInt(0, 1)]));
+                ROLES[faker.random().nextInt(0, 1)]));
     }
 }
