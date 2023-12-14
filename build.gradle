@@ -11,7 +11,11 @@ repositories {
     mavenCentral()
 }
 
-
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+/*tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}*/
 
 def junitVersion = "5.9.2",
     slf4jVersion = "1.7.32",
@@ -54,7 +58,7 @@ dependencies {
 tasks.withType(Test) {
     systemProperties(System.getProperties())
     useJUnitPlatform() {
-        includeTags("ForTest")
+        includeTags("API")
     }
 
     testLogging {

@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static test.fakeapi.requests.RequestCategories.CATEGORYBASEPATH;
 import static test.fakeapi.specs.Constants.*;
 
+
 @Epic("API of Categories")
 public class CategoriesTests {
 
@@ -38,7 +39,7 @@ public class CategoriesTests {
     @Tag("PositiveTest")
     @Tag("GetAllCategories")
     @DisplayName(value = "Get all categories")
-    void getAllCategoriesTest() {
+    void testGetAllCategories() {
 
         JsonPath allCategories = requestCategories.getAllCategories();
 
@@ -52,7 +53,7 @@ public class CategoriesTests {
     @Tag("GetSingleCategory")
     @Tag("PositiveTest")
     @DisplayName("Get single category")
-    public void getSingleCategoriesTest() {
+    public void testGetSingleCategories() {
 
         CategoryPOJO responseSingleCategory = requestCategories.getSingleCategory(1, 200).getObject("", CategoryPOJO.class);
 
@@ -70,8 +71,8 @@ public class CategoriesTests {
     @Tag("CategoriesTest")
     @Tag("GetSingleCategory")
     @Tag("NegativeTest")
-    @DisplayName("Get single category")
-    public void getSingleCategoriesWithNonExistentId() {
+    @DisplayName("Get single category with non existed category id")
+    public void testGetSingleCategoriesWithNonExistentId() {
         int categoryId = 1000;
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
 
@@ -94,8 +95,8 @@ public class CategoriesTests {
     @Tag("CategoriesTest")
     @Tag("GetSingleCategory")
     @Tag("NegativeTest")
-    @DisplayName("Get single category")
-    public void getSingleCategoriesWithIdNotNumber() {
+    @DisplayName("Get single category with category id is not a number")
+    public void testGetSingleCategoryWithIdNotNumber() {
         String categoryId = "22N";
 
         JsonPath responseFailed = requestCategories.getSingleCategory(categoryId, 400);
@@ -114,7 +115,7 @@ public class CategoriesTests {
     @Tag("PositiveTest")
     @DisplayName("Create category")
     @Severity(SeverityLevel.NORMAL)
-    void createCategoryTest() {
+    void testCreateCategory() {
         String name = "BMW";
         String image = "https://placeimg.com/649/480/any";
 
@@ -130,7 +131,7 @@ public class CategoriesTests {
     @Tag("PositiveTest")
     @DisplayName("Update category")
     @Severity(SeverityLevel.NORMAL)
-    void updateCategoryTest() {
+    void testUpdateCategory() {
         int id = 3;
         String name = "Audi";
         String image = "https://placeimg.com/648/480/any";
@@ -147,7 +148,7 @@ public class CategoriesTests {
     @Tag("PositiveTest")
     @DisplayName("Delete category")
     @Severity(SeverityLevel.NORMAL)
-    void deleteCategoryTest() {
+    void testDeleteCategory() {
 
         JsonPath createdCategory = requestCategories.createCategory("Maps", "https://placeimg.com/640/480/any");
         String response = requestCategories.deleteCategory(createdCategory.get("id")).htmlPath().get("html.body");
@@ -162,7 +163,7 @@ public class CategoriesTests {
     @Tag("PositiveTest")
     @DisplayName("Get all products by category")
     @Severity(SeverityLevel.NORMAL)
-    void getAllProductsByCategoryTest() {
+    void testGetAllProductsByCategory() {
         RequestProducts requestProducts = new RequestProducts();
 
         int id = 2;

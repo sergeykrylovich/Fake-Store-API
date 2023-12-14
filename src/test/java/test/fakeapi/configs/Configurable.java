@@ -1,9 +1,11 @@
-package test.fakeapi.specs;
+package test.fakeapi.configs;
 
 import org.aeonbits.owner.Config;
 
-@Config.Sources({"classpath:${fileConfig}.properties"})
-public interface APIConfig extends Config {
+import static org.aeonbits.owner.Config.*;
+
+@Sources({"classpath:{fileConfig}.properties"})
+public interface Configurable extends Config {
 
     @DefaultValue("https://api.escuelajs.co/api/v1")
     @Key("baseUrl")
