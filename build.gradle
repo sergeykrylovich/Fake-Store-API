@@ -11,7 +11,11 @@ repositories {
     mavenCentral()
 }
 
-
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+/*tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}*/
 
 def junitVersion = "5.9.2",
     slf4jVersion = "1.7.32",
@@ -46,12 +50,15 @@ dependencies {
     testImplementation "net.datafaker:datafaker:$fakerVersion"
     testImplementation "org.aspectj:aspectjweaver:1.9.20.1"
     testImplementation "io.rest-assured:json-schema-validator:5.3.2"
+    testImplementation "io.qameta.allure:allure-assertj:2.25.0"
+    testImplementation "org.aeonbits.owner:owner-java8:1.0.12"
+
 }
 
 tasks.withType(Test) {
-    //systemProperties(System.getProperties())
+    systemProperties(System.getProperties())
     useJUnitPlatform() {
-        //includeTags("Integration")
+        includeTags("API")
     }
 
     testLogging {

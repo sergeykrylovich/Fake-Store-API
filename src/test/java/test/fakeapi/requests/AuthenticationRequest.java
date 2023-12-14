@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
+import static org.apache.http.HttpStatus.SC_CREATED;
 import static test.fakeapi.specs.FakeStoreAPISpecs.*;
 
 public class AuthenticationRequest {
@@ -13,19 +14,22 @@ public class AuthenticationRequest {
     private static final String AUTHPATH = "/auth/login";
 
     @Step("Get access token by credentials")
-    public static String getAccessToken() {
-        installSpecification(requestSpecification(AUTHPATH), responseSpecification(201));
+    public static String getAccessToken(String email, String password) {
+        //installSpecification(requestSpecification(AUTHPATH), responseSpecification1(201));
 
         Map<String, String> loginMap = new HashMap<>();
-        loginMap.put("email", "john@mail.com");
-        loginMap.put("password", "changeme");
+        loginMap.put("email", email);
+        loginMap.put("password", password);
 
         return given()
+                .spec(requestSpecification(AUTHPATH))
                 .body(loginMap)
                 .when()
                 .post()
                 .then()
+                .statusCode(SC_CREATED)
                 .extract().body().jsonPath().getString("access_token");
     }
+
 
 }
