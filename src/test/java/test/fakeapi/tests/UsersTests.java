@@ -31,7 +31,7 @@ public class UsersTests {
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("GetAllUser")
-    @Tag("ForTest")
+    @Tag("UserTest")
     @DisplayName("Get all users")
     public void getAllUsersTest() {
         List<UserPOJO> listOfUsers = requestUsers
@@ -46,6 +46,7 @@ public class UsersTests {
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("GetSingleUser")
+    @Tag("UserTest")
     @DisplayName("Get single user")
     public void getSingleUserTest() {
         int userId = 1;
@@ -61,6 +62,7 @@ public class UsersTests {
     @Tag("API")
     @Tag("CreateUser")
     @Tag("Integration")
+    @Tag("UserTest")
     @DisplayName("Create new user")
     public void createUserTest() {
         UserPOJO createdUser = requestUsers

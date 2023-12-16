@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "b6b2d150-b0da-4656-addf-289f183a10c0",
+		"_postman_id": "9aa64f34-fcc6-4d41-b9dc-59159653da64",
 		"name": "Fake Store API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "17414701"
@@ -409,7 +409,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"sergiomy@gmail.com\",\r\n  \"password\": \"4444\"\r\n}",
+							"raw": "{\r\n  \"email\": \"john@mail.com\",\r\n  \"password\": \"changeme\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -677,6 +677,57 @@
 								"v1",
 								"users",
 								"is-available"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Files",
+			"item": [
+				{
+					"name": "Upload file",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/files/upload",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"files",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get file",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/files/a1e6.txt",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"files",
+								"a1e6.txt"
 							]
 						}
 					},

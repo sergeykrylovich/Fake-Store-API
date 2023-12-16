@@ -15,4 +15,13 @@ public class FakeStoreAPISpecs {
                 .build();
     }
 
+    public static RequestSpecification requestSpecificationForUploadFile(String BasePath) {
+
+        return new RequestSpecBuilder()
+                .setBaseUri(Constants.BASE_URL)
+                .setBasePath(BasePath)
+                .setContentType("multipart/form-data")
+                .build();
+    }
+
 }

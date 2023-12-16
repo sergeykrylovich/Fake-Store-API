@@ -55,11 +55,26 @@ dependencies {
 
 }
 
-tasks.withType(Test) {
-    systemProperties(System.getProperties())
-    useJUnitPlatform() {
-        includeTags("API")
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "started", "skipped", "failed", "standard_error", "standard_out"
+        exceptionFormat "full"
     }
+}
+
+tasks.register("myAPI", Test.class) {
+
+
+    String runTags = System.getProperty("allTests")
+    if (runTags != null) {
+        useJUnitPlatform {
+            for (String runByTag : runTags.split(",")) {
+                includeTags.add(runByTag)
+            }
+        }
+    }
+
 
     testLogging {
         lifecycle {
