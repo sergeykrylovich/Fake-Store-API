@@ -52,6 +52,8 @@ dependencies {
     testImplementation "io.rest-assured:json-schema-validator:5.3.2"
     testImplementation "io.qameta.allure:allure-assertj:2.25.0"
     testImplementation "org.aeonbits.owner:owner-java8:1.0.12"
+    testImplementation "commons-io:commons-io:2.13.0"
+
 
 }
 
