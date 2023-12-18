@@ -1,6 +1,8 @@
 package test.fakeapi.requests;
 
 import io.restassured.path.json.JsonPath;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import test.fakeapi.specs.FakeStoreAPISpecs;
 
 import java.io.File;
@@ -25,7 +27,7 @@ public class RequestFiles {
                 .extract().jsonPath();
     }
 
-    public static JsonPath getFile(String fileName) {
+    public static ExtractableResponse<Response> getFile(String fileName) {
 
         return given()
                 .spec(FakeStoreAPISpecs.requestSpecificationForUploadFile(FILE_PATH))
@@ -33,7 +35,7 @@ public class RequestFiles {
                 .get("/" + fileName)
                 .then()
                 .statusCode(200)
-                .extract().jsonPath();
+                .extract();
     }
 
 
