@@ -17,7 +17,7 @@ import test.fakeapi.pojo.RecordNotFound;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.AuthenticationRequest;
 import test.fakeapi.requests.RequestProducts;
-import test.fakeapi.requests.RequestUsers;
+import test.fakeapi.requests.UserService;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -39,10 +39,10 @@ public class ProductsTests {
 
     @BeforeAll
     public static void createAuthToken() {
-        RequestUsers requestUsers = new RequestUsers();
-        UserPOJO user = requestUsers
-                .createUserWithoutArguments()
-                .getObject("", UserPOJO.class);;
+        UserService userService = new UserService();
+        UserPOJO user = userService
+                .createRandomUser()
+                .extractAs("", UserPOJO.class);;
         bearerToken = AuthenticationRequest.getAccessToken(user.getEmail(), user.getPassword());
     }
 

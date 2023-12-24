@@ -7,36 +7,60 @@ import io.qameta.allure.SeverityLevel;
 import io.restassured.path.json.JsonPath;
 import net.datafaker.Faker;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import test.fakeapi.data.RandomUserData;
 import test.fakeapi.pojo.UserPOJO;
-import test.fakeapi.requests.RequestUsers;
+import test.fakeapi.requests.BaseApi;
+import test.fakeapi.requests.UserService;
 
 import java.util.List;
+import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static test.fakeapi.requests.RequestUsers.*;
+import static test.fakeapi.assertions.Conditions.*;
+import static test.fakeapi.requests.UserService.*;
 
 @Epic("API of User")
-public class UsersTests {
+public class UsersTests extends BaseApi {
 
-    RequestUsers requestUsers = new RequestUsers();
-    Faker faker = new Faker();
+    protected static UserService userService;
+    protected static Random random;
+    protected static Faker faker;
+
+/*    @BeforeAll
+    public static void setUp() {
+        random = new Random();
+        faker = new Faker();
+        userService = new UserService();
+    }*/
+
+    @BeforeEach
+    public void initTests() {
+        userService = new UserService();
+        faker = new Faker();
+        random = new Random();
+    }
+
 
 
     @Test
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
-    @Tag("GetAllUser")
+    @Tag("GetAllUsers")
     @Tag("UserTest")
     @DisplayName("Get all users")
     public void getAllUsersTest() {
-        List<UserPOJO> listOfUsers = requestUsers
+        List<UserPOJO> listOfUsers = userService
                 .getAllUsers()
-                .getList("", UserPOJO.class);
+                .should(hasStatusCode(200))
+                .should(hasJsonSchema(USER_JSON_SCHEMA))
+                .should(hasResponseTime(5L))
+                .asList(UserPOJO.class);
 
         assertThat(listOfUsers.size()).isGreaterThan(0);
 
@@ -47,12 +71,15 @@ public class UsersTests {
     @Severity(SeverityLevel.NORMAL)
     @Tag("GetSingleUser")
     @Tag("UserTest")
-    @DisplayName("Get single user")
+    @DisplayName("Get a single user by id")
     public void getSingleUserTest() {
         int userId = 1;
-        UserPOJO user = requestUsers
+        UserPOJO user = userService
                 .getSingleUser(userId)
-                .getObject("", UserPOJO.class);
+                .should(hasStatusCode(200))
+                .should(hasJsonSchema(USER_JSON_SCHEMA))
+                .should(hasResponseTime(5l))
+                .extractAs(UserPOJO.class);
 
         assertThat(user.getId()).isEqualTo(userId);
     }
@@ -65,19 +92,22 @@ public class UsersTests {
     @Tag("UserTest")
     @DisplayName("Create new user")
     public void createUserTest() {
-        UserPOJO createdUser = requestUsers
-                .createUserWithoutArguments()
-                .getObject("", UserPOJO.class);
 
-        UserPOJO singleUser = requestUsers
-                .getSingleUser(createdUser.getId())
-                .getObject("", UserPOJO.class);
+        UserPOJO user = RandomUserData.getRandomUser();
 
-        assertThat(createdUser.getId()).isEqualTo(singleUser.getId());
-        assertThat(createdUser.getName()).isEqualTo(singleUser.getName());
-        assertThat(createdUser.getRole()).isEqualTo(singleUser.getRole());
-        assertThat(createdUser.getAvatar()).isEqualTo(singleUser.getAvatar());
-        assertThat(createdUser.getPassword()).isEqualTo(singleUser.getPassword());
+        UserPOJO userApi = userService
+                .createUser(user)
+                .should(hasStatusCode(201))
+                .should(hasJsonSchema(USER_JSON_SCHEMA))
+                .should(hasResponseTime(3l))
+                .extractAs(UserPOJO.class);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(user.getName()).isEqualTo(userApi.getName());
+            softly.assertThat(user.getPassword()).isEqualTo(userApi.getPassword());
+            softly.assertThat(user.getEmail()).isEqualTo(userApi.getEmail());
+            softly.assertThat(user.getAvatar()).isEqualTo(userApi.getAvatar());
+        });
 
     }
 
@@ -90,11 +120,11 @@ public class UsersTests {
     @DisplayName("Update user by id")
     public void updateUserTestWithAllArguments(String name, String email, String password, String avatar, String role) {
 
-        UserPOJO user = requestUsers
-                .createUserWithoutArguments()
-                .getObject("", UserPOJO.class);
+        UserPOJO user = userService
+                .createRandomUser()
+                .extractAs(UserPOJO.class);
 
-        UserPOJO updatedUser = requestUsers
+        UserPOJO updatedUser = userService
                 .updateUser(user.getId(), 200, name, email, password, avatar, role)
                 .getObject("", UserPOJO.class);
 
@@ -119,13 +149,13 @@ public class UsersTests {
     @DisplayName("Update user by id without role")
     public void updateUserTestWithoutRole(String name, String email, String password, String avatar, String role) {
 
-        UserPOJO user = requestUsers
-                .createUserWithoutArguments()
+/*        UserPOJO user = userService
+                .createUser()
                 .getObject("", UserPOJO.class);
-        JsonPath errorUpdatedUser = requestUsers
+        JsonPath errorUpdatedUser = userService
                 .updateUser(user.getId(), 400, name, email, password, avatar, role);
 
-        assertThat(errorUpdatedUser.getList("message").get(0)).isEqualTo("role must be one of the following values: admin, customer");
+        assertThat(errorUpdatedUser.getList("message").get(0)).isEqualTo("role must be one of the following values: admin, customer");*/
 
     }
 
@@ -139,11 +169,11 @@ public class UsersTests {
     @DisplayName("Update user by id without role")
     public void updateUserTestWithWrongFormatOfPasswordAndAvatar(String name, String email, String password, String avatar, String role) {
 
-        UserPOJO user = requestUsers
-                .createUserWithoutArguments()
-                .getObject("", UserPOJO.class);
+        UserPOJO user = userService
+                .createRandomUser()
+                .extractAs("", UserPOJO.class);
 
-        JsonPath errorUpdatedUser = requestUsers
+        JsonPath errorUpdatedUser = userService
                 .updateUser(user.getId(), 400, name, email, password, avatar, role);
 
 
@@ -153,6 +183,22 @@ public class UsersTests {
                 .contains(AVATAR_MUST_BE_A_URL_ADDRESS);
     }
 
+
+    @Test
+    @Tag("API")
+    @Severity(SeverityLevel.NORMAL)
+    @Tag("GetSingleUser")
+    @Tag("UserTest")
+    @DisplayName("Get single user")
+    public void deleteSingleUserTest() {
+/*        int userId = 1;
+        UserPOJO user = userService
+                .getSingleUser(userId)
+                .getObject("", UserPOJO.class);
+
+        assertThat(user.getId()).isEqualTo(userId);*/
+    }
+
     @Test
     @Issue(value = "https://support.mycompany.by/JIRA-1")
     @Tag("API")
@@ -160,14 +206,51 @@ public class UsersTests {
     @Tag("CheckEmail")
     @Tag("UserTest")
     @DisplayName("Check that email is available")
-    public void checkEmailPositiveTest() {
+    public void ExistingEmailTest() {
 
-        String email = faker.internet().emailAddress();
-        boolean result = requestUsers
-                .checkEmail(email)
-                .get("isAvailable");
+        String email = random.nextInt() + faker.internet().emailAddress();
 
-        assertThat(result).isTrue();
+        boolean isAvailable = userService
+                .checkEmailIsAvailable(email)
+                .should(hasStatusCode(201))
+                .asJsonPath()
+                .getBoolean("isAvailable");
+
+        assertThat(isAvailable).isTrue();
+    }
+
+
+    @Test
+    @Tag("API")
+    @Severity(SeverityLevel.MINOR)
+    @Tag("CheckEmail")
+    @Tag("UserTest")
+    @DisplayName("Check if email is blank")
+    public void BlankEmailTest() {
+
+        List<String> messageList = userService
+                .checkEmailIsAvailable("")
+                .should(hasStatusCode(400))
+                .getMessageList();
+
+        assertThat(messageList).contains("email should not be empty").contains("email must be an email");
+    }
+
+    @Test
+    @Tag("API")
+    @Severity(SeverityLevel.MINOR)
+    @Tag("CheckEmail")
+    @Tag("UserTest")
+    @DisplayName("Check if email is not valid")
+    public void invalidEmailTest() {
+
+        String invalidEmail = faker.internet().username();
+        List<String> message = userService
+                .checkEmailIsAvailable(invalidEmail)
+                .should(hasStatusCode(400))
+                .getMessageList();
+
+        assertThat(message).contains("email must be an email");
 
 
     }

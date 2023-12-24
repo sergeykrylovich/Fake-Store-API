@@ -31,7 +31,7 @@ public class RequestCategories {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(CATEGORYBASEPATH))
+                .spec(prepareRequest(CATEGORYBASEPATH))
                 .when()
                 .get()
                 .then()
@@ -49,7 +49,7 @@ public class RequestCategories {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(CATEGORYBASEPATH))
+                .spec(prepareRequest(CATEGORYBASEPATH))
                 .when()
                 .get("/" + categoryId)
                 .then()
@@ -71,7 +71,7 @@ public class RequestCategories {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(CATEGORYBASEPATH))
+                .spec(prepareRequest(CATEGORYBASEPATH))
                 .body(bodyForCreateCategory)
                 .when()
                 .post("/")
@@ -93,7 +93,7 @@ public class RequestCategories {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(CATEGORYBASEPATH))
+                .spec(prepareRequest(CATEGORYBASEPATH))
                 .body(bodyForCreateCategory)
                 .when()
                 .put("/" + categoryId)
@@ -111,7 +111,7 @@ public class RequestCategories {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(CATEGORYBASEPATH))
+                .spec(prepareRequest(CATEGORYBASEPATH))
                 .when()
                 .delete("/" + categoryId)
                 .then()
@@ -126,7 +126,7 @@ public class RequestCategories {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(CATEGORYBASEPATH))
+                .spec(prepareRequest(CATEGORYBASEPATH))
                 .when()
                 .get("/" + categoryId + "/products")
                 .then()

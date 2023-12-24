@@ -22,7 +22,7 @@ public class AuthenticationRequest {
         loginMap.put("password", password);
 
         return given()
-                .spec(requestSpecification(AUTHPATH))
+                .spec(prepareRequest(AUTHPATH))
                 .body(loginMap)
                 .when()
                 .post()

@@ -5,7 +5,7 @@ import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.stream.Stream;
 
-import static test.fakeapi.requests.RequestUsers.*;
+import static test.fakeapi.requests.UserService.*;
 
 public class DataFotTests {
 

@@ -27,7 +27,7 @@ public class RequestProducts {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(PRODUCTBASEPATH))
+                .spec(prepareRequest(PRODUCTBASEPATH))
                 .header("Authorization", "Bearer " + bearerToken)
                 .when()
                 .get()
@@ -42,7 +42,7 @@ public class RequestProducts {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(PRODUCTBASEPATH))
+                .spec(prepareRequest(PRODUCTBASEPATH))
                 .header("Authorization", "Bearer " + bearerToken)
                 .when()
                 .get("/" + productId)
@@ -57,7 +57,7 @@ public class RequestProducts {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(PRODUCTBASEPATH))
+                .spec(prepareRequest(PRODUCTBASEPATH))
                 //.header("Authorization", "Bearer " + bearerToken)
                 .when()
                 .get("/" + productId)
@@ -75,7 +75,7 @@ public class RequestProducts {
         CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, categoryId, images);
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(PRODUCTBASEPATH))
+                .spec(prepareRequest(PRODUCTBASEPATH))
                 .header("Authorization", "Bearer " + bearerToken)
                 .body(createProductPOJO)
                 .when()
@@ -99,7 +99,7 @@ public class RequestProducts {
         CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, categoryId, images);
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(PRODUCTBASEPATH))
+                .spec(prepareRequest(PRODUCTBASEPATH))
                 .header("Authorization", "Bearer " + bearerToken)
                 .body(createProductPOJO)
                 .when()
@@ -119,7 +119,7 @@ public class RequestProducts {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(PRODUCTBASEPATH))
+                .spec(prepareRequest(PRODUCTBASEPATH))
                 .header("Authorization", "Bearer " + bearerToken)
                 .body(createProductPOJO)
                 .when()
@@ -135,7 +135,7 @@ public class RequestProducts {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(requestSpecification(PRODUCTBASEPATH))
+                .spec(prepareRequest(PRODUCTBASEPATH))
                 .header("Authorization", "Bearer " + bearerToken)
                 .when()
                 .delete("/" + productId)
