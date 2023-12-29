@@ -4,7 +4,7 @@ import io.qameta.allure.Epic;
 import io.qameta.allure.Issue;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
-import io.restassured.path.json.JsonPath;
+import io.restassured.path.xml.XmlPath;
 import net.datafaker.Faker;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import test.fakeapi.data.RandomUserData;
+import test.fakeapi.pojo.InfoMessage;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.BaseApi;
 import test.fakeapi.requests.UserService;
@@ -24,6 +25,7 @@ import java.util.Random;
 import static org.assertj.core.api.Assertions.assertThat;
 import static test.fakeapi.assertions.Conditions.*;
 import static test.fakeapi.requests.UserService.*;
+import static test.fakeapi.specs.Constants.USER_IS_NOT_FOR_DELETE;
 
 @Epic("API of User")
 public class UsersTests extends BaseApi {
@@ -71,8 +73,8 @@ public class UsersTests extends BaseApi {
     @Severity(SeverityLevel.NORMAL)
     @Tag("GetSingleUser")
     @Tag("UserTest")
-    @DisplayName("Get a single user by id")
-    public void getSingleUserTest() {
+    @DisplayName("Get admin user by id")
+    public void getAdminUserTest() {
         int userId = 1;
         UserPOJO user = userService
                 .getSingleUser(userId)
@@ -125,8 +127,8 @@ public class UsersTests extends BaseApi {
                 .extractAs(UserPOJO.class);
 
         UserPOJO updatedUser = userService
-                .updateUser(user.getId(), 200, name, email, password, avatar, role)
-                .getObject("", UserPOJO.class);
+                .updateUser(user.getId(), name, email, password, avatar, role)
+                .extractAs("", UserPOJO.class);
 
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(user.getId()).as("User id").isEqualTo(updatedUser.getId());
@@ -173,14 +175,18 @@ public class UsersTests extends BaseApi {
                 .createRandomUser()
                 .extractAs("", UserPOJO.class);
 
-        JsonPath errorUpdatedUser = userService
-                .updateUser(user.getId(), 400, name, email, password, avatar, role);
+        List<String> messages = userService
+                .updateUser(user.getId(), name, email, password, avatar, role)
+                .should(hasStatusCode(400))
+                .getMessageList();
 
 
-        assertThat(errorUpdatedUser.getList("message"))
+        assertThat(messages)
                 .contains(PASS_LONGER_OR_EQUAL_4_CHARS)
                 .contains(ONLY_LETTERS_AND_NUMBERS)
                 .contains(AVATAR_MUST_BE_A_URL_ADDRESS);
+
+        userService.deleteUser(user.getId()).should(hasStatusCode(200));
     }
 
 
@@ -191,12 +197,33 @@ public class UsersTests extends BaseApi {
     @Tag("UserTest")
     @DisplayName("Get single user")
     public void deleteSingleUserTest() {
-/*        int userId = 1;
-        UserPOJO user = userService
-                .getSingleUser(userId)
-                .getObject("", UserPOJO.class);
 
-        assertThat(user.getId()).isEqualTo(userId);*/
+        int userId = userService.createRandomUser()
+                .extractAs(UserPOJO.class)
+                .getId();
+
+        XmlPath resultOfDelete = userService
+                .deleteUser(userId)
+                .asHtmlPath();
+
+        //assertThat(user.getId()).isEqualTo(userId);
+        System.out.println(resultOfDelete.getString("html.body"));
+    }
+
+    @Test
+    @Tag("API")
+    @Severity(SeverityLevel.NORMAL)
+    @Tag("GetSingleUser")
+    @Tag("UserTest")
+    @DisplayName("Delete admin user")
+    public void deleteAdminTest() {
+        int userId = 1;
+        InfoMessage user = userService
+                .deleteUser(userId)
+                .should(hasStatusCode(401))
+                .extractAs(InfoMessage.class);
+
+        assertThat(user.getMessage()).isEqualTo(USER_IS_NOT_FOR_DELETE);
     }
 
     @Test

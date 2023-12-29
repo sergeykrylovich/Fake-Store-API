@@ -1,6 +1,7 @@
 package test.fakeapi.assertions;
 
 import io.restassured.path.json.JsonPath;
+import io.restassured.path.xml.XmlPath;
 import io.restassured.response.ValidatableResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -35,9 +36,16 @@ public class AssertableResponse {
     public JsonPath asJsonPath() {
         return validatableResponse.extract().jsonPath();
     }
+    public XmlPath asHtmlPath() {
+        return validatableResponse.extract().htmlPath();
+    }
 
     public List<String> getMessageList() {
         return validatableResponse.extract().jsonPath().getList("message");
+    }
+
+    public String getMessage() {
+        return validatableResponse.extract().jsonPath().getString("message");
     }
 
 }

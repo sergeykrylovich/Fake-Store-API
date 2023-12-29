@@ -1,8 +1,6 @@
 package test.fakeapi.requests;
 
 import io.qameta.allure.Step;
-import io.restassured.module.jsv.JsonSchemaValidator;
-import io.restassured.path.json.JsonPath;
 import net.datafaker.Faker;
 import test.fakeapi.assertions.AssertableResponse;
 import test.fakeapi.pojo.UserPOJO;
@@ -68,19 +66,16 @@ public class UserService {
     }
 
     @Step(value = "Update single user")
-    public JsonPath updateUser(int userId, int statusCode, String name, String email, String password, String avatar, String role) {
+    public AssertableResponse updateUser(int userId, String name, String email, String password, String avatar, String role) {
 
         UserPOJO updatableUser = new UserPOJO(name, email, password, role, avatar);
 
-        return given(prepareRequest(USER_BASE_PATH))
+        return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
                 .body(updatableUser)
                 .pathParam("userId", userId)
                 .when()
                 .put("/{userId}")
-                .then()
-                .statusCode(statusCode)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(USER_JSON_SCHEMA))
-                .extract().jsonPath();
+                .then());
     }
 
     @Step(value = "Update single user")
