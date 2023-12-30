@@ -13,39 +13,30 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import test.fakeapi.data.RandomUserData;
+import org.junit.jupiter.params.provider.ValueSource;
 import test.fakeapi.pojo.InfoMessage;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.BaseApi;
 import test.fakeapi.requests.UserService;
 
 import java.util.List;
-import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static test.fakeapi.assertions.Conditions.*;
-import static test.fakeapi.requests.UserService.*;
-import static test.fakeapi.specs.Constants.USER_IS_NOT_FOR_DELETE;
+import static test.fakeapi.data.RandomUserData.getRandomUser;
+import static test.fakeapi.requests.UserService.MESSAGES;
+import static test.fakeapi.requests.UserService.USER_JSON_SCHEMA;
+import static test.fakeapi.specs.Constants.ADMIN_IS_NOT_FOR_DELETE;
 
 @Epic("API of User")
 public class UsersTests extends BaseApi {
 
     protected static UserService userService;
-    protected static Random random;
-    protected static Faker faker;
 
-/*    @BeforeAll
-    public static void setUp() {
-        random = new Random();
-        faker = new Faker();
-        userService = new UserService();
-    }*/
 
     @BeforeEach
     public void initTests() {
         userService = new UserService();
-        faker = new Faker();
-        random = new Random();
     }
 
 
@@ -55,6 +46,7 @@ public class UsersTests extends BaseApi {
     @Severity(SeverityLevel.NORMAL)
     @Tag("GetAllUsers")
     @Tag("UserTest")
+    @Tag("Smoke")
     @DisplayName("Get all users")
     public void getAllUsersTest() {
         List<UserPOJO> listOfUsers = userService
@@ -75,27 +67,27 @@ public class UsersTests extends BaseApi {
     @Tag("UserTest")
     @DisplayName("Get admin user by id")
     public void getAdminUserTest() {
-        int userId = 1;
+        int userAdminId = 1;
         UserPOJO user = userService
-                .getSingleUser(userId)
+                .getSingleUser(userAdminId)
                 .should(hasStatusCode(200))
                 .should(hasJsonSchema(USER_JSON_SCHEMA))
                 .should(hasResponseTime(5l))
                 .extractAs(UserPOJO.class);
 
-        assertThat(user.getId()).isEqualTo(userId);
+        assertThat(user.getId()).isEqualTo(userAdminId);
     }
 
     @Test
     @Severity(SeverityLevel.CRITICAL)
     @Tag("API")
     @Tag("CreateUser")
-    @Tag("Integration")
+    @Tag("Smoke")
     @Tag("UserTest")
     @DisplayName("Create new user")
     public void createUserTest() {
 
-        UserPOJO user = RandomUserData.getRandomUser();
+        UserPOJO user = getRandomUser();
 
         UserPOJO userApi = userService
                 .createUser(user)
@@ -120,44 +112,54 @@ public class UsersTests extends BaseApi {
     @Tag("UpdateUser")
     @Tag("UserTest")
     @DisplayName("Update user by id")
-    public void updateUserTestWithAllArguments(String name, String email, String password, String avatar, String role) {
+    public void updateUserTestWithAllArguments(UserPOJO userForUpdate) {
 
-        UserPOJO user = userService
+        int userId = userService
                 .createRandomUser()
-                .extractAs(UserPOJO.class);
+                .extractAs(UserPOJO.class)
+                .getId();
 
         UserPOJO updatedUser = userService
-                .updateUser(user.getId(), name, email, password, avatar, role)
-                .extractAs("", UserPOJO.class);
+                .updateUser(userId,userForUpdate)
+                .should(hasStatusCode(200))
+                .should(hasJsonSchema(USER_JSON_SCHEMA))
+                .extractAs(UserPOJO.class);
 
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(user.getId()).as("User id").isEqualTo(updatedUser.getId());
-            softly.assertThat(updatedUser.getName()).isEqualTo(name);
-            softly.assertThat(updatedUser.getAvatar()).isEqualTo(avatar);
-            softly.assertThat(updatedUser.getEmail()).isEqualTo(email);
-            softly.assertThat(updatedUser.getRole()).isEqualTo(role);
-            softly.assertThat(updatedUser.getPassword()).isEqualTo(password);
+            softly.assertThat(userId).isEqualTo(updatedUser.getId());
+            softly.assertThat(updatedUser.getName()).isEqualTo(userForUpdate.getName());
+            softly.assertThat(updatedUser.getAvatar()).isEqualTo(userForUpdate.getAvatar());
+            softly.assertThat(updatedUser.getEmail()).isEqualTo(userForUpdate.getEmail());
+            softly.assertThat(updatedUser.getRole()).isEqualTo(userForUpdate.getRole());
+            softly.assertThat(updatedUser.getPassword()).isEqualTo(userForUpdate.getPassword());
         });
+
+        userService.deleteUser(userId).should(hasStatusCode(200));
 
     }
 
-    @MethodSource(value = "test.fakeapi.data.DataFotTests#dataForUpdateUserNegative")
+    @MethodSource(value = "test.fakeapi.data.DataFotTests#blankDataForUpdateUser")
     @ParameterizedTest()
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("UpdateUser")
     @Tag("UserTest")
     @Tag("NegativeTest")
-    @DisplayName("Update user by id without role")
-    public void updateUserTestWithoutRole(String name, String email, String password, String avatar, String role) {
+    @DisplayName("Update user by id with blank arguments")
+    public void updateUserWithBlankArgumentsTest(UserPOJO updatableUser) {
 
-/*        UserPOJO user = userService
-                .createUser()
-                .getObject("", UserPOJO.class);
-        JsonPath errorUpdatedUser = userService
-                .updateUser(user.getId(), 400, name, email, password, avatar, role);
+        UserPOJO user = userService
+                .createRandomUser()
+                .extractAs(UserPOJO.class);
 
-        assertThat(errorUpdatedUser.getList("message").get(0)).isEqualTo("role must be one of the following values: admin, customer");*/
+        List<String> errorUpdatedUser = userService
+                .updateUser(user.getId(), updatableUser)
+                .should(hasStatusCode(400))
+                .getMessageList();
+
+        assertThat(errorUpdatedUser).containsExactlyInAnyOrder(MESSAGES);
+
+        userService.deleteUser(user.getId()).should(hasStatusCode(200));
 
     }
 
@@ -168,23 +170,21 @@ public class UsersTests extends BaseApi {
     @Tag("UpdateUser")
     @Tag("UserTest")
     @Tag("NegativeTest")
-    @DisplayName("Update user by id without role")
-    public void updateUserTestWithWrongFormatOfPasswordAndAvatar(String name, String email, String password, String avatar, String role) {
+    @DisplayName("Update user by id with wrong format of password and avatar")
+    public void updateUserTestWithWrongFormatOfPasswordAndAvatar(UserPOJO updatableUser) {
 
         UserPOJO user = userService
                 .createRandomUser()
-                .extractAs("", UserPOJO.class);
+                .extractAs(UserPOJO.class);
 
-        List<String> messages = userService
-                .updateUser(user.getId(), name, email, password, avatar, role)
+        List<String> listOfMessages = userService
+                .updateUser(user.getId(), updatableUser)
                 .should(hasStatusCode(400))
                 .getMessageList();
 
-
-        assertThat(messages)
-                .contains(PASS_LONGER_OR_EQUAL_4_CHARS)
-                .contains(ONLY_LETTERS_AND_NUMBERS)
-                .contains(AVATAR_MUST_BE_A_URL_ADDRESS);
+        assertThat(listOfMessages).allSatisfy(message -> {
+            assertThat(message).containsAnyOf(MESSAGES);
+        });
 
         userService.deleteUser(user.getId()).should(hasStatusCode(200));
     }
@@ -195,7 +195,7 @@ public class UsersTests extends BaseApi {
     @Severity(SeverityLevel.NORMAL)
     @Tag("GetSingleUser")
     @Tag("UserTest")
-    @DisplayName("Get single user")
+    @DisplayName("Delete single user")
     public void deleteSingleUserTest() {
 
         int userId = userService.createRandomUser()
@@ -204,26 +204,28 @@ public class UsersTests extends BaseApi {
 
         XmlPath resultOfDelete = userService
                 .deleteUser(userId)
+                .should(hasStatusCode(200))
                 .asHtmlPath();
 
-        //assertThat(user.getId()).isEqualTo(userId);
-        System.out.println(resultOfDelete.getString("html.body"));
+
+        assertThat(resultOfDelete.getBoolean("html.body")).isTrue();
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3})
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
-    @Tag("GetSingleUser")
+    @Tag("DeleteUser")
     @Tag("UserTest")
-    @DisplayName("Delete admin user")
-    public void deleteAdminTest() {
-        int userId = 1;
+    @DisplayName("Delete admin users")
+    public void deleteAdminUsersTest(int userAdminId) {
+
         InfoMessage user = userService
-                .deleteUser(userId)
+                .deleteUser(userAdminId)
                 .should(hasStatusCode(401))
                 .extractAs(InfoMessage.class);
 
-        assertThat(user.getMessage()).isEqualTo(USER_IS_NOT_FOR_DELETE);
+        assertThat(user.getMessage()).isEqualTo(ADMIN_IS_NOT_FOR_DELETE);
     }
 
     @Test
@@ -235,7 +237,9 @@ public class UsersTests extends BaseApi {
     @DisplayName("Check that email is available")
     public void ExistingEmailTest() {
 
-        String email = random.nextInt() + faker.internet().emailAddress();
+        Faker faker = new Faker();
+
+        String email = faker.random().nextInt(Integer.MAX_VALUE) + faker.internet().emailAddress();
 
         boolean isAvailable = userService
                 .checkEmailIsAvailable(email)
@@ -271,6 +275,8 @@ public class UsersTests extends BaseApi {
     @DisplayName("Check if email is not valid")
     public void invalidEmailTest() {
 
+        Faker faker = new Faker();
+
         String invalidEmail = faker.internet().username();
         List<String> message = userService
                 .checkEmailIsAvailable(invalidEmail)
@@ -278,7 +284,6 @@ public class UsersTests extends BaseApi {
                 .getMessageList();
 
         assertThat(message).contains("email must be an email");
-
 
     }
 }

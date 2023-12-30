@@ -2,6 +2,7 @@ package test.fakeapi.data;
 
 import net.datafaker.Faker;
 import org.junit.jupiter.params.provider.Arguments;
+import test.fakeapi.pojo.UserPOJO;
 
 import java.util.stream.Stream;
 
@@ -12,33 +13,36 @@ public class DataFotTests {
     public static Stream<Arguments> dataForUpdateUser() {
 
         Faker faker = new Faker();
-        return Stream.of(Arguments.of(
-                faker.name().fullName(),
-                faker.internet().emailAddress(),
-                faker.internet().password(4,8),
-                faker.internet().image(),
-                ROLES[faker.random().nextInt(0, 1)]));
+
+        UserPOJO user = RandomUserData.getRandomUser();
+
+        return Stream.of(Arguments.of(user));
     }
-    public static Stream<Arguments> dataForUpdateUserNegative() {
+    public static Stream<Arguments> blankDataForUpdateUser() {
 
 
         Faker faker = new Faker();
-        return Stream.of(Arguments.of(
-                faker.name().fullName(),
-                faker.internet().emailAddress(),
-                faker.internet().password(4,8),
-                faker.internet().image(),
-                ""));
+        UserPOJO user = UserPOJO.builder()
+                .name("")
+                .email("")
+                .password("")
+                .avatar("")
+                .role("")
+                .build();
+
+        return Stream.of(Arguments.of(user));
     }
 
     public static Stream<Arguments> dataForUpdateUserWithWrongAvatarAndPassword() {
 
         Faker faker = new Faker();
-        return Stream.of(Arguments.of(
-                faker.name().fullName(),
-                faker.internet().emailAddress(),
-                faker.emoji().smiley(),
-                faker.text().text(1, 3),
-                ROLES[faker.random().nextInt(0, 1)]));
+        UserPOJO userPOJO = UserPOJO.builder()
+                .name(faker.name().fullName())
+                .email(faker.internet().emailAddress())
+                .password(faker.emoji().smiley())
+                .avatar(faker.text().text(1, 3))
+                .role(ROLES[faker.random().nextInt(0, 1)])
+                .build();
+        return Stream.of(Arguments.of(userPOJO));
     }
 }

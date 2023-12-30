@@ -5,8 +5,7 @@ import net.datafaker.Faker;
 import test.fakeapi.assertions.AssertableResponse;
 import test.fakeapi.pojo.UserPOJO;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static io.restassured.RestAssured.given;
 import static test.fakeapi.data.RandomUserData.getRandomUser;
@@ -18,6 +17,12 @@ public class UserService {
     public static final String USER_JSON_SCHEMA = "user-json-scheme.json";
 
     public static final String[] ROLES = {"admin", "customer"};
+
+    public static final String[] MESSAGES = {"email must be an email",
+            "password must be longer than or equal to 4 characters",
+            "password must contain only letters and numbers",
+            "role must be one of the following values: admin, customer",
+            "avatar must be a URL address"};
     public static final String PASS_LONGER_OR_EQUAL_4_CHARS = "password must be longer than or equal to 4 characters";
     public static final String ONLY_LETTERS_AND_NUMBERS = "password must contain only letters and numbers";
     public static final String AVATAR_MUST_BE_A_URL_ADDRESS = "avatar must be a URL address";
@@ -69,6 +74,16 @@ public class UserService {
     public AssertableResponse updateUser(int userId, String name, String email, String password, String avatar, String role) {
 
         UserPOJO updatableUser = new UserPOJO(name, email, password, role, avatar);
+
+        return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
+                .body(updatableUser)
+                .pathParam("userId", userId)
+                .when()
+                .put("/{userId}")
+                .then());
+    }
+
+    public AssertableResponse updateUser(int userId, UserPOJO updatableUser) {
 
         return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
                 .body(updatableUser)

@@ -6,19 +6,19 @@ public class CustomTpl {
 
     private static final AllureRestAssured FILTER = new AllureRestAssured();
 
-    private CustomTpl(){}
+//    private CustomTpl(){}
 
-    public static CustomTpl initLogFilter() {
-        return InitLoggerFilter.INITTPL;
-    }
+//    public static CustomTpl initLogFilter() {
+//        return InitLoggerFilter.INITTPL;
+//    }
 
-    public AllureRestAssured withCustomTemplate() {
+    public static AllureRestAssured withCustomTemplate() {
         FILTER.setRequestTemplate("request.ftl");
         FILTER.setResponseTemplate("response.ftl");
         return FILTER;
     }
 
-    private static class InitLoggerFilter{
-        private static final CustomTpl INITTPL = new CustomTpl();
-    }
+//    private static class InitLoggerFilter{
+//        private static final CustomTpl INITTPL = new CustomTpl();
+//    }
 }

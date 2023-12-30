@@ -65,10 +65,9 @@ test {
     }
 }
 
-tasks.register("myAPI", Test.class) {
+tasks.register("userTest", Test.class) {
 
-
-    String runTags = System.getProperty("allTests")
+    String runTags = System.getProperty("userTags")
     if (runTags != null) {
         useJUnitPlatform {
             for (String runByTag : runTags.split(",")) {

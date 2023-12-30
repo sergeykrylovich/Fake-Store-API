@@ -13,7 +13,7 @@ public class BaseApi {
     public static void setUp() {
         RestAssured.filters(new RequestLoggingFilter(),
                 new ResponseLoggingFilter(),
-                CustomTpl.initLogFilter().withCustomTemplate());
+                CustomTpl.withCustomTemplate());
     }
 
 }
