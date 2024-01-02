@@ -29,6 +29,7 @@ import static test.fakeapi.requests.UserService.USER_JSON_SCHEMA;
 import static test.fakeapi.specs.Constants.ADMIN_IS_NOT_FOR_DELETE;
 
 @Epic("API of User")
+@DisplayName("User API tests")
 public class UsersTests extends BaseApi {
 
     protected static UserService userService;
@@ -49,6 +50,7 @@ public class UsersTests extends BaseApi {
     @Tag("Smoke")
     @DisplayName("Get all users")
     public void getAllUsersTest() {
+
         List<UserPOJO> listOfUsers = userService
                 .getAllUsers()
                 .should(hasStatusCode(200))
@@ -67,6 +69,7 @@ public class UsersTests extends BaseApi {
     @Tag("UserTest")
     @DisplayName("Get admin user by id")
     public void getAdminUserTest() {
+
         int userAdminId = 1;
         UserPOJO user = userService
                 .getSingleUser(userAdminId)
@@ -195,6 +198,7 @@ public class UsersTests extends BaseApi {
     @Severity(SeverityLevel.NORMAL)
     @Tag("GetSingleUser")
     @Tag("UserTest")
+    @Tag("Smoke")
     @DisplayName("Delete single user")
     public void deleteSingleUserTest() {
 
@@ -217,6 +221,7 @@ public class UsersTests extends BaseApi {
     @Severity(SeverityLevel.NORMAL)
     @Tag("DeleteUser")
     @Tag("UserTest")
+    @Tag("Smoke")
     @DisplayName("Delete admin users")
     public void deleteAdminUsersTest(int userAdminId) {
 

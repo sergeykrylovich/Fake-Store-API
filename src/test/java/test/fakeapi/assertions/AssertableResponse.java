@@ -48,4 +48,8 @@ public class AssertableResponse {
         return validatableResponse.extract().jsonPath().getString("message");
     }
 
+    public String getJWTToken() {
+        return validatableResponse.extract().jsonPath().getString("access_token");
+    }
+
 }

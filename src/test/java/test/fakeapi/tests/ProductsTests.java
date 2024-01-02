@@ -12,10 +12,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import test.fakeapi.assertions.Conditions;
 import test.fakeapi.pojo.ProductsPOJO;
 import test.fakeapi.pojo.RecordNotFound;
 import test.fakeapi.pojo.UserPOJO;
-import test.fakeapi.requests.AuthenticationRequest;
+import test.fakeapi.requests.AuthService;
 import test.fakeapi.requests.RequestProducts;
 import test.fakeapi.requests.UserService;
 
@@ -39,11 +40,14 @@ public class ProductsTests {
 
     @BeforeAll
     public static void createAuthToken() {
+        AuthService authService = new AuthService();
         UserService userService = new UserService();
         UserPOJO user = userService
                 .createRandomUser()
                 .extractAs("", UserPOJO.class);;
-        bearerToken = AuthenticationRequest.getAccessToken(user.getEmail(), user.getPassword());
+        bearerToken = authService.logIn(user.getEmail(), user.getPassword())
+                .should(Conditions.hasStatusCode(201))
+                .getJWTToken();
     }
 
     @Test
