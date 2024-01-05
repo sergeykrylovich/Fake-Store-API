@@ -2,14 +2,13 @@ package test.fakeapi.requests;
 
 import io.qameta.allure.Step;
 import lombok.RequiredArgsConstructor;
-import net.datafaker.Faker;
 import test.fakeapi.assertions.AssertableResponse;
 import test.fakeapi.pojo.UserPOJO;
 
 import java.util.*;
 
 import static io.restassured.RestAssured.given;
-import static test.fakeapi.data.RandomUserData.getRandomUser;
+import static test.fakeapi.data.UserData.getRandomUser;
 import static test.fakeapi.specs.FakeStoreAPISpecs.prepareRequest;
 
 @RequiredArgsConstructor
@@ -30,7 +29,7 @@ public class UserService {
     public static final String AVATAR_MUST_BE_A_URL_ADDRESS = "avatar must be a URL address";
 
 
-    @Step(value = "Create random user user")
+    @Step(value = "Create random user")
     public UserPOJO createRandomUser() {
 
         UserPOJO user = getRandomUser();

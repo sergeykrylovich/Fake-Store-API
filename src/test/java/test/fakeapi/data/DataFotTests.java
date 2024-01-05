@@ -12,7 +12,7 @@ public class DataFotTests {
 
     public static Stream<Arguments> dataForUpdateUser() {
 
-        UserPOJO user = RandomUserData.getRandomUser();
+        UserPOJO user = UserData.getRandomUser();
 
         return Stream.of(Arguments.of(user));
     }

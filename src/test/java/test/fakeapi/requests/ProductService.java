@@ -7,7 +7,7 @@ import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import net.datafaker.Faker;
+import test.fakeapi.assertions.AssertableResponse;
 import test.fakeapi.pojo.CreateProductPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
 
@@ -16,25 +16,20 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
-import static test.fakeapi.specs.FakeStoreAPISpecs.*;
+import static test.fakeapi.data.ProductsData.getRandomProduct;
+import static test.fakeapi.specs.FakeStoreAPISpecs.prepareRequest;
 
-public class RequestProducts {
-    public static final String PRODUCTBASEPATH = "/products";
-    public static final String PRODUCTSSCHEMA = "products-json-schema.json";
+public class ProductService {
+    public static final String PRODUCT_BASEPATH = "/products";
+    public static final String PRODUCTS_JSON_SCHEMA = "products-json-schema.json";
 
-    @Step(value = "get all products")
-    public List<ProductsPOJO> getAllProducts(String bearerToken) {
+    @Step(value = "Get all products")
+    public AssertableResponse getAllProducts() {
 
-        return given()
-                .filters(new AllureRestAssured())
-                .spec(prepareRequest(PRODUCTBASEPATH))
-                .header("Authorization", "Bearer " + bearerToken)
+        return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
                 .when()
                 .get()
-                .then()
-                .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTSSCHEMA))
-                .extract().jsonPath().getList("", ProductsPOJO.class);
+                .then());
     }
 
     @Step(value = "get single product by product id")
@@ -42,29 +37,24 @@ public class RequestProducts {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(prepareRequest(PRODUCTBASEPATH))
+                .spec(prepareRequest(PRODUCT_BASEPATH))
                 .header("Authorization", "Bearer " + bearerToken)
                 .when()
                 .get("/" + productId)
                 .then()
                 .statusCode(statusCode)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTSSCHEMA))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTS_JSON_SCHEMA))
                 .extract().jsonPath();
     }
 
     @Step(value = "get single product by product id")
-    public JsonPath getSingleProduct(int productId) {
+    public AssertableResponse getSingleProduct(int productId) {
 
-        return given()
-                .filters(new AllureRestAssured())
-                .spec(prepareRequest(PRODUCTBASEPATH))
-                //.header("Authorization", "Bearer " + bearerToken)
+        return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
+                .pathParam("productId", productId)
                 .when()
-                .get("/" + productId)
-                .then()
-                .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTSSCHEMA))
-                .extract().jsonPath();
+                .get("/{productId}")
+                .then());
     }
 
     @Step(value = "create product with arguments")
@@ -75,39 +65,27 @@ public class RequestProducts {
         CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, categoryId, images);
         return given()
                 .filters(new AllureRestAssured())
-                .spec(prepareRequest(PRODUCTBASEPATH))
+                .spec(prepareRequest(PRODUCT_BASEPATH))
                 .header("Authorization", "Bearer " + bearerToken)
                 .body(createProductPOJO)
                 .when()
                 .post("/")
                 .then()
                 .statusCode(SC_CREATED)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTSSCHEMA))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTS_JSON_SCHEMA))
                 .extract().jsonPath().getObject("", ProductsPOJO.class);
     }
 
     @Step(value = "create product without arguments")
-    public ProductsPOJO createProductWithoutArgs(String bearerToken) {
+    public AssertableResponse createRandomProduct(String token) {
 
-        Faker faker = new Faker();
-        String title = faker.brand().watch();
-        Integer price = faker.number().numberBetween(0, 1000);
-        String description = faker.text().text(10, 100);
-        Integer categoryId = faker.number().numberBetween(1, 5);
-        List<String> images = List.of(faker.internet().image());
-
-        CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, categoryId, images);
-        return given()
-                .filters(new AllureRestAssured())
-                .spec(prepareRequest(PRODUCTBASEPATH))
-                .header("Authorization", "Bearer " + bearerToken)
-                .body(createProductPOJO)
+        ProductsPOJO product = getRandomProduct();
+        return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
+                .auth().oauth2(token)
+                .body(product)
                 .when()
                 .post("/")
-                .then()
-                .statusCode(SC_CREATED)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTSSCHEMA))
-                .extract().jsonPath().getObject("", ProductsPOJO.class);
+                .then());
     }
 
     @Step(value = "update product with arguments")
@@ -119,14 +97,14 @@ public class RequestProducts {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(prepareRequest(PRODUCTBASEPATH))
+                .spec(prepareRequest(PRODUCT_BASEPATH))
                 .header("Authorization", "Bearer " + bearerToken)
                 .body(createProductPOJO)
                 .when()
                 .put("/" + productId)
                 .then()
                 .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTSSCHEMA))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTS_JSON_SCHEMA))
                 .extract().jsonPath().getObject("", ProductsPOJO.class);
     }
 
@@ -135,7 +113,7 @@ public class RequestProducts {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(prepareRequest(PRODUCTBASEPATH))
+                .spec(prepareRequest(PRODUCT_BASEPATH))
                 .header("Authorization", "Bearer " + bearerToken)
                 .when()
                 .delete("/" + productId)

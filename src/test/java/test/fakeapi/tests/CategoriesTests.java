@@ -12,7 +12,7 @@ import test.fakeapi.pojo.CategoryPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
 import test.fakeapi.pojo.RecordNotFound;
 import test.fakeapi.requests.RequestCategories;
-import test.fakeapi.requests.RequestProducts;
+import test.fakeapi.requests.ProductService;
 import test.fakeapi.specs.Constants;
 
 import java.time.LocalDateTime;
@@ -164,15 +164,15 @@ public class CategoriesTests {
     @DisplayName("Get all products by category")
     @Severity(SeverityLevel.NORMAL)
     void testGetAllProductsByCategory() {
-        RequestProducts requestProducts = new RequestProducts();
+        ProductService productService = new ProductService();
 
         int id = 2;
         List<ProductsPOJO> response = requestCategories.getAllProductsByCategory(id);
 
         int idInResponseList = response.get(0).getId();
-        int idInSingleProduct = requestProducts
+        int idInSingleProduct = productService
                 .getSingleProduct(idInResponseList)
-                .getObject("", ProductsPOJO.class)
+                .extractAs(ProductsPOJO.class)
                 .getId();
 
         assertThat(idInResponseList).isEqualTo(idInSingleProduct);

@@ -2,14 +2,13 @@ package test.fakeapi.requests;
 
 import io.qameta.allure.Step;
 import test.fakeapi.assertions.AssertableResponse;
-import test.fakeapi.data.RandomUserData;
 import test.fakeapi.pojo.UserPOJO;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static test.fakeapi.data.RandomUserData.*;
+import static test.fakeapi.data.UserData.getAdminUser;
 import static test.fakeapi.specs.FakeStoreAPISpecs.prepareRequest;
 
 public class AuthService {
@@ -32,14 +31,28 @@ public class AuthService {
                 .then());
     }
 
-    @Step("Login with random user")
-    public AssertableResponse logInWithRandomUser() {
+    @Step("Get access token by credentials")
+    public AssertableResponse logIn(UserPOJO user) {
 
-        UserPOJO user = new UserService().createRandomUser();
-
-/*        Map<String, String> loginMap = new HashMap<>();
+        Map<String, String> loginMap = new HashMap<>();
         loginMap.put("email", user.getEmail());
-        loginMap.put("password", user.getPassword());*/
+        loginMap.put("password", user.getPassword());
+
+        return new AssertableResponse(given(prepareRequest(AUTH_LOGIN_PATH))
+                .body(loginMap)
+                .when()
+                .post()
+                .then());
+    }
+
+    @Step("Login with random user")
+    public AssertableResponse createAndLoginRandomUser() {
+        UserService userService = new UserService();
+        UserPOJO user = userService.createRandomUser();
+
+        Map<String, String> loginMap = new HashMap<>();
+        loginMap.put("email", user.getEmail());
+        loginMap.put("password", user.getPassword());
 
         return new AssertableResponse(given(prepareRequest(AUTH_LOGIN_PATH))
                 .body(user)
@@ -60,7 +73,8 @@ public class AuthService {
                 .body(adminUser)
                 .when()
                 .post()
-                .then());
+                .then()
+                .statusCode(201));
     }
 
     @Step("Get user by JWT token")
@@ -82,7 +96,6 @@ public class AuthService {
 
         Map<String, String> refreshTokenMap = new HashMap<>();
         refreshTokenMap.put("refreshToken", refreshToken);
-
 
         return new AssertableResponse(given(prepareRequest(REFRESH_TOKEN_PATH))
                 .body(refreshTokenMap)

@@ -7,11 +7,13 @@ import io.qameta.allure.SeverityLevel;
 import io.restassured.path.xml.XmlPath;
 import net.datafaker.Faker;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import test.fakeapi.pojo.InfoMessage;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.AuthService;
 import test.fakeapi.requests.BaseApi;
@@ -20,9 +22,8 @@ import test.fakeapi.requests.UserService;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.registerCustomDateFormat;
 import static test.fakeapi.assertions.Conditions.*;
-import static test.fakeapi.data.RandomUserData.getRandomUser;
+import static test.fakeapi.data.UserData.getRandomUser;
 import static test.fakeapi.requests.UserService.MESSAGES;
 import static test.fakeapi.requests.UserService.USER_JSON_SCHEMA;
 import static test.fakeapi.specs.Constants.ADMIN_IS_NOT_FOR_DELETE;
@@ -40,15 +41,6 @@ public class UsersTests extends BaseApi {
         userService = new UserService();
         authService = new AuthService();
     }
-
-/*
-    @AfterEach
-    public void cleanUp() {
-        userService = new UserService();
-        authService = new AuthService();
-    }
-*/
-
 
 
     @Test
@@ -239,8 +231,9 @@ public class UsersTests extends BaseApi {
     @DisplayName("Delete admin users")
     public void deleteAdminUsersTest(int userAdminId) {
 
+        String accessToken = authService.logInAdminUser().getJWTToken();
         String message = userService
-                .deleteUser(userAdminId)
+                .deleteUser(userAdminId, accessToken)
                 .should(hasStatusCode(401))
                 .getMessage();
 

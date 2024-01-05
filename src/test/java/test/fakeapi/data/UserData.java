@@ -7,7 +7,7 @@ import java.util.Random;
 
 import static test.fakeapi.requests.UserService.ROLES;
 
-public class RandomUserData {
+public class UserData {
 
     private static final Random random = new Random();
     private static final Faker faker = new Faker();
