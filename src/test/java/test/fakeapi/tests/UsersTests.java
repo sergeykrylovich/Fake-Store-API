@@ -7,21 +7,20 @@ import io.qameta.allure.SeverityLevel;
 import io.restassured.path.xml.XmlPath;
 import net.datafaker.Faker;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import test.fakeapi.pojo.InfoMessage;
 import test.fakeapi.pojo.UserPOJO;
+import test.fakeapi.requests.AuthService;
 import test.fakeapi.requests.BaseApi;
 import test.fakeapi.requests.UserService;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.registerCustomDateFormat;
 import static test.fakeapi.assertions.Conditions.*;
 import static test.fakeapi.data.RandomUserData.getRandomUser;
 import static test.fakeapi.requests.UserService.MESSAGES;
@@ -32,13 +31,23 @@ import static test.fakeapi.specs.Constants.ADMIN_IS_NOT_FOR_DELETE;
 @DisplayName("User API tests")
 public class UsersTests extends BaseApi {
 
-    protected static UserService userService;
+    private UserService userService;
+    private AuthService authService;
 
 
     @BeforeEach
     public void initTests() {
         userService = new UserService();
+        authService = new AuthService();
     }
+
+/*
+    @AfterEach
+    public void cleanUp() {
+        userService = new UserService();
+        authService = new AuthService();
+    }
+*/
 
 
 
@@ -51,14 +60,20 @@ public class UsersTests extends BaseApi {
     @DisplayName("Get all users")
     public void getAllUsersTest() {
 
+        UserPOJO user = userService.createRandomUser();
+        String token = authService.logIn(user.getEmail(), user.getPassword())
+                .getJWTToken();
+
         List<UserPOJO> listOfUsers = userService
-                .getAllUsers()
+                .getAllUsers(token)
                 .should(hasStatusCode(200))
                 .should(hasJsonSchema(USER_JSON_SCHEMA))
                 .should(hasResponseTime(5L))
                 .asList(UserPOJO.class);
 
         assertThat(listOfUsers.size()).isGreaterThan(0);
+
+        userService.deleteUser(user.getId()).should(hasStatusCode(200));
 
     }
 
@@ -71,8 +86,9 @@ public class UsersTests extends BaseApi {
     public void getAdminUserTest() {
 
         int userAdminId = 1;
+        String token = authService.logInAdminUser().getJWTToken();
         UserPOJO user = userService
-                .getSingleUser(userAdminId)
+                .getSingleUser(userAdminId, token)
                 .should(hasStatusCode(200))
                 .should(hasJsonSchema(USER_JSON_SCHEMA))
                 .should(hasResponseTime(5l))
@@ -117,19 +133,18 @@ public class UsersTests extends BaseApi {
     @DisplayName("Update user by id")
     public void updateUserTestWithAllArguments(UserPOJO userForUpdate) {
 
-        int userId = userService
-                .createRandomUser()
-                .extractAs(UserPOJO.class)
-                .getId();
+        UserPOJO createdUser = userService.createRandomUser();
+        String accessToken = authService.logIn(createdUser.getEmail(), createdUser.getPassword())
+                .getJWTToken();
 
         UserPOJO updatedUser = userService
-                .updateUser(userId,userForUpdate)
+                .updateUser(createdUser.getId(),userForUpdate, accessToken)
                 .should(hasStatusCode(200))
                 .should(hasJsonSchema(USER_JSON_SCHEMA))
                 .extractAs(UserPOJO.class);
 
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(userId).isEqualTo(updatedUser.getId());
+            softly.assertThat(createdUser.getId()).isEqualTo(updatedUser.getId());
             softly.assertThat(updatedUser.getName()).isEqualTo(userForUpdate.getName());
             softly.assertThat(updatedUser.getAvatar()).isEqualTo(userForUpdate.getAvatar());
             softly.assertThat(updatedUser.getEmail()).isEqualTo(userForUpdate.getEmail());
@@ -137,7 +152,7 @@ public class UsersTests extends BaseApi {
             softly.assertThat(updatedUser.getPassword()).isEqualTo(userForUpdate.getPassword());
         });
 
-        userService.deleteUser(userId).should(hasStatusCode(200));
+        userService.deleteUser(createdUser.getId()).should(hasStatusCode(200));
 
     }
 
@@ -151,12 +166,11 @@ public class UsersTests extends BaseApi {
     @DisplayName("Update user by id with blank arguments")
     public void updateUserWithBlankArgumentsTest(UserPOJO updatableUser) {
 
-        UserPOJO user = userService
-                .createRandomUser()
-                .extractAs(UserPOJO.class);
+        UserPOJO user = userService.createRandomUser();
+        String accessToken = authService.logIn(user.getEmail(), user.getPassword()).getJWTToken();
 
         List<String> errorUpdatedUser = userService
-                .updateUser(user.getId(), updatableUser)
+                .updateUser(user.getId(), updatableUser, accessToken)
                 .should(hasStatusCode(400))
                 .getMessageList();
 
@@ -176,12 +190,12 @@ public class UsersTests extends BaseApi {
     @DisplayName("Update user by id with wrong format of password and avatar")
     public void updateUserTestWithWrongFormatOfPasswordAndAvatar(UserPOJO updatableUser) {
 
-        UserPOJO user = userService
-                .createRandomUser()
-                .extractAs(UserPOJO.class);
+        UserPOJO user = userService.createRandomUser();
+        String accessToken = authService.logIn(user.getEmail(), user.getPassword()).getJWTToken();
+
 
         List<String> listOfMessages = userService
-                .updateUser(user.getId(), updatableUser)
+                .updateUser(user.getId(), updatableUser, accessToken)
                 .should(hasStatusCode(400))
                 .getMessageList();
 
@@ -189,9 +203,8 @@ public class UsersTests extends BaseApi {
             assertThat(message).containsAnyOf(MESSAGES);
         });
 
-        userService.deleteUser(user.getId()).should(hasStatusCode(200));
+        userService.deleteUser(user.getId(), accessToken).should(hasStatusCode(200));
     }
-
 
     @Test
     @Tag("API")
@@ -202,17 +215,18 @@ public class UsersTests extends BaseApi {
     @DisplayName("Delete single user")
     public void deleteSingleUserTest() {
 
-        int userId = userService.createRandomUser()
-                .extractAs(UserPOJO.class)
-                .getId();
+        UserPOJO user = userService.createRandomUser();
+        String accessToken = authService.logIn(user.getEmail(), user.getPassword()).getJWTToken();
 
         XmlPath resultOfDelete = userService
-                .deleteUser(userId)
+                .deleteUser(user.getId(), accessToken)
                 .should(hasStatusCode(200))
                 .asHtmlPath();
 
 
         assertThat(resultOfDelete.getBoolean("html.body")).isTrue();
+
+        //userService.getSingleUser(user.getId(), accessToken).should(hasStatusCode(400));
     }
 
     @ParameterizedTest
@@ -225,12 +239,14 @@ public class UsersTests extends BaseApi {
     @DisplayName("Delete admin users")
     public void deleteAdminUsersTest(int userAdminId) {
 
-        InfoMessage user = userService
+        String message = userService
                 .deleteUser(userAdminId)
                 .should(hasStatusCode(401))
-                .extractAs(InfoMessage.class);
+                .getMessage();
 
-        assertThat(user.getMessage()).isEqualTo(ADMIN_IS_NOT_FOR_DELETE);
+        assertThat(message).isEqualTo(ADMIN_IS_NOT_FOR_DELETE);
+
+        //userService.getSingleUser(userAdminId).should(hasStatusCode(200));
     }
 
     @Test

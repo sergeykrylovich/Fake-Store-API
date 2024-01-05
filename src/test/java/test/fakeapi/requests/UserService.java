@@ -1,6 +1,7 @@
 package test.fakeapi.requests;
 
 import io.qameta.allure.Step;
+import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 import test.fakeapi.assertions.AssertableResponse;
 import test.fakeapi.pojo.UserPOJO;
@@ -11,6 +12,7 @@ import static io.restassured.RestAssured.given;
 import static test.fakeapi.data.RandomUserData.getRandomUser;
 import static test.fakeapi.specs.FakeStoreAPISpecs.prepareRequest;
 
+@RequiredArgsConstructor
 public class UserService {
 
     public static final String USER_BASE_PATH = "/users";
@@ -27,18 +29,19 @@ public class UserService {
     public static final String ONLY_LETTERS_AND_NUMBERS = "password must contain only letters and numbers";
     public static final String AVATAR_MUST_BE_A_URL_ADDRESS = "avatar must be a URL address";
 
-    Faker faker = new Faker();
 
     @Step(value = "Create random user user")
-    public AssertableResponse createRandomUser() {
+    public UserPOJO createRandomUser() {
 
         UserPOJO user = getRandomUser();
 
-        return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
+        return given(prepareRequest(USER_BASE_PATH))
                 .body(user)
                 .when()
                 .post("/")
-                .then());
+                .then()
+                .statusCode(201)
+                .extract().as(UserPOJO.class);
     }
 
     @Step(value = "Create single user")
@@ -60,10 +63,30 @@ public class UserService {
                 .then());
     }
 
+    @Step(value = "Get all users")
+    public AssertableResponse getAllUsers(String token) {
+
+        return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
+                .auth().oauth2(token)
+                .when()
+                .get("/")
+                .then());
+    }
+
     @Step(value = "Get single user")
     public AssertableResponse getSingleUser(int userId) {
 
         return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
+                .pathParam("userId", userId)
+                .when()
+                .get("/{userId}")
+                .then());
+    }
+    @Step(value = "Get single user with tokne")
+    public AssertableResponse getSingleUser(int userId, String token) {
+
+        return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
+                .auth().oauth2(token)
                 .pathParam("userId", userId)
                 .when()
                 .get("/{userId}")
@@ -93,10 +116,32 @@ public class UserService {
                 .then());
     }
 
+    public AssertableResponse updateUser(int userId, UserPOJO updatableUser, String token) {
+
+        return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
+                .auth().oauth2(token)
+                .body(updatableUser)
+                .pathParam("userId", userId)
+                .when()
+                .put("/{userId}")
+                .then());
+    }
+
     @Step(value = "Update single user")
     public AssertableResponse deleteUser(int userId) {
 
         return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
+                .pathParam("userId", userId)
+                .when()
+                .delete("/{userId}")
+                .then());
+    }
+
+    @Step(value = "Update single user")
+    public AssertableResponse deleteUser(int userId, String token) {
+
+        return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
+                .auth().oauth2(token)
                 .pathParam("userId", userId)
                 .when()
                 .delete("/{userId}")

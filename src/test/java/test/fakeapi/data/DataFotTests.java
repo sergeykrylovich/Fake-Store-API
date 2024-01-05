@@ -12,16 +12,13 @@ public class DataFotTests {
 
     public static Stream<Arguments> dataForUpdateUser() {
 
-        Faker faker = new Faker();
-
         UserPOJO user = RandomUserData.getRandomUser();
 
         return Stream.of(Arguments.of(user));
     }
+
     public static Stream<Arguments> blankDataForUpdateUser() {
 
-
-        Faker faker = new Faker();
         UserPOJO user = UserPOJO.builder()
                 .name("")
                 .email("")
