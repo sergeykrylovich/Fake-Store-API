@@ -1,9 +1,11 @@
 package test.fakeapi.data;
 
 import net.datafaker.Faker;
+import org.junit.jupiter.params.provider.Arguments;
 import test.fakeapi.pojo.ProductsPOJO;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public class ProductsData {
 
@@ -18,4 +20,21 @@ public class ProductsData {
                 .build();
 
     }
+
+    public static Stream<Arguments> createRandomProduct() {
+        Faker faker = new Faker();
+
+        ProductsPOJO product = ProductsPOJO.builder()
+                .title(faker.brand().watch())
+                .price(faker.number().numberBetween(0, 1000))
+                .description(faker.text().text(10, 100))
+                .categoryId(faker.random().nextInt(1, 5)) //To Do create category
+                .images(List.of(faker.internet().image()))
+                .build();
+
+        return Stream.of(Arguments.of(product));
+
+    }
+
+
 }

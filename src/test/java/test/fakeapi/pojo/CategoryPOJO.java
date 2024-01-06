@@ -1,5 +1,6 @@
 package test.fakeapi.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,20 +9,15 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(value = "true")
 public class CategoryPOJO {
 	private String image;
-
-	public CategoryPOJO(String image, String name, Integer id) {
-		this.image = image;
-		this.name = name;
-		this.id = id;
-	}
-
 	private String creationAt;
 	private String name;
 	private Integer id;
 	private String updatedAt;
+
 }

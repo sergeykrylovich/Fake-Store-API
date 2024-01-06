@@ -5,8 +5,6 @@ import io.qameta.allure.Step;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.path.json.JsonPath;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 import test.fakeapi.assertions.AssertableResponse;
 import test.fakeapi.pojo.CreateProductPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
@@ -32,6 +30,16 @@ public class ProductService {
                 .then());
     }
 
+    @Step(value = "Get all products with token")
+    public AssertableResponse getAllProducts(String token) {
+
+        return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
+                .auth().oauth2(token)
+                .when()
+                .get()
+                .then());
+    }
+
     @Step(value = "get single product by product id")
     public JsonPath getSingleProduct(Object productId, String bearerToken, int statusCode) {
 
@@ -48,9 +56,21 @@ public class ProductService {
     }
 
     @Step(value = "get single product by product id")
-    public AssertableResponse getSingleProduct(int productId) {
+    public AssertableResponse getSingleProduct(int productId, String token) {
 
         return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
+                .auth().oauth2(token)
+                .pathParam("productId", productId)
+                .when()
+                .get("/{productId}")
+                .then());
+    }
+
+    @Step(value = "get single product by product id")
+    public AssertableResponse getSingleProduct(String productId, String token) {
+
+        return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
+                .auth().oauth2(token)
                 .pathParam("productId", productId)
                 .when()
                 .get("/{productId}")
@@ -74,6 +94,16 @@ public class ProductService {
                 .statusCode(SC_CREATED)
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTS_JSON_SCHEMA))
                 .extract().jsonPath().getObject("", ProductsPOJO.class);
+    }
+    @Step(value = "create product with arguments")
+    public AssertableResponse createProduct(ProductsPOJO product, String token) {
+
+        return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
+                .auth().oauth2(token)
+                .body(product)
+                .when()
+                .post("/")
+                .then());
     }
 
     @Step(value = "create product without arguments")
@@ -109,18 +139,14 @@ public class ProductService {
     }
 
     @Step(value = "delete product by product id")
-    public ExtractableResponse<Response> deleteSingleProduct(Integer productId, String bearerToken, int statusCode) {
+    public AssertableResponse deleteSingleProduct(Integer productId, String token) {
 
-        return given()
-                .filters(new AllureRestAssured())
-                .spec(prepareRequest(PRODUCT_BASEPATH))
-                .header("Authorization", "Bearer " + bearerToken)
+        return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
+                .auth().oauth2(token)
+                .pathParam("productId", productId)
                 .when()
-                .delete("/" + productId)
-                .then()
-                .log().body()
-                .statusCode(statusCode)
-                .extract();
+                .delete("/{productId}")
+                .then());
     }
 
 }

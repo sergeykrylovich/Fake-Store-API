@@ -40,6 +40,10 @@ public class AssertableResponse {
         return validatableResponse.extract().htmlPath();
     }
 
+    public boolean getResultOfDelete() {
+        return validatableResponse.extract().htmlPath().getBoolean("html.body");
+    }
+
     public List<String> getMessageList() {
         return validatableResponse.extract().jsonPath().getList("message");
     }

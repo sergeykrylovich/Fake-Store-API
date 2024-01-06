@@ -131,7 +131,7 @@ public class RequestCategories {
                 .get("/" + categoryId + "/products")
                 .then()
                 .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(RequestProducts.PRODUCTSSCHEMA))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(ProductService.PRODUCTS_JSON_SCHEMA))
                 .extract()
                 .jsonPath().getList("", ProductsPOJO.class);
     }
