@@ -19,6 +19,7 @@ import test.fakeapi.requests.AuthService;
 import test.fakeapi.requests.BaseApi;
 import test.fakeapi.requests.UserService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,7 +64,7 @@ public class UsersTests extends BaseApi {
                 .should(hasResponseTime(5L))
                 .asList(UserPOJO.class);
 
-        assertThat(listOfUsers.size()).isGreaterThan(0);
+        assertThat(listOfUsers).isNotEmpty();
 
         userService.deleteUser(user.getId()).should(hasStatusCode(200));
 
@@ -191,7 +192,8 @@ public class UsersTests extends BaseApi {
                 .should(hasStatusCode(400))
                 .getMessageList();
 
-        assertThat(listOfMessages).allSatisfy(message -> {
+
+        assertThat(listOfMessages).isNotEmpty().allSatisfy(message -> {
             assertThat(message).containsAnyOf(MESSAGES);
         });
 

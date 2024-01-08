@@ -4,6 +4,7 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.path.xml.XmlPath;
 import io.restassured.response.ValidatableResponse;
 import lombok.RequiredArgsConstructor;
+import test.fakeapi.pojo.ProductsPOJO;
 
 import java.util.List;
 
@@ -54,6 +55,16 @@ public class AssertableResponse {
 
     public String getJWTToken() {
         return validatableResponse.extract().jsonPath().getString("access_token");
+    }
+
+    public Integer getMaxIdOfProductResponse() {
+        return validatableResponse.extract()
+                .jsonPath()
+                .getList("", ProductsPOJO.class)
+                .stream()
+                .mapToInt(x -> x.getId())
+                .max()
+                .orElse(1);
     }
 
 }

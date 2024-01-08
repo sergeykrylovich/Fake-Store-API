@@ -104,14 +104,12 @@ public class ProductsTests extends BaseApi {
         Random random = new Random();
 
         String accessToken = authService.createAndLoginRandomUser().getJWTToken();
-        int createdProductId = productService.createRandomProduct(accessToken)
-                .extractAs(ProductsPOJO.class)
-                .getId();
+        int maxProductId = productService.getAllProducts().getMaxIdOfProductResponse();
 
-        int nonExistingId = createdProductId + random.nextInt(1000, Integer.MAX_VALUE);
+        int nonExistingProductId = maxProductId + random.nextInt(1000, Integer.MAX_VALUE);
 
         String message = productService
-                .getSingleProduct(nonExistingId, accessToken)
+                .getSingleProduct(nonExistingProductId, accessToken)
                 .should(hasStatusCode(400))
                 .getMessage();
 
@@ -145,6 +143,7 @@ public class ProductsTests extends BaseApi {
     @Tag("API")
     @Tag("ProductTest")
     @Tag("Integration")
+    @Tag("Smoke")
     @DisplayName("Create product")
     public void createProductTest(ProductsPOJO product) {
 
@@ -216,10 +215,11 @@ public class ProductsTests extends BaseApi {
     public void deleteExistingProductTest() {
 
         String accessToken = authService.createAndLoginRandomUser().getJWTToken();
-        ProductsPOJO createdProduct = productService.createRandomProduct(accessToken)
-                .extractAs(ProductsPOJO.class);
+        int createdProductId = productService.createRandomProduct(accessToken)
+                .extractAs(ProductsPOJO.class)
+                .getId();
 
-        boolean resultOfDelete = productService.deleteSingleProduct(createdProduct.getId(), accessToken)
+        boolean resultOfDelete = productService.deleteSingleProduct(createdProductId, accessToken)
                 .should(hasStatusCode(200))
                 .getResultOfDelete();
 
@@ -236,12 +236,8 @@ public class ProductsTests extends BaseApi {
         Random random = new Random();
 
         String accessToken = authService.createAndLoginRandomUser().getJWTToken();
-        int productId = productService.createRandomProduct(accessToken)
-                .should(hasStatusCode(201))
-                .extractAs(ProductsPOJO.class)
-                .getId();
-
-        int nonExistingProductId = productId + random.nextInt(1000, Integer.MAX_VALUE);
+        int maxProductId = productService.getAllProducts().getMaxIdOfProductResponse();
+        int nonExistingProductId = maxProductId + random.nextInt(1000, Integer.MAX_VALUE);
 
         String message = productService.deleteSingleProduct(nonExistingProductId, accessToken)
                 .should(hasStatusCode(400))
@@ -249,7 +245,7 @@ public class ProductsTests extends BaseApi {
 
         assertThat(message).startsWith(NOT_FIND_ANY_ENTITY_OF_TYPE);
 
-        productService.deleteSingleProduct(productId, accessToken).should(hasStatusCode(200));
+        productService.deleteSingleProduct(maxProductId, accessToken).should(hasStatusCode(200));
 
     }
 }
