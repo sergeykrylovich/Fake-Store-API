@@ -10,16 +10,16 @@ public class FakeStoreAPISpecs {
     public static RequestSpecification prepareRequest(String BasePath) {
 
         return new RequestSpecBuilder()
-                .setBaseUri(Constants.BASE_URL)
+                //.setBaseUri(Constants.BASE_URL)
                 .setBasePath(BasePath)
                 .setContentType(ContentType.JSON)
                 .build();
     }
 
-    public static RequestSpecification requestSpecificationForUploadFile(String BasePath) {
+    public static RequestSpecification prepareRequestForUploadFile(String BasePath) {
 
         return new RequestSpecBuilder()
-                .setBaseUri(Constants.BASE_URL)
+                //.setBaseUri(Constants.BASE_URL)
                 .setBasePath(BasePath)
                 .setContentType("multipart/form-data")
                 .build();
