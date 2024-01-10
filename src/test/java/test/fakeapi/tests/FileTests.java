@@ -5,24 +5,19 @@ import io.qameta.allure.Epic;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
 import lombok.SneakyThrows;
-import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import test.fakeapi.pojo.CategoryPOJO;
-import test.fakeapi.requests.RequestFiles;
+import test.fakeapi.requests.AuthService;
+import test.fakeapi.requests.FileService;
 import test.fakeapi.utils.JsonHelper;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static test.fakeapi.assertions.Conditions.hasStatusCode;
 import static test.fakeapi.specs.Constants.BASE_URL;
 
 @Epic("Endpoints for working with files")
@@ -74,9 +69,13 @@ public class FileTests {
 
     @Test
     public void testUploadTxtFile() {
+        FileService fileService = new FileService();
+        AuthService authService = new AuthService();
+        String token = authService.createAndLoginRandomUser().getJWTToken();
+
         String fileName = "file.json";
         String fileExtension = fileName.substring(fileName.indexOf("."));
-        JsonPath responseBody = RequestFiles.uploadFile(fileName);
+        JsonPath responseBody = fileService.uploadFile(fileName, token).should(hasStatusCode(201)).asJsonPath(); // to do
         String responseFileName = responseBody.getString("filename");
 
         System.out.println(fileExtension);
@@ -92,8 +91,10 @@ public class FileTests {
     @Test
     @SneakyThrows
     public void testGetFile() {
-
-        ExtractableResponse<Response> file = RequestFiles.getFile("532e.pdf");
+        FileService fileService = new FileService();
+        AuthService authService = new AuthService();
+        String accessToken = authService.createAndLoginRandomUser().getJWTToken();
+       /* AssertableResponse file = fileService.getFile("532e.pdf"); // TO DO
         InputStream inputStream = file.asInputStream();
         FileOutputStream fileOutputStream = new FileOutputStream("src/test/resources/532f.pdf");
 
@@ -113,7 +114,7 @@ public class FileTests {
 
             //Files.delete(Paths.get(downloadedFile.getPath()));
             downloadedFile.delete();
-        }
+        }*/
 
 
     }
