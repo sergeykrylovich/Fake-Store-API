@@ -23,12 +23,12 @@ public class ProductsData {
 
     public static Stream<Arguments> createRandomProduct() {
         Faker faker = new Faker();
-
+        CategoryData categoryData = new CategoryData();
         ProductsPOJO product = ProductsPOJO.builder()
                 .title(faker.brand().watch())
                 .price(faker.number().numberBetween(0, 1000))
                 .description(faker.text().text(10, 100))
-                .categoryId(faker.random().nextInt(1, 5)) //To Do create category
+                .categoryId(categoryData.getRandomCategory()) //To Do create category
                 .images(List.of(faker.internet().image()))
                 .build();
 

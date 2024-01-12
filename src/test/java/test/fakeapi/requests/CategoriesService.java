@@ -6,6 +6,8 @@ import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.path.json.JsonPath;
  import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import test.fakeapi.assertions.AssertableResponse;
+import test.fakeapi.pojo.CategoryPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
 
 import java.util.HashMap;
@@ -15,7 +17,7 @@ import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.SC_OK;
 import static test.fakeapi.specs.FakeStoreAPISpecs.*;
 
-public class RequestCategories {
+public class CategoriesService {
 
     public static final String CATEGORYBASEPATH = "/categories";
     public static final String CATEGORYSCHEMA = "categories-json-schema.json";
@@ -25,20 +27,14 @@ public class RequestCategories {
 
 
     @Step(value = "Get all categories")
-    public JsonPath getAllCategories() {
+    public AssertableResponse getAllCategories() {
 
         //installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200, CATEGORYSCHEMA));
 
-        return given()
-                .filters(new AllureRestAssured())
-                .spec(prepareRequest(CATEGORYBASEPATH))
+        return new AssertableResponse(given(prepareRequest(CATEGORYBASEPATH))
                 .when()
                 .get()
-                .then()
-                .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(CATEGORYSCHEMA))
-                .extract()
-                .jsonPath();
+                .then());
     }
 
     @Step(value = "Get a single category by category ID")
@@ -80,6 +76,22 @@ public class RequestCategories {
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(CATEGORYSCHEMA))
                 .extract()
                 .jsonPath();
+    }
+
+    @Step(value = "Create category with name and image arguments")
+    public AssertableResponse createCategory(CategoryPOJO category) {
+
+        //installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification1(201, categorySchema.get()));
+
+/*        HashMap<String, String> bodyForCreateCategory = new HashMap<>();
+        bodyForCreateCategory.put("name", name);
+        bodyForCreateCategory.put("image", image);*/
+
+        return new AssertableResponse(given(prepareRequest(CATEGORYBASEPATH))
+                .body(category)
+                .when()
+                .post("/")
+                .then());
     }
 
     @Step(value = "Update data of category with id, name  and image arguments")

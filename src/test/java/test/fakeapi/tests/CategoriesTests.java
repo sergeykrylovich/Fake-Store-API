@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.fakeapi.pojo.CategoryPOJO;
 import test.fakeapi.pojo.RecordNotFound;
-import test.fakeapi.requests.RequestCategories;
+import test.fakeapi.requests.CategoriesService;
 import test.fakeapi.specs.Constants;
 
 import java.time.LocalDateTime;
@@ -19,14 +19,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static test.fakeapi.requests.RequestCategories.CATEGORYBASEPATH;
+import static test.fakeapi.requests.CategoriesService.CATEGORYBASEPATH;
 import static test.fakeapi.specs.Constants.*;
 
 
 @Epic("API of Categories")
 public class CategoriesTests {
 
-    RequestCategories requestCategories = new RequestCategories();
+    CategoriesService categoriesService = new CategoriesService();
 
 
     @Test
@@ -38,7 +38,7 @@ public class CategoriesTests {
     @DisplayName(value = "Get all categories")
     void testGetAllCategories() {
 
-        JsonPath allCategories = requestCategories.getAllCategories();
+        JsonPath allCategories = categoriesService.getAllCategories().asJsonPath();
 
         assertThat(allCategories.getList("", CategoryPOJO.class).size()).isGreaterThan(0);
     }
@@ -52,7 +52,7 @@ public class CategoriesTests {
     @DisplayName("Get single category")
     public void testGetSingleCategories() {
 
-        CategoryPOJO responseSingleCategory = requestCategories.getSingleCategory(1, 200).getObject("", CategoryPOJO.class);
+        CategoryPOJO responseSingleCategory = categoriesService.getSingleCategory(1, 200).getObject("", CategoryPOJO.class);
 
         SoftAssertions.assertSoftly(softly -> {
             assertThat(responseSingleCategory.getId()).isEqualTo(1);
@@ -73,7 +73,7 @@ public class CategoriesTests {
         int categoryId = 1000;
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
 
-        RecordNotFound responseSingleCategory = requestCategories.getSingleCategory(categoryId, 400).getObject("", RecordNotFound.class);
+        RecordNotFound responseSingleCategory = categoriesService.getSingleCategory(categoryId, 400).getObject("", RecordNotFound.class);
 
         LocalDateTime date = LocalDateTime.parse(responseSingleCategory.timestamp(), dateTimeFormatter);
 
@@ -96,7 +96,7 @@ public class CategoriesTests {
     public void testGetSingleCategoryWithIdNotNumber() {
         String categoryId = "22N";
 
-        JsonPath responseFailed = requestCategories.getSingleCategory(categoryId, 400);
+        JsonPath responseFailed = categoriesService.getSingleCategory(categoryId, 400);
 
         SoftAssertions.assertSoftly(softly -> {
             assertThat(responseFailed.getString("message")).isEqualTo(NUMERIC_STRING_IS_EXPECTED);
@@ -116,7 +116,7 @@ public class CategoriesTests {
         String name = "BMW";
         String image = "https://placeimg.com/649/480/any";
 
-        CategoryPOJO response = requestCategories.createCategory(name, image).getObject("", CategoryPOJO.class);
+        CategoryPOJO response = categoriesService.createCategory(name, image).getObject("", CategoryPOJO.class);
 
         assertThat(response.getName()).isEqualTo(name);
         assertThat(response.getImage()).isEqualTo(image);
@@ -132,7 +132,7 @@ public class CategoriesTests {
         int id = 3;
         String name = "Audi";
         String image = "https://placeimg.com/648/480/any";
-        CategoryPOJO response = requestCategories.updateCategory(id, name, image).getObject("", CategoryPOJO.class);
+        CategoryPOJO response = categoriesService.updateCategory(id, name, image).getObject("", CategoryPOJO.class);
 
         assertThat(response.getName()).isEqualTo(name);
         assertThat(response.getImage()).isEqualTo(image);
@@ -147,8 +147,8 @@ public class CategoriesTests {
     @Severity(SeverityLevel.NORMAL)
     void testDeleteCategory() {
 
-        JsonPath createdCategory = requestCategories.createCategory("Maps", "https://placeimg.com/640/480/any");
-        String response = requestCategories.deleteCategory(createdCategory.get("id")).htmlPath().get("html.body");
+        JsonPath createdCategory = categoriesService.createCategory("Maps", "https://placeimg.com/640/480/any");
+        String response = categoriesService.deleteCategory(createdCategory.get("id")).htmlPath().get("html.body");
 
         assertThat(response).isEqualTo("true");
     }

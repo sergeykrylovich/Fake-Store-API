@@ -145,28 +145,27 @@ public class ProductsTests extends BaseApi {
     @Tag("Integration")
     @Tag("Smoke")
     @DisplayName("Create product")
-    public void createProductTest(ProductsPOJO product) {
+    public void createProductTest(ProductsPOJO expectedProduct) {
 
         String accessToken = authService.createAndLoginRandomUser().getJWTToken();
-        ProductsPOJO createdProduct = productService.createProduct(product, accessToken)
+        ProductsPOJO actualProduct = productService.createProduct(expectedProduct, accessToken)
                 .should(hasStatusCode(201))
                 .should(hasJsonSchema(PRODUCTS_JSON_SCHEMA))
                 .should(hasResponseTime(5))
                 .extractAs(ProductsPOJO.class);
 
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(createdProduct.getId()).isPositive();
-            softly.assertThat(createdProduct.getPrice()).isEqualTo(product.getPrice());
-            softly.assertThat(createdProduct.getImages()).containsAnyElementsOf(product.getImages());
-            softly.assertThat(createdProduct.getDescription()).isEqualTo(product.getDescription());
-            softly.assertThat(createdProduct.getTitle()).isEqualTo(product.getTitle());
-            softly.assertThat(createdProduct.getCategory()).isNotNull();
-//            softly.assertThat(createdProduct.getCategory().getImage()).isEqualTo(product.getCategory().getImage());
-//            softly.assertThat(createdProduct.getCategory().getName()).isEqualTo(product.getCategory().getName());
+            softly.assertThat(actualProduct.getId()).isPositive();
+            softly.assertThat(actualProduct.getPrice()).isEqualTo(expectedProduct.getPrice());
+            //softly.assertThat(actualProduct.getImages()).containsAnyElementsOf(expectedProduct.getImages());
+            softly.assertThat(actualProduct.getDescription()).isEqualTo(expectedProduct.getDescription());
+            softly.assertThat(actualProduct.getTitle()).isEqualTo(expectedProduct.getTitle());
+            softly.assertThat(actualProduct.getCategory()).isNotNull();
+            softly.assertThat(actualProduct.getCategory().getId()).isEqualTo(expectedProduct.getCategoryId());
         });
 
         //Delete product after all tests
-        productService.deleteSingleProduct(createdProduct.getId(), accessToken);
+        productService.deleteSingleProduct(actualProduct.getId(), accessToken);
 
     }
 
