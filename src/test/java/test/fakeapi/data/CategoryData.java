@@ -1,14 +1,11 @@
 package test.fakeapi.data;
 
 import net.datafaker.Faker;
-import org.checkerframework.checker.units.qual.C;
 import test.fakeapi.pojo.CategoryPOJO;
 import test.fakeapi.requests.CategoriesService;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
+import java.util.Random;
 
 public class CategoryData {
 
@@ -33,7 +30,7 @@ public class CategoryData {
                 .stream()
                 .map(CategoryPOJO::getId)
                 .toList();
-        int randomIdOfCategory = ThreadLocalRandom.current().nextInt(categroiesIdList.size() - 1);
+        int randomIdOfCategory = new Random().nextInt(categroiesIdList.size() - 1);
 
         return categroiesIdList.get(randomIdOfCategory);
 

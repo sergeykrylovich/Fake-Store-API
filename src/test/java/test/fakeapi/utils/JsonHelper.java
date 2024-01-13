@@ -16,14 +16,14 @@ public class JsonHelper {
     }
 
     @SneakyThrows
-    public static <T> T fromJson(String filePath, Class<T> tClass) {
+    public static <T> T readJsonFromFilePath(String filePath, Class<T> tClass) {
 
         File file = new File(filePath);
         return objectmapper.readValue(file, tClass);
     }
 
     @SneakyThrows
-    public static <T> T fromJsonString(String json, Class<T> tClass) {
+    public static <T> T readJsonFromString(String json, Class<T> tClass) {
 
         return objectmapper.readValue(json, tClass);
     }

@@ -45,6 +45,13 @@ public class UsersTests extends BaseApi {
 
 
     @Test
+    public void testt() {
+        String token = authService.createAndLoginRandomUser().getJWTToken();
+        UserPOJO userPOJO = authService.getUserByJWTToken(token).extractAs(UserPOJO.class);
+        System.out.println("----------------------------------" + userPOJO.getId());
+    }
+
+    @Test
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("GetAllUsers")

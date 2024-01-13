@@ -15,7 +15,7 @@ public class ProductsData {
                 .title(faker.brand().watch())
                 .price(faker.number().numberBetween(0, 1000))
                 .description(faker.text().text(10, 100))
-                .categoryId(faker.number().numberBetween(1, 5))
+                .categoryId(1)
                 .images(List.of(faker.internet().image()))
                 .build();
 
@@ -33,7 +33,18 @@ public class ProductsData {
                 .build();
 
         return Stream.of(Arguments.of(product));
+    }
 
+    public static Stream<Arguments> dataForUpdateTest() {
+        Faker faker = new Faker();
+        ProductsPOJO product = ProductsPOJO.builder()
+                .title(faker.brand().watch())
+                .price(faker.number().numberBetween(0, 1000))
+                .description(faker.text().text(10, 100))
+                .images(List.of(faker.internet().image()))
+                .build();
+
+        return Stream.of(Arguments.of(product));
     }
 
 

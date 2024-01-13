@@ -30,7 +30,7 @@ public class FileTests {
 
     @Test
     public void testFromFileJsonToObject() {
-        CategoryPOJO categoryJSON = JsonHelper.fromJson("src/test/resources/file.json", CategoryPOJO.class);
+        CategoryPOJO categoryJSON = JsonHelper.readJsonFromFilePath("src/test/resources/file.json", CategoryPOJO.class);
         System.out.println(categoryJSON.getImage());
         System.out.println(categoryJSON.getName());
         System.out.println(categoryJSON.getId());
@@ -46,7 +46,7 @@ public class FileTests {
                 .build();
         String cat = JsonHelper.toJson(categoryToJSON);
 
-        CategoryPOJO categoryJSON = JsonHelper.fromJsonString(cat, CategoryPOJO.class);
+        CategoryPOJO categoryJSON = JsonHelper.readJsonFromString(cat, CategoryPOJO.class);
         System.out.println(categoryJSON.getImage());
         System.out.println(categoryJSON.getName());
         System.out.println(categoryJSON.getId());

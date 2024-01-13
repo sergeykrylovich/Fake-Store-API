@@ -85,6 +85,7 @@ public class AuthService {
 
 
         return new AssertableResponse(given(prepareRequest(AUTH_PROFILE_PATH))
+                .auth().oauth2(token)
                 .body(authToken)
                 .when()
                 .get()

@@ -13,7 +13,6 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.SC_CREATED;
-import static org.apache.http.HttpStatus.SC_OK;
 import static test.fakeapi.data.ProductsData.getRandomProduct;
 import static test.fakeapi.specs.FakeStoreAPISpecs.prepareRequest;
 
@@ -119,23 +118,15 @@ public class ProductService {
     }
 
     @Step(value = "update product with arguments")
-    public ProductsPOJO updateProduct(String title, Integer price,
-                                      String description,
-                                      List<String> images, Integer productId, String bearerToken) {
+    public AssertableResponse updateProduct(Integer productId, ProductsPOJO product, String token) {
 
-        CreateProductPOJO createProductPOJO = new CreateProductPOJO(title, price, description, images);
-
-        return given()
-                .filters(new AllureRestAssured())
-                .spec(prepareRequest(PRODUCT_BASEPATH))
-                .header("Authorization", "Bearer " + bearerToken)
-                .body(createProductPOJO)
+        return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
+                .auth().oauth2(token)
+                .pathParam("productId", productId)
+                .body(product)
                 .when()
-                .put("/" + productId)
-                .then()
-                .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTS_JSON_SCHEMA))
-                .extract().jsonPath().getObject("", ProductsPOJO.class);
+                .put("/{productId}")
+                .then());
     }
 
     @Step(value = "delete product by product id")

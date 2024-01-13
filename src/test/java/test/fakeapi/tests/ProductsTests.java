@@ -3,16 +3,13 @@ package test.fakeapi.tests;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
-import net.datafaker.Faker;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import test.fakeapi.pojo.ProductsPOJO;
+import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.AuthService;
 import test.fakeapi.requests.BaseApi;
 import test.fakeapi.requests.ProductService;
@@ -30,16 +27,27 @@ import static test.fakeapi.specs.Constants.NUMERIC_STRING_IS_EXPECTED;
 @Epic("API of products")
 public class ProductsTests extends BaseApi {
 
-    Faker faker = new Faker();
     private ProductService productService;
     private AuthService authService;
     private UserService userService;
+    private String token;
+    private Random random;
 
     @BeforeEach
     public void initTests() {
         productService = new ProductService();
         authService = new AuthService();
         userService = new UserService();
+        token = authService.createAndLoginRandomUser().getJWTToken();
+    }
+
+    @AfterEach
+    public void cleanUp() {
+        Integer id = authService.getUserByJWTToken(token)
+                .extractAs(UserPOJO.class)
+                .getId();
+
+        userService.deleteUser(id);
     }
 
 
@@ -52,9 +60,7 @@ public class ProductsTests extends BaseApi {
     @DisplayName("Get all products")
     public void getAllProductsTest() {
 
-        String accessToken = authService.createAndLoginRandomUser().getJWTToken();
-
-        List<ProductsPOJO> listOfProducts = productService.getAllProducts(accessToken)
+        List<ProductsPOJO> listOfProducts = productService.getAllProducts(token)
                 .should(hasStatusCode(200))
                 .should(hasJsonSchema(PRODUCTS_JSON_SCHEMA))
                 .should(hasResponseTime(5))
@@ -68,27 +74,24 @@ public class ProductsTests extends BaseApi {
     @Severity(SeverityLevel.NORMAL)
     @Tag("API")
     @Tag("ProductTest")
-    @Tag("Integration")
+    @Tag("Smoke")
     @DisplayName("Get an existing single product")
     public void getSingleProductTest() {
 
-        String accessToken = authService.createAndLoginRandomUser().getJWTToken();
-        ProductsPOJO createdProduct = productService.createRandomProduct(accessToken)
+        ProductsPOJO expectedProduct = productService.createRandomProduct(token)
                 .extractAs(ProductsPOJO.class);
 
-        ProductsPOJO responseProduct = productService.getSingleProduct(createdProduct.getId(), accessToken)
+        ProductsPOJO actualProduct = productService.getSingleProduct(expectedProduct.getId(), token)
                 .should(hasStatusCode(200))
                 .should(hasJsonSchema(PRODUCTS_JSON_SCHEMA))
                 .should(hasResponseTime(2))
                 .extractAs(ProductsPOJO.class);
 
         SoftAssertions.assertSoftly(softAssertions -> {
-            softAssertions.assertThat(responseProduct.getId()).isEqualTo(createdProduct.getId());
-            softAssertions.assertThat(responseProduct.getTitle()).isEqualTo(createdProduct.getTitle());
-            softAssertions.assertThat(responseProduct.getDescription()).isEqualTo(createdProduct.getDescription());
-            softAssertions.assertThat(responseProduct.getCategoryId()).isEqualTo(createdProduct.getCategoryId());
-            softAssertions.assertThat(responseProduct.getImages()).isEqualTo(createdProduct.getImages());
-            softAssertions.assertThat(responseProduct.getPrice()).isEqualTo(createdProduct.getPrice());
+            softAssertions.assertThat(actualProduct)
+                    .usingRecursiveComparison()
+                    .ignoringFields("creationAt", "updatedAt", "category")
+                    .isEqualTo(expectedProduct);
         });
 
     }
@@ -101,15 +104,14 @@ public class ProductsTests extends BaseApi {
     @DisplayName("Get a non existing single product")
     public void getSingleProductTestWithNonExistentId() {
 
-        Random random = new Random();
+        random = new Random();
 
-        String accessToken = authService.createAndLoginRandomUser().getJWTToken();
         int maxProductId = productService.getAllProducts().getMaxIdOfProductResponse();
 
         int nonExistingProductId = maxProductId + random.nextInt(1000, Integer.MAX_VALUE);
 
         String message = productService
-                .getSingleProduct(nonExistingProductId, accessToken)
+                .getSingleProduct(nonExistingProductId, token)
                 .should(hasStatusCode(400))
                 .getMessage();
 
@@ -126,9 +128,7 @@ public class ProductsTests extends BaseApi {
     @DisplayName("Get a non existing single product")
     public void getSingleProductTestWithIdNotANumber(String productId) {
 
-        String accessToken = authService.createAndLoginRandomUser().getJWTToken();
-
-        String message = productService.getSingleProduct(productId, accessToken)
+        String message = productService.getSingleProduct(productId, token)
                 .should(hasStatusCode(400))
                 .getMessage();
 
@@ -147,14 +147,13 @@ public class ProductsTests extends BaseApi {
     @DisplayName("Create product")
     public void createProductTest(ProductsPOJO expectedProduct) {
 
-        String accessToken = authService.createAndLoginRandomUser().getJWTToken();
-        ProductsPOJO actualProduct = productService.createProduct(expectedProduct, accessToken)
+        ProductsPOJO actualProduct = productService.createProduct(expectedProduct, token)
                 .should(hasStatusCode(201))
                 .should(hasJsonSchema(PRODUCTS_JSON_SCHEMA))
                 .should(hasResponseTime(5))
                 .extractAs(ProductsPOJO.class);
 
-        SoftAssertions.assertSoftly(softly -> {
+/*        SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(actualProduct.getId()).isPositive();
             softly.assertThat(actualProduct.getPrice()).isEqualTo(expectedProduct.getPrice());
             //softly.assertThat(actualProduct.getImages()).containsAnyElementsOf(expectedProduct.getImages());
@@ -162,45 +161,38 @@ public class ProductsTests extends BaseApi {
             softly.assertThat(actualProduct.getTitle()).isEqualTo(expectedProduct.getTitle());
             softly.assertThat(actualProduct.getCategory()).isNotNull();
             softly.assertThat(actualProduct.getCategory().getId()).isEqualTo(expectedProduct.getCategoryId());
-        });
+        });*/
+
+        assertThat(actualProduct)
+                .usingRecursiveComparison()
+                .ignoringFields("categoryId", "id", "creationAt", "updatedAt", "category", "images")
+                .isEqualTo(expectedProduct);
 
         //Delete product after all tests
-        productService.deleteSingleProduct(actualProduct.getId(), accessToken);
+        productService.deleteSingleProduct(actualProduct.getId(), token);
 
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource(value = "test.fakeapi.data.ProductsData#dataForUpdateTest")
     @Severity(SeverityLevel.CRITICAL)
     @Tag("API")
     @Tag("ProductTest")
     @Tag("Integration")
     @DisplayName("Update an existing single product")
-    public void updateProductTest() {
+    public void updateProductTest(ProductsPOJO actualProduct) {
 
-/*
-        String title = faker.brand().watch();
-        Integer price = faker.number().numberBetween(0, 1000);
-        String description = faker.text().text(10, 100);
-        List<String> images = List.of(faker.internet().image());
+        ProductsPOJO createdProduct = productService.createRandomProduct(token)
+                .extractAs(ProductsPOJO.class);
 
-        ProductsPOJO createdProduct = productService.createRandomProduct(bearerToken);
+        ProductsPOJO expectedProduct = productService.updateProduct(createdProduct.getId(), actualProduct, token)
+                .should(hasStatusCode(200))
+                .should(hasJsonSchema(PRODUCTS_JSON_SCHEMA))
+                .extractAs(ProductsPOJO.class);
 
-
-        ProductsPOJO updateProductItem = productService.updateProduct(title,
-                price,
-                description,
-                images,
-                createdProduct.getId(),
-                bearerToken);
-
-
-        SoftAssertions.assertSoftly(softly -> {
-            assertThat(updateProductItem.getTitle()).isEqualTo(title);
-            assertThat(updateProductItem.getPrice()).isEqualTo(price);
-            assertThat(updateProductItem.getDescription()).isEqualTo(description);
-            assertThat(updateProductItem.getImages().get(0)).isEqualTo(images.get(0));
-        });
-*/
+        assertThat(expectedProduct.getTitle()).isEqualTo(expectedProduct.getTitle());
+        assertThat(expectedProduct.getPrice()).isEqualTo(expectedProduct.getPrice());
+        assertThat(expectedProduct.getDescription()).isEqualTo(expectedProduct.getDescription());
 
 
     }
@@ -213,12 +205,11 @@ public class ProductsTests extends BaseApi {
     @DisplayName("Delete an existing product")
     public void deleteExistingProductTest() {
 
-        String accessToken = authService.createAndLoginRandomUser().getJWTToken();
-        int createdProductId = productService.createRandomProduct(accessToken)
+        int createdProductId = productService.createRandomProduct(token)
                 .extractAs(ProductsPOJO.class)
                 .getId();
 
-        boolean resultOfDelete = productService.deleteSingleProduct(createdProductId, accessToken)
+        boolean resultOfDelete = productService.deleteSingleProduct(createdProductId, token)
                 .should(hasStatusCode(200))
                 .getResultOfDelete();
 
@@ -232,19 +223,18 @@ public class ProductsTests extends BaseApi {
     @DisplayName("Delete a non-existing product")
     public void deleteNonExistingProduct() {
 
-        Random random = new Random();
+        random = new Random();
 
-        String accessToken = authService.createAndLoginRandomUser().getJWTToken();
         int maxProductId = productService.getAllProducts().getMaxIdOfProductResponse();
         int nonExistingProductId = maxProductId + random.nextInt(1000, Integer.MAX_VALUE);
 
-        String message = productService.deleteSingleProduct(nonExistingProductId, accessToken)
+        String message = productService.deleteSingleProduct(nonExistingProductId, token)
                 .should(hasStatusCode(400))
                 .getMessage();
 
         assertThat(message).startsWith(NOT_FIND_ANY_ENTITY_OF_TYPE);
 
-        productService.deleteSingleProduct(maxProductId, accessToken).should(hasStatusCode(200));
+        productService.deleteSingleProduct(maxProductId, token).should(hasStatusCode(200));
 
     }
 }

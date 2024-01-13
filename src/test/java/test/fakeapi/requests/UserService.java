@@ -72,7 +72,7 @@ public class UserService {
                 .then());
     }
 
-    @Step(value = "Get single user")
+    @Step(value = "Get single user without token")
     public AssertableResponse getSingleUser(int userId) {
 
         return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
@@ -81,7 +81,8 @@ public class UserService {
                 .get("/{userId}")
                 .then());
     }
-    @Step(value = "Get single user with tokne")
+
+    @Step(value = "Get single user with token")
     public AssertableResponse getSingleUser(int userId, String token) {
 
         return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
@@ -115,6 +116,7 @@ public class UserService {
                 .then());
     }
 
+    @Step(value = "Update single user")
     public AssertableResponse updateUser(int userId, UserPOJO updatableUser, String token) {
 
         return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
@@ -126,7 +128,7 @@ public class UserService {
                 .then());
     }
 
-    @Step(value = "Update single user")
+    @Step(value = "Delete single user")
     public AssertableResponse deleteUser(int userId) {
 
         return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
@@ -136,7 +138,7 @@ public class UserService {
                 .then());
     }
 
-    @Step(value = "Update single user")
+    @Step(value = "Delete single user")
     public AssertableResponse deleteUser(int userId, String token) {
 
         return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
