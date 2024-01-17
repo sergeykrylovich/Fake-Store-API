@@ -47,5 +47,4 @@ public class ProductsData {
         return Stream.of(Arguments.of(product));
     }
 
-
 }

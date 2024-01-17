@@ -39,6 +39,17 @@ public class ProductService {
                 .then());
     }
 
+    @Step(value = "Get all products with pagination")
+    public AssertableResponse getAllProductsWithPagination(String token, int offset, int limit) {
+
+        return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
+                .auth().oauth2(token)
+                .pathParams("offset", offset, "limit", limit)
+                .when()
+                .get("?offset={offset}&limit={limit}")
+                .then());
+    }
+
     @Step(value = "get single product by product id")
     public JsonPath getSingleProduct(Object productId, String bearerToken, int statusCode) {
 

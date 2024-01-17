@@ -6,6 +6,7 @@ import io.qameta.allure.SeverityLevel;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import test.fakeapi.pojo.ProductsPOJO;
@@ -52,7 +53,7 @@ public class ProductsTests extends BaseApi {
 
 
     @Test
-    @Severity(SeverityLevel.NORMAL)
+    @Severity(SeverityLevel.CRITICAL)
     @Tag("API")
     @Tag("ProductTest")
     @Tag("Integration")
@@ -67,11 +68,30 @@ public class ProductsTests extends BaseApi {
                 .asList(ProductsPOJO.class);
 
         assertThat(listOfProducts).isNotEmpty();
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1,10", "0,10"})
+    @Severity(SeverityLevel.MINOR)
+    @Tag("API")
+    @Tag("ProductTest")
+    @Tag("Integration")
+    @Tag("Smoke")
+    @DisplayName("Get all products with pagination")
+    public void getAllProductsWithPaginationTest(int offset, int limit) {
+
+        List<ProductsPOJO> listOfProducts = productService.getAllProductsWithPagination(token, offset, limit)
+                .should(hasStatusCode(200))
+                .should(hasJsonSchema(PRODUCTS_JSON_SCHEMA))
+                .should(hasResponseTime(5))
+                .asList(ProductsPOJO.class);
+
+        assertThat(listOfProducts.size()).isPositive().isEqualTo(limit);
 
     }
 
     @Test
-    @Severity(SeverityLevel.NORMAL)
+    @Severity(SeverityLevel.CRITICAL)
     @Tag("API")
     @Tag("ProductTest")
     @Tag("Smoke")
@@ -93,7 +113,6 @@ public class ProductsTests extends BaseApi {
                     .ignoringFields("creationAt", "updatedAt", "category")
                     .isEqualTo(expectedProduct);
         });
-
     }
 
     @Test
@@ -105,9 +124,7 @@ public class ProductsTests extends BaseApi {
     public void getSingleProductTestWithNonExistentId() {
 
         random = new Random();
-
-        int maxProductId = productService.getAllProducts().getMaxIdOfProductResponse();
-
+        int maxProductId = productService.getAllProducts(token).getMaxIdOfProductResponse();
         int nonExistingProductId = maxProductId + random.nextInt(1000, Integer.MAX_VALUE);
 
         String message = productService
@@ -116,7 +133,6 @@ public class ProductsTests extends BaseApi {
                 .getMessage();
 
         assertThat(message).startsWith(NOT_FIND_ANY_ENTITY_OF_TYPE);
-
     }
 
     @ParameterizedTest
@@ -132,9 +148,7 @@ public class ProductsTests extends BaseApi {
                 .should(hasStatusCode(400))
                 .getMessage();
 
-
         assertThat(message).isEqualTo(NUMERIC_STRING_IS_EXPECTED);
-
     }
 
     @MethodSource(value = "test.fakeapi.data.ProductsData#createRandomProduct")
@@ -170,12 +184,11 @@ public class ProductsTests extends BaseApi {
 
         //Delete product after all tests
         productService.deleteSingleProduct(actualProduct.getId(), token);
-
     }
 
     @ParameterizedTest
     @MethodSource(value = "test.fakeapi.data.ProductsData#dataForUpdateTest")
-    @Severity(SeverityLevel.CRITICAL)
+    @Severity(SeverityLevel.NORMAL)
     @Tag("API")
     @Tag("ProductTest")
     @Tag("Integration")
@@ -193,12 +206,10 @@ public class ProductsTests extends BaseApi {
         assertThat(expectedProduct.getTitle()).isEqualTo(expectedProduct.getTitle());
         assertThat(expectedProduct.getPrice()).isEqualTo(expectedProduct.getPrice());
         assertThat(expectedProduct.getDescription()).isEqualTo(expectedProduct.getDescription());
-
-
     }
 
     @Test
-    @Severity(SeverityLevel.CRITICAL)
+    @Severity(SeverityLevel.NORMAL)
     @Tag("API")
     @Tag("ProductTest")
     @Tag("Smoke")
@@ -217,15 +228,14 @@ public class ProductsTests extends BaseApi {
     }
 
     @Test
-    @Severity(SeverityLevel.CRITICAL)
+    @Severity(SeverityLevel.NORMAL)
     @Tag("API")
     @Tag("ProductTest")
     @DisplayName("Delete a non-existing product")
     public void deleteNonExistingProduct() {
 
         random = new Random();
-
-        int maxProductId = productService.getAllProducts().getMaxIdOfProductResponse();
+        int maxProductId = productService.getAllProducts(token).getMaxIdOfProductResponse();
         int nonExistingProductId = maxProductId + random.nextInt(1000, Integer.MAX_VALUE);
 
         String message = productService.deleteSingleProduct(nonExistingProductId, token)
@@ -235,6 +245,5 @@ public class ProductsTests extends BaseApi {
         assertThat(message).startsWith(NOT_FIND_ANY_ENTITY_OF_TYPE);
 
         productService.deleteSingleProduct(maxProductId, token).should(hasStatusCode(200));
-
     }
 }

@@ -43,14 +43,6 @@ public class UsersTests extends BaseApi {
         authService = new AuthService();
     }
 
-
-    @Test
-    public void testt() {
-        String token = authService.createAndLoginRandomUser().getJWTToken();
-        UserPOJO userPOJO = authService.getUserByJWTToken(token).extractAs(UserPOJO.class);
-        System.out.println("----------------------------------" + userPOJO.getId());
-    }
-
     @Test
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
@@ -106,20 +98,20 @@ public class UsersTests extends BaseApi {
     @DisplayName("Create new user")
     public void createUserTest() {
 
-        UserPOJO user = getRandomUser();
+        UserPOJO expectedUser = getRandomUser();
 
-        UserPOJO userApi = userService
-                .createUser(user)
+        UserPOJO actualUser = userService
+                .createUser(expectedUser)
                 .should(hasStatusCode(201))
                 .should(hasJsonSchema(USER_JSON_SCHEMA))
                 .should(hasResponseTime(3l))
                 .extractAs(UserPOJO.class);
 
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(user.getName()).isEqualTo(userApi.getName());
-            softly.assertThat(user.getPassword()).isEqualTo(userApi.getPassword());
-            softly.assertThat(user.getEmail()).isEqualTo(userApi.getEmail());
-            softly.assertThat(user.getAvatar()).isEqualTo(userApi.getAvatar());
+            softly.assertThat(actualUser.getName()).isEqualTo(expectedUser.getName());
+            softly.assertThat(actualUser.getPassword()).isEqualTo(expectedUser.getPassword());
+            softly.assertThat(actualUser.getEmail()).isEqualTo(expectedUser.getEmail());
+            softly.assertThat(actualUser.getAvatar()).isEqualTo(expectedUser.getAvatar());
         });
 
     }
@@ -131,25 +123,25 @@ public class UsersTests extends BaseApi {
     @Tag("UpdateUser")
     @Tag("UserTest")
     @DisplayName("Update user by id")
-    public void updateUserTestWithAllArguments(UserPOJO userForUpdate) {
+    public void updateUserTestWithAllArguments(UserPOJO expectedUserForUpdate) {
 
         UserPOJO createdUser = userService.createRandomUser();
         String accessToken = authService.logIn(createdUser.getEmail(), createdUser.getPassword())
                 .getJWTToken();
 
-        UserPOJO updatedUser = userService
-                .updateUser(createdUser.getId(),userForUpdate, accessToken)
+        UserPOJO actualUserForUpdate = userService
+                .updateUser(createdUser.getId(),expectedUserForUpdate, accessToken)
                 .should(hasStatusCode(200))
                 .should(hasJsonSchema(USER_JSON_SCHEMA))
                 .extractAs(UserPOJO.class);
 
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(createdUser.getId()).isEqualTo(updatedUser.getId());
-            softly.assertThat(updatedUser.getName()).isEqualTo(userForUpdate.getName());
-            softly.assertThat(updatedUser.getAvatar()).isEqualTo(userForUpdate.getAvatar());
-            softly.assertThat(updatedUser.getEmail()).isEqualTo(userForUpdate.getEmail());
-            softly.assertThat(updatedUser.getRole()).isEqualTo(userForUpdate.getRole());
-            softly.assertThat(updatedUser.getPassword()).isEqualTo(userForUpdate.getPassword());
+            softly.assertThat(actualUserForUpdate.getId()).isEqualTo(createdUser.getId());
+            softly.assertThat(actualUserForUpdate.getName()).isEqualTo(expectedUserForUpdate.getName());
+            softly.assertThat(actualUserForUpdate.getAvatar()).isEqualTo(expectedUserForUpdate.getAvatar());
+            softly.assertThat(actualUserForUpdate.getEmail()).isEqualTo(expectedUserForUpdate.getEmail());
+            softly.assertThat(actualUserForUpdate.getRole()).isEqualTo(expectedUserForUpdate.getRole());
+            softly.assertThat(actualUserForUpdate.getPassword()).isEqualTo(expectedUserForUpdate.getPassword());
         });
 
         userService.deleteUser(createdUser.getId()).should(hasStatusCode(200));
@@ -164,17 +156,17 @@ public class UsersTests extends BaseApi {
     @Tag("UserTest")
     @Tag("NegativeTest")
     @DisplayName("Update user by id with blank arguments")
-    public void updateUserWithBlankArgumentsTest(UserPOJO updatableUser) {
+    public void updateUserWithBlankArgumentsTest(UserPOJO expectedUserForUpdate) {
 
         UserPOJO user = userService.createRandomUser();
         String accessToken = authService.logIn(user.getEmail(), user.getPassword()).getJWTToken();
 
-        List<String> errorUpdatedUser = userService
-                .updateUser(user.getId(), updatableUser, accessToken)
+        List<String> actualUserForUpdate = userService
+                .updateUser(user.getId(), expectedUserForUpdate, accessToken)
                 .should(hasStatusCode(400))
                 .getMessageList();
 
-        assertThat(errorUpdatedUser).containsExactlyInAnyOrder(MESSAGES);
+        assertThat(actualUserForUpdate).containsExactlyInAnyOrder(MESSAGES);
 
         userService.deleteUser(user.getId()).should(hasStatusCode(200));
 
@@ -264,13 +256,13 @@ public class UsersTests extends BaseApi {
 
         String email = faker.random().nextInt(Integer.MAX_VALUE) + faker.internet().emailAddress();
 
-        boolean isAvailable = userService
+        boolean emailIsAvailable = userService
                 .checkEmailIsAvailable(email)
                 .should(hasStatusCode(201))
                 .asJsonPath()
                 .getBoolean("isAvailable");
 
-        assertThat(isAvailable).isTrue();
+        assertThat(emailIsAvailable).isTrue();
     }
 
 

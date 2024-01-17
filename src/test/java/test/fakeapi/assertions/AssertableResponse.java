@@ -64,7 +64,7 @@ public class AssertableResponse {
                 .stream()
                 .mapToInt(x -> x.getId())
                 .max()
-                .orElse(1);
+                .orElse(0);
     }
 
 }
