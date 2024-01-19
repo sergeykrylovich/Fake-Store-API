@@ -1,32 +1,26 @@
 package test.fakeapi.tests;
 
 import io.qameta.allure.Epic;
+import io.qameta.allure.Issue;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
-import io.restassured.path.json.JsonPath;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import test.fakeapi.pojo.CategoryPOJO;
-import test.fakeapi.pojo.RecordNotFound;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.AuthService;
 import test.fakeapi.requests.BaseApi;
 import test.fakeapi.requests.CategoriesService;
 import test.fakeapi.requests.UserService;
-import test.fakeapi.specs.Constants;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static test.fakeapi.assertions.Conditions.*;
-import static test.fakeapi.requests.CategoriesService.CATEGORY_BASEPATH;
 import static test.fakeapi.requests.CategoriesService.CATEGORY_JSON_SCHEMA;
 import static test.fakeapi.specs.Constants.*;
 
@@ -62,12 +56,12 @@ public class CategoriesTests extends BaseApi {
     @Severity(SeverityLevel.NORMAL)
     @Tag("API")
     @Tag("CategoriesTest")
-    @Tag("PositiveTest")
+    @Tag("Smoke")
     @Tag("GetAllCategories")
     @DisplayName(value = "Get all categories")
     void getAllCategoriesTest() {
 
-         List<CategoryPOJO> expectedCategories = categoriesService.getAllCategories(token)
+        List<CategoryPOJO> expectedCategories = categoriesService.getAllCategories(token)
                 .should(hasStatusCode(200))
                 .should(hasJsonSchema(CATEGORY_JSON_SCHEMA))
                 .should(hasResponseTime(5))
@@ -82,7 +76,7 @@ public class CategoriesTests extends BaseApi {
     @Tag("API")
     @Tag("CategoriesTest")
     @Tag("GetSingleCategory")
-    @Tag("PositiveTest")
+    @Tag("Smoke")
     @DisplayName("Get a non deletable single category")
     public void getSingleCategoryTest(int expectedCategoryId) {
 
@@ -110,88 +104,102 @@ public class CategoriesTests extends BaseApi {
     @Tag("NegativeTest")
     @DisplayName("Get single category with non existed category id")
     public void testGetSingleCategoriesWithNonExistentId() {
-/*        int categoryId = 1000;
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
+        random = new Random();
+        int maxCategoryId = categoriesService.getAllCategories(token).getMaxIdOfCategoryResponse();
+        int nonExistingCategoryId = maxCategoryId + random.nextInt(1000, Integer.MAX_VALUE);
 
-        RecordNotFound responseSingleCategory = categoriesService.getSingleCategory(categoryId, token).getObject("", RecordNotFound.class);
+        String actualMessage = categoriesService.getSingleCategory(nonExistingCategoryId, token)
+                .should(hasStatusCode(400))
+                .getMessage();
 
-        LocalDateTime date = LocalDateTime.parse(responseSingleCategory.timestamp(), dateTimeFormatter);
-
-        SoftAssertions.assertSoftly(softly -> {
-            assertThat(responseSingleCategory.name()).isEqualTo(Constants.NOT_FOUND_ERROR);
-            assertThat(responseSingleCategory.message()).startsWith(NOT_FIND_ANY_ENTITY_OF_TYPE);
-            assertThat(responseSingleCategory.path()).isEqualTo(PATH + CATEGORY_BASEPATH + "/" + categoryId);
-            assertThat(date.getMinute()).isEqualTo(LocalDateTime.now(ZoneOffset.UTC).getMinute());
-            assertThat(date.getHour()).isEqualTo(LocalDateTime.now(ZoneOffset.UTC).getHour());
-        });*/
+        assertThat(actualMessage).contains(NOT_FIND_ANY_ENTITY_OF_TYPE);
     }
 
-    @Test
-    @Disabled
+    @Issue(value = "https://support.mycompany.by/JIRA-2")
+    @ParameterizedTest
+    @ValueSource(strings = {"22N", "1+1", "3@", "01", "?"})
     @Severity(SeverityLevel.NORMAL)
     @Tag("API")
     @Tag("CategoriesTest")
     @Tag("GetSingleCategory")
     @Tag("NegativeTest")
     @DisplayName("Get single category with category id is not a number")
-    public void testGetSingleCategoryWithIdNotNumber() {
-/*        String categoryId = "22N";
+    public void testGetSingleCategoryWithIdNotNumber(String categoryId) {
 
-        JsonPath responseFailed = categoriesService.getSingleCategory(categoryId, 400);
+        String actualMessage = categoriesService.getSingleCategory(categoryId, token)
+                .should(hasStatusCode(400))
+                .getMessage();
 
-        SoftAssertions.assertSoftly(softly -> {
-            assertThat(responseFailed.getString("message")).isEqualTo(NUMERIC_STRING_IS_EXPECTED);
-            assertThat(responseFailed.getString("error")).isEqualTo(BAD_REQUEST);
-            assertThat(responseFailed.getString("statusCode")).isEqualTo("400");
-        });*/
+        assertThat(actualMessage).isEqualTo(NUMERIC_STRING_IS_EXPECTED);
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource(value = "test.fakeapi.data.CategoryData#dataForCreateCategory")
     @Tag("API")
     @Tag("CreateCategory")
     @Tag("CategoriesTest")
-    @Tag("PositiveTest")
+    @Tag("Smoke")
     @DisplayName("Create category")
     @Severity(SeverityLevel.NORMAL)
-    void testCreateCategory() {
-        String name = "BMW";
-        String image = "https://placeimg.com/649/480/any";
+    void createCategoryTest(CategoryPOJO expectedCategory) {
 
-        CategoryPOJO response = categoriesService.createCategory(name, image).getObject("", CategoryPOJO.class);
+        CategoryPOJO actualCategory = categoriesService.createCategory(expectedCategory)
+                .should(hasStatusCode(201))
+                .should(hasJsonSchema(CATEGORY_JSON_SCHEMA))
+                .should(hasResponseTime(10))
+                .extractAs(CategoryPOJO.class);
 
-        assertThat(response.getName()).isEqualTo(name);
-        assertThat(response.getImage()).isEqualTo(image);
+        SoftAssertions.assertSoftly(assertSoftly -> {
+            assertSoftly.assertThat(actualCategory.getName()).isEqualTo(expectedCategory.getName());
+            assertSoftly.assertThat(actualCategory.getImage()).isEqualTo(expectedCategory.getImage());
+            assertSoftly.assertThat(actualCategory.getId()).isPositive();
+            assertSoftly.assertThat(actualCategory.getCreationAt()).containsPattern(PATTERN_OF_CREATE_OR_UPDATE);
+            assertSoftly.assertThat(actualCategory.getUpdatedAt()).containsPattern(PATTERN_OF_CREATE_OR_UPDATE);
+        });
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource(value = "test.fakeapi.data.CategoryData#dataForCreateCategory")
     @Tag("API")
     @Tag("UpdateCategory")
     @Tag("PositiveTest")
     @DisplayName("Update category")
     @Severity(SeverityLevel.NORMAL)
-    void testUpdateCategory() {
-        int id = 3;
-        String name = "Audi";
-        String image = "https://placeimg.com/648/480/any";
-        CategoryPOJO response = categoriesService.updateCategory(id, name, image).getObject("", CategoryPOJO.class);
+    void updateCategoryTest(CategoryPOJO category) {
 
-        assertThat(response.getName()).isEqualTo(name);
-        assertThat(response.getImage()).isEqualTo(image);
+        CategoryPOJO expectedCategory = categoriesService.createCategory(category).extractAs(CategoryPOJO.class);
+
+        CategoryPOJO actualCategory = categoriesService.updateCategory(expectedCategory.getId(), category, token)
+                .should(hasStatusCode(200))
+                .should(hasJsonSchema(CATEGORY_JSON_SCHEMA))
+                .extractAs(CategoryPOJO.class);
+
+        SoftAssertions.assertSoftly(assertSoftly -> {
+            assertSoftly.assertThat(actualCategory.getName())
+                    .as("name of category")
+                    .isEqualTo(expectedCategory.getName());
+            assertSoftly.assertThat(actualCategory.getImage()).isEqualTo(expectedCategory.getImage());
+            assertSoftly.assertThat(actualCategory.getId()).isPositive();
+            assertSoftly.assertThat(actualCategory.getCreationAt()).containsPattern(PATTERN_OF_CREATE_OR_UPDATE);
+            assertSoftly.assertThat(actualCategory.getUpdatedAt()).containsPattern(PATTERN_OF_CREATE_OR_UPDATE);
+        });
     }
 
     @Test
     @Tag("API")
     @Tag("DeleteCategory")
     @Tag("CategoriesTest")
-    @Tag("PositiveTest")
+    @Tag("Smoke")
     @DisplayName("Delete category")
     @Severity(SeverityLevel.NORMAL)
-    void testDeleteCategory() {
+    void deleteCategoryTest() {
 
-        JsonPath createdCategory = categoriesService.createCategory("Maps", "https://placeimg.com/640/480/any");
-        String response = categoriesService.deleteCategory(createdCategory.get("id")).htmlPath().get("html.body");
+        CategoryPOJO createdCategory = categoriesService.createRandomCategory(token);
+        boolean resultOfDelete = categoriesService.deleteCategory(createdCategory.getId(), token)
+                .should(hasStatusCode(200))
+                .getResultOfDelete();
 
-        assertThat(response).isEqualTo("true");
+        assertThat(resultOfDelete).isTrue();
     }
 
     @Test

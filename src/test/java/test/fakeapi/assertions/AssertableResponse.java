@@ -4,6 +4,7 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.path.xml.XmlPath;
 import io.restassured.response.ValidatableResponse;
 import lombok.RequiredArgsConstructor;
+import test.fakeapi.pojo.CategoryPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
 
 import java.util.List;
@@ -61,6 +62,16 @@ public class AssertableResponse {
         return validatableResponse.extract()
                 .jsonPath()
                 .getList("", ProductsPOJO.class)
+                .stream()
+                .mapToInt(x -> x.getId())
+                .max()
+                .orElse(0);
+    }
+
+    public Integer getMaxIdOfCategoryResponse() {
+        return validatableResponse.extract()
+                .jsonPath()
+                .getList("", CategoryPOJO.class)
                 .stream()
                 .mapToInt(x -> x.getId())
                 .max()

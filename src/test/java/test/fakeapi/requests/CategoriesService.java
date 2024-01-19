@@ -4,8 +4,6 @@ import io.qameta.allure.Step;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.path.json.JsonPath;
- import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 import test.fakeapi.assertions.AssertableResponse;
 import test.fakeapi.pojo.CategoryPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
@@ -15,7 +13,8 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.SC_OK;
-import static test.fakeapi.specs.FakeStoreAPISpecs.*;
+import static test.fakeapi.data.CategoryData.getRandomCategory;
+import static test.fakeapi.specs.FakeStoreAPISpecs.prepareRequest;
 
 public class CategoriesService {
 
@@ -52,6 +51,17 @@ public class CategoriesService {
                 .then());
     }
 
+    @Step(value = "Get a single category by category ID")
+    public AssertableResponse getSingleCategory(String categoryId, String token) {
+
+        return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
+                .auth().oauth2(token)
+                .pathParam("categoryId", categoryId)
+                .when()
+                .get("/{categoryId}")
+                .then());
+    }
+
     @Step(value = "Create category with name and image arguments")
     public JsonPath createCategory(String name, String image) {
 
@@ -72,6 +82,17 @@ public class CategoriesService {
                 .jsonPath();
     }
 
+    @Step(value = "Create category with category object")
+    public AssertableResponse createCategory(CategoryPOJO category, String token) {
+
+        return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
+                .auth().oauth2(token)
+                .body(category)
+                .when()
+                .post("/")
+                .then());
+    }
+
     @Step(value = "Create category with name and image arguments")
     public AssertableResponse createCategory(CategoryPOJO category) {
 
@@ -89,40 +110,26 @@ public class CategoriesService {
     }
 
     @Step(value = "Update data of category with id, name  and image arguments")
-    public JsonPath updateCategory(int categoryId, String name, String image) {
+    public AssertableResponse updateCategory(int categoryId, CategoryPOJO category, String token) {
 
-        //installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification1(200, categorySchema.get()));
-
-        HashMap<String, String> bodyForCreateCategory = new HashMap<>();
-        bodyForCreateCategory.put("name", name);
-        bodyForCreateCategory.put("image", image);
-
-        return given()
-                .filters(new AllureRestAssured())
-                .spec(prepareRequest(CATEGORY_BASEPATH))
-                .body(bodyForCreateCategory)
+        return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
+                .auth().oauth2(token)
+                .pathParam("categoryId", categoryId)
+                .body(category)
                 .when()
-                .put("/" + categoryId)
-                .then()
-                .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(CATEGORY_JSON_SCHEMA))
-                .extract()
-                .jsonPath();
+                .put("/{categoryId}")
+                .then());
     }
 
     @Step(value = "Delete category by category ID")
-    public ExtractableResponse<Response> deleteCategory(int categoryId) {
+    public AssertableResponse deleteCategory(int categoryId, String token) {
 
-        //installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200));
-
-        return given()
-                .filters(new AllureRestAssured())
-                .spec(prepareRequest(CATEGORY_BASEPATH))
+        return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
+                .auth().oauth2(token)
+                .pathParam("categoryId", categoryId)
                 .when()
-                .delete("/" + categoryId)
-                .then()
-                .statusCode(SC_OK)
-                .extract();
+                .delete("/{categoryId}")
+                .then());
     }
 
     @Step(value = "Get all products by selected category")
@@ -141,5 +148,12 @@ public class CategoriesService {
                 .extract()
                 .jsonPath().getList("", ProductsPOJO.class);
     }
+
+    @Step(value = "Create category random category")
+    public CategoryPOJO createRandomCategory(String token) {
+
+        return createCategory(getRandomCategory(),token).extractAs(CategoryPOJO.class);
+    }
+
 
 }
