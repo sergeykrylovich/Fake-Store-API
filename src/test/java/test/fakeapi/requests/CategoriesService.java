@@ -19,47 +19,41 @@ import static test.fakeapi.specs.FakeStoreAPISpecs.*;
 
 public class CategoriesService {
 
-    public static final String CATEGORYBASEPATH = "/categories";
-    public static final String CATEGORYSCHEMA = "categories-json-schema.json";
-    static ThreadLocal<String> categorySchema = ThreadLocal.withInitial(() -> CATEGORYSCHEMA);
-
-
-
+    public static final String CATEGORY_BASEPATH = "/categories";
+    public static final String CATEGORY_JSON_SCHEMA = "categories-json-schema.json";
 
     @Step(value = "Get all categories")
     public AssertableResponse getAllCategories() {
 
-        //installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200, CATEGORYSCHEMA));
+        return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
+                .when()
+                .get()
+                .then());
+    }
 
-        return new AssertableResponse(given(prepareRequest(CATEGORYBASEPATH))
+    @Step(value = "Get all categories")
+    public AssertableResponse getAllCategories(String token) {
+
+        return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
+                .auth().oauth2(token)
                 .when()
                 .get()
                 .then());
     }
 
     @Step(value = "Get a single category by category ID")
-    public JsonPath getSingleCategory(Object categoryId, int status) {
+    public AssertableResponse getSingleCategory(int categoryId, String token) {
 
-
-       // installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200, CATEGORYSCHEMA));
-
-        return given()
-                .filters(new AllureRestAssured())
-                .spec(prepareRequest(CATEGORYBASEPATH))
+        return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
+                .auth().oauth2(token)
+                .pathParam("categoryId", categoryId)
                 .when()
-                .get("/" + categoryId)
-                .then()
-                .statusCode(status)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(CATEGORYSCHEMA))
-                .log().all()
-                .extract()
-                .jsonPath();
+                .get("/{categoryId}")
+                .then());
     }
 
     @Step(value = "Create category with name and image arguments")
     public JsonPath createCategory(String name, String image) {
-
-        //installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification1(201, categorySchema.get()));
 
         HashMap<String, String> bodyForCreateCategory = new HashMap<>();
         bodyForCreateCategory.put("name", name);
@@ -67,13 +61,13 @@ public class CategoriesService {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(prepareRequest(CATEGORYBASEPATH))
+                .spec(prepareRequest(CATEGORY_BASEPATH))
                 .body(bodyForCreateCategory)
                 .when()
                 .post("/")
                 .then()
                 .statusCode(201)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(CATEGORYSCHEMA))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(CATEGORY_JSON_SCHEMA))
                 .extract()
                 .jsonPath();
     }
@@ -87,7 +81,7 @@ public class CategoriesService {
         bodyForCreateCategory.put("name", name);
         bodyForCreateCategory.put("image", image);*/
 
-        return new AssertableResponse(given(prepareRequest(CATEGORYBASEPATH))
+        return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
                 .body(category)
                 .when()
                 .post("/")
@@ -105,13 +99,13 @@ public class CategoriesService {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(prepareRequest(CATEGORYBASEPATH))
+                .spec(prepareRequest(CATEGORY_BASEPATH))
                 .body(bodyForCreateCategory)
                 .when()
                 .put("/" + categoryId)
                 .then()
                 .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(CATEGORYSCHEMA))
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(CATEGORY_JSON_SCHEMA))
                 .extract()
                 .jsonPath();
     }
@@ -123,7 +117,7 @@ public class CategoriesService {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(prepareRequest(CATEGORYBASEPATH))
+                .spec(prepareRequest(CATEGORY_BASEPATH))
                 .when()
                 .delete("/" + categoryId)
                 .then()
@@ -138,7 +132,7 @@ public class CategoriesService {
 
         return given()
                 .filters(new AllureRestAssured())
-                .spec(prepareRequest(CATEGORYBASEPATH))
+                .spec(prepareRequest(CATEGORY_BASEPATH))
                 .when()
                 .get("/" + categoryId + "/products")
                 .then()
