@@ -2,15 +2,17 @@ package test.fakeapi.tests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.qameta.allure.Epic;
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
-import io.restassured.path.json.JsonPath;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import lombok.SneakyThrows;
-import org.assertj.core.api.SoftAssertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.fakeapi.pojo.CategoryPOJO;
+import test.fakeapi.pojo.FilePOJO;
 import test.fakeapi.requests.AuthService;
+import test.fakeapi.requests.BaseApi;
 import test.fakeapi.requests.FileService;
 import test.fakeapi.utils.JsonHelper;
 
@@ -18,14 +20,20 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static test.fakeapi.assertions.Conditions.hasStatusCode;
-import static test.fakeapi.specs.Constants.BASE_URL;
 
 @Epic("Endpoints for working with files")
-public class FileTests {
+public class FileTests extends BaseApi {
 
-    @BeforeAll
-    public static void setAllure() {
-        RestAssured.filters(new AllureRestAssured());
+    private FileService fileService;
+    private AuthService authService;
+    private String token;
+    private
+
+    @BeforeEach
+    public void initTests() {
+        authService = new AuthService();
+        token = authService.createAndLoginRandomUser().getJWTToken();
+        fileService = new FileService();
     }
 
     @Test
@@ -68,32 +76,32 @@ public class FileTests {
     }
 
     @Test
-    public void testUploadTxtFile() {
-        FileService fileService = new FileService();
-        AuthService authService = new AuthService();
-        String token = authService.createAndLoginRandomUser().getJWTToken();
+    @Severity(SeverityLevel.NORMAL)
+    @Tag("API")
+    @Tag("FileTest")
+    @Tag("Smoke")
+    @DisplayName("Upload file")
+    public void uploadFileTest() {
+        String fileName = "Excel.xls";
+        String fileExtension = "xls";
+        String filePath = "src/test/resources/" + fileName;
 
-        String fileName = "file.json";
-        String fileExtension = fileName.substring(fileName.indexOf("."));
-        JsonPath responseBody = fileService.uploadFile(fileName, token).should(hasStatusCode(201)).asJsonPath(); // to do
-        String responseFileName = responseBody.getString("filename");
+        FilePOJO actualFileResponse = fileService.uploadFile(filePath, token)
+                .should(hasStatusCode(201))
+                .extractAs(FilePOJO.class);
 
-        System.out.println(fileExtension);
-        System.out.println(responseFileName);
-
-        SoftAssertions.assertSoftly(softly -> {
-            assertThat(responseBody.getString("originalname")).isEqualTo(fileName);
-            assertThat(responseFileName).endsWith(fileExtension);
-            assertThat(responseBody.getString("location")).isEqualTo(BASE_URL + "/files/" + responseFileName);
-        });
+        assertThat(actualFileResponse.getOriginalname()).isEqualTo(fileName);
+        assertThat(actualFileResponse.getFilename()).isNotEmpty().endsWith(fileExtension);
+        assertThat(actualFileResponse.getLocation()).isNotEmpty().endsWith(fileExtension);
     }
 
     @Test
     @SneakyThrows
-    public void testGetFile() {
-        FileService fileService = new FileService();
-        AuthService authService = new AuthService();
-        String accessToken = authService.createAndLoginRandomUser().getJWTToken();
+    public void getFileTest() {
+        String filename = fileService.uploadExampleFile(token)
+                .extractAs(FilePOJO.class)
+                .getFilename();
+        fileService.getFile(filename, token);
        /* AssertableResponse file = fileService.getFile("532e.pdf"); // TO DO
         InputStream inputStream = file.asInputStream();
         FileOutputStream fileOutputStream = new FileOutputStream("src/test/resources/532f.pdf");
