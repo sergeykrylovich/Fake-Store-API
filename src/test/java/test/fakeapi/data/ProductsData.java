@@ -3,6 +3,7 @@ package test.fakeapi.data;
 import net.datafaker.Faker;
 import org.junit.jupiter.params.provider.Arguments;
 import test.fakeapi.pojo.ProductsPOJO;
+import test.fakeapi.requests.CategoriesService;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -21,16 +22,15 @@ public class ProductsData {
 
     }
 
-
-
     public static Stream<Arguments> createRandomProduct() {
         Faker faker = new Faker();
-        CategoryData categoryData = new CategoryData();
+        CategoriesService categoriesService = new CategoriesService();
+
         ProductsPOJO product = ProductsPOJO.builder()
                 .title(faker.brand().watch())
                 .price(faker.number().numberBetween(0, 1000))
                 .description(faker.text().text(10, 100))
-                .categoryId(categoryData.getRandomCategoryId()) //To Do create category
+                .categoryId(categoriesService.getRandomCategoryId())
                 .images(List.of(faker.internet().image()))
                 .build();
 

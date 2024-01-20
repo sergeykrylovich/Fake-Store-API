@@ -10,11 +10,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import test.fakeapi.pojo.CategoryPOJO;
+import test.fakeapi.pojo.ProductsPOJO;
 import test.fakeapi.pojo.UserPOJO;
-import test.fakeapi.requests.AuthService;
-import test.fakeapi.requests.BaseApi;
-import test.fakeapi.requests.CategoriesService;
-import test.fakeapi.requests.UserService;
+import test.fakeapi.requests.*;
 
 import java.util.List;
 import java.util.Random;
@@ -53,7 +51,7 @@ public class CategoriesTests extends BaseApi {
     }
 
     @Test
-    @Severity(SeverityLevel.NORMAL)
+    @Severity(SeverityLevel.CRITICAL)
     @Tag("API")
     @Tag("CategoriesTest")
     @Tag("Smoke")
@@ -72,7 +70,7 @@ public class CategoriesTests extends BaseApi {
 
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 3, 4, 5})
-    @Severity(SeverityLevel.NORMAL)
+    @Severity(SeverityLevel.CRITICAL)
     @Tag("API")
     @Tag("CategoriesTest")
     @Tag("GetSingleCategory")
@@ -140,7 +138,7 @@ public class CategoriesTests extends BaseApi {
     @Tag("CategoriesTest")
     @Tag("Smoke")
     @DisplayName("Create category")
-    @Severity(SeverityLevel.NORMAL)
+    @Severity(SeverityLevel.CRITICAL)
     void createCategoryTest(CategoryPOJO expectedCategory) {
 
         CategoryPOJO actualCategory = categoriesService.createCategory(expectedCategory)
@@ -164,7 +162,7 @@ public class CategoriesTests extends BaseApi {
     @Tag("UpdateCategory")
     @Tag("PositiveTest")
     @DisplayName("Update category")
-    @Severity(SeverityLevel.NORMAL)
+    @Severity(SeverityLevel.CRITICAL)
     void updateCategoryTest(CategoryPOJO category) {
 
         CategoryPOJO expectedCategory = categoriesService.createCategory(category).extractAs(CategoryPOJO.class);
@@ -206,21 +204,30 @@ public class CategoriesTests extends BaseApi {
     @Tag("API")
     @Tag("GetAllProductsByCategory")
     @Tag("CategoriesTest")
-    @Tag("PositiveTest")
+    @Tag("Smoke")
     @DisplayName("Get all products by category")
     @Severity(SeverityLevel.NORMAL)
-    void testGetAllProductsByCategory() {
-       /* ProductService productService = new ProductService();
+    void getAllProductsByCategoryTest() {
 
-        int id = 2;
-        List<ProductsPOJO> response = requestCategories.getAllProductsByCategory(id);
+        ProductService productService = new ProductService();
 
-        int idInResponseList = response.get(0).getId();
-        int idInSingleProduct = productService
-                .getSingleProduct(idInResponseList)
+        Integer categoryId = productService.createRandomProduct(token)
                 .extractAs(ProductsPOJO.class)
+                .getCategory()
                 .getId();
 
-        assertThat(idInResponseList).isEqualTo(idInSingleProduct);*/
+        List<ProductsPOJO> actualListOfProducts = categoriesService.getAllProductsByCategory(categoryId, token)
+                .should(hasStatusCode(200))
+                .should(hasJsonSchema(ProductService.PRODUCTS_JSON_SCHEMA))
+                .asList(ProductsPOJO.class);
+
+        assertThat(actualListOfProducts).isNotNull();
+        boolean hasCategoryId = actualListOfProducts.stream()
+                .map(x -> x.getCategory().getId())
+                .filter(x -> x == categoryId)
+                .findAny()
+                .isPresent();
+        assertThat(hasCategoryId).isTrue();
+
     }
 }

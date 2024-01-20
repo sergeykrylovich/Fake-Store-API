@@ -6,13 +6,12 @@ import io.restassured.module.jsv.JsonSchemaValidator;
 import io.restassured.path.json.JsonPath;
 import test.fakeapi.assertions.AssertableResponse;
 import test.fakeapi.pojo.CategoryPOJO;
-import test.fakeapi.pojo.ProductsPOJO;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import static io.restassured.RestAssured.given;
-import static org.apache.http.HttpStatus.SC_OK;
 import static test.fakeapi.data.CategoryData.getRandomCategory;
 import static test.fakeapi.specs.FakeStoreAPISpecs.prepareRequest;
 
@@ -133,26 +132,33 @@ public class CategoriesService {
     }
 
     @Step(value = "Get all products by selected category")
-    public List<ProductsPOJO> getAllProductsByCategory(int categoryId) {
+    public AssertableResponse getAllProductsByCategory(int categoryId, String token) {
 
-        //installSpecification(requestSpecification(CATEGORYBASEPATH), responseSpecification(200, RequestProducts.PRODUCTSSCHEMA));
-
-        return given()
-                .filters(new AllureRestAssured())
-                .spec(prepareRequest(CATEGORY_BASEPATH))
+        return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
+                .auth().oauth2(token)
+                .pathParam("categoryId", categoryId)
                 .when()
-                .get("/" + categoryId + "/products")
-                .then()
-                .statusCode(SC_OK)
-                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(ProductService.PRODUCTS_JSON_SCHEMA))
-                .extract()
-                .jsonPath().getList("", ProductsPOJO.class);
+                .get("/{categoryId}/products")
+                .then());
     }
 
     @Step(value = "Create category random category")
     public CategoryPOJO createRandomCategory(String token) {
 
         return createCategory(getRandomCategory(),token).extractAs(CategoryPOJO.class);
+    }
+
+    public Integer getRandomCategoryId() {
+        Random random  = new Random();
+        List<Integer> categroiesIdList =  getAllCategories()
+                .asList(CategoryPOJO.class)
+                .stream()
+                .map(CategoryPOJO::getId)
+                .toList();
+
+        int randomIdOfCategory = random.nextInt(categroiesIdList.size() - 1);
+
+        return categroiesIdList.get(randomIdOfCategory);
     }
 
 
