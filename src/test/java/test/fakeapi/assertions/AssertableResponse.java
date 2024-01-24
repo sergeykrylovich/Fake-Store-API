@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import test.fakeapi.pojo.CategoryPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -78,4 +80,7 @@ public class AssertableResponse {
                 .orElse(0);
     }
 
+    public byte[] asByteArray() {
+        return validatableResponse.extract().asByteArray();
+    }
 }

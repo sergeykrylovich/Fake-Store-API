@@ -5,6 +5,7 @@ import io.qameta.allure.Epic;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import lombok.SneakyThrows;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -17,6 +18,7 @@ import test.fakeapi.requests.FileService;
 import test.fakeapi.utils.JsonHelper;
 
 import java.io.File;
+import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static test.fakeapi.assertions.Conditions.hasStatusCode;
@@ -27,7 +29,7 @@ public class FileTests extends BaseApi {
     private FileService fileService;
     private AuthService authService;
     private String token;
-    private
+
 
     @BeforeEach
     public void initTests() {
@@ -98,42 +100,28 @@ public class FileTests extends BaseApi {
     @Test
     @SneakyThrows
     public void getFileTest() {
-        String filename = fileService.uploadExampleFile(token)
+
+        File expectedFile = new File(FileService.EXAMPLE_FILE);
+
+        String filename = fileService.uploadExampleFile(expectedFile, token)
                 .extractAs(FilePOJO.class)
                 .getFilename();
-        fileService.getFile(filename, token);
-       /* AssertableResponse file = fileService.getFile("532e.pdf"); // TO DO
-        InputStream inputStream = file.asInputStream();
-        FileOutputStream fileOutputStream = new FileOutputStream("src/test/resources/532f.pdf");
+        File actulaFile = new File(filename);
 
+        byte[] actualFileWithByteArray = fileService.getFile(filename, token)
+                .should(hasStatusCode(200))
+                .asByteArray();
+        FileUtils.writeByteArrayToFile(actulaFile, actualFileWithByteArray);
 
-        while (inputStream.available() > 0) {
-            fileOutputStream.write(inputStream.readAllBytes());
-            File uploadedFile = new File("src/test/resources/532e.pdf");
-            File downloadedFile = new File("src/test/resources/532f.pdf");
-            FileInputStream fileInputStream = new FileInputStream(uploadedFile);
-            FileInputStream fileInputStream1 = new FileInputStream(downloadedFile);
-            assertThat(IOUtils.contentEquals(fileInputStream, fileInputStream1)).isTrue();
-            assertThat(uploadedFile.length()).isEqualTo(downloadedFile.length());
+        assertThat(FileUtils.contentEquals(actulaFile, expectedFile)).isTrue();
 
-            IOUtils.close(fileInputStream1);
-            IOUtils.close(inputStream);
-            IOUtils.close(fileOutputStream);
-
-            //Files.delete(Paths.get(downloadedFile.getPath()));
-            downloadedFile.delete();
-        }*/
-
-
+        FileUtils.deleteQuietly(actulaFile);
     }
 
     @Test
-    public void testDeleteFile() {
-
+    public void deleteFileTest() {
 
         File downloadedFile = new File("src/test/resources/532f.pdf");
         System.out.println(downloadedFile.delete());
-
-
     }
 }

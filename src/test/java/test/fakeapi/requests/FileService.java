@@ -24,11 +24,11 @@ public class FileService {
                 .then());
     }
 
-    public AssertableResponse uploadExampleFile(String token) {
+    public AssertableResponse uploadExampleFile(File exampleFile, String token) {
 
         return new AssertableResponse(given(prepareRequestForUploadFile(UPLOAD_FILE_PATH))
                 .auth().oauth2(token)
-                .multiPart(new File(EXAMPLE_FILE))
+                .multiPart(exampleFile)
                 .when()
                 .post()
                 .then());
