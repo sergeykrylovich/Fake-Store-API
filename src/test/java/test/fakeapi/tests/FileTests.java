@@ -27,13 +27,12 @@ import static test.fakeapi.assertions.Conditions.hasStatusCode;
 public class FileTests extends BaseApi {
 
     private FileService fileService;
-    private AuthService authService;
     private String token;
 
 
     @BeforeEach
     public void initTests() {
-        authService = new AuthService();
+        AuthService authService = new AuthService();
         token = authService.createAndLoginRandomUser().getJWTToken();
         fileService = new FileService();
     }
@@ -98,6 +97,11 @@ public class FileTests extends BaseApi {
     }
 
     @Test
+    @Severity(SeverityLevel.NORMAL)
+    @Tag("API")
+    @Tag("FileTest")
+    @Tag("Smoke")
+    @DisplayName("Get a downloaded file and compare with expected file")
     @SneakyThrows
     public void getFileTest() {
 
