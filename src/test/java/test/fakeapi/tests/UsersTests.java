@@ -4,7 +4,6 @@ import io.qameta.allure.Epic;
 import io.qameta.allure.Issue;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
-import io.restassured.path.xml.XmlPath;
 import net.datafaker.Faker;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +18,6 @@ import test.fakeapi.requests.AuthService;
 import test.fakeapi.requests.BaseApi;
 import test.fakeapi.requests.UserService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,21 +50,14 @@ public class UsersTests extends BaseApi {
     @DisplayName("Get all users")
     public void getAllUsersTest() {
 
-        UserPOJO user = userService.createRandomUser();
-        String token = authService.logIn(user.getEmail(), user.getPassword())
-                .getJWTToken();
-
         List<UserPOJO> listOfUsers = userService
-                .getAllUsers(token)
+                .getAllUsers()
                 .should(hasStatusCode(200))
                 .should(hasJsonSchema(USER_JSON_SCHEMA))
                 .should(hasResponseTime(5L))
                 .asList(UserPOJO.class);
 
         assertThat(listOfUsers).isNotEmpty();
-
-        userService.deleteUser(user.getId()).should(hasStatusCode(200));
-
     }
 
     @Test
@@ -211,15 +202,15 @@ public class UsersTests extends BaseApi {
         UserPOJO user = userService.createRandomUser();
         String accessToken = authService.logIn(user.getEmail(), user.getPassword()).getJWTToken();
 
-        XmlPath resultOfDelete = userService
+        boolean resultOfDelete = userService
                 .deleteUser(user.getId(), accessToken)
                 .should(hasStatusCode(200))
-                .asHtmlPath();
+                .getResultOfDelete();
 
 
-        assertThat(resultOfDelete.getBoolean("html.body")).isTrue();
+        assertThat(resultOfDelete).isTrue();
 
-        //userService.getSingleUser(user.getId(), accessToken).should(hasStatusCode(400));
+        userService.deleteUser(user.getId()).should(hasStatusCode(200));
     }
 
     @ParameterizedTest
@@ -240,7 +231,6 @@ public class UsersTests extends BaseApi {
 
         assertThat(message).isEqualTo(ADMIN_IS_NOT_FOR_DELETE);
 
-        //userService.getSingleUser(userAdminId).should(hasStatusCode(200));
     }
 
     @Test

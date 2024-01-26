@@ -29,7 +29,7 @@ public class CategoriesService {
                 .then());
     }
 
-    @Step(value = "Get all categories")
+    @Step(value = "Get all categories with token")
     public AssertableResponse getAllCategories(String token) {
 
         return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
@@ -39,7 +39,7 @@ public class CategoriesService {
                 .then());
     }
 
-    @Step(value = "Get a single category by category ID")
+    @Step(value = "Get a single category by category ID with token")
     public AssertableResponse getSingleCategory(int categoryId, String token) {
 
         return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
@@ -50,7 +50,7 @@ public class CategoriesService {
                 .then());
     }
 
-    @Step(value = "Get a single category by category ID")
+    @Step(value = "Get a single category with token by category ID as not a number")
     public AssertableResponse getSingleCategory(String categoryId, String token) {
 
         return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
@@ -81,7 +81,7 @@ public class CategoriesService {
                 .jsonPath();
     }
 
-    @Step(value = "Create category with category object")
+    @Step(value = "Create category with category object with token")
     public AssertableResponse createCategory(CategoryPOJO category, String token) {
 
         return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
@@ -108,7 +108,7 @@ public class CategoriesService {
                 .then());
     }
 
-    @Step(value = "Update data of category with id, name  and image arguments")
+    @Step(value = "Update data of category with id, name  and image arguments with token" )
     public AssertableResponse updateCategory(int categoryId, CategoryPOJO category, String token) {
 
         return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
@@ -120,7 +120,7 @@ public class CategoriesService {
                 .then());
     }
 
-    @Step(value = "Delete category by category ID")
+    @Step(value = "Delete category by category ID with token")
     public AssertableResponse deleteCategory(int categoryId, String token) {
 
         return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
@@ -131,7 +131,7 @@ public class CategoriesService {
                 .then());
     }
 
-    @Step(value = "Get all products by selected category")
+    @Step(value = "Get all products by selected category with token")
     public AssertableResponse getAllProductsByCategory(int categoryId, String token) {
 
         return new AssertableResponse(given(prepareRequest(CATEGORY_BASEPATH))
@@ -142,12 +142,13 @@ public class CategoriesService {
                 .then());
     }
 
-    @Step(value = "Create category random category")
+    @Step(value = "Create a random category with token")
     public CategoryPOJO createRandomCategory(String token) {
 
         return createCategory(getRandomCategory(),token).extractAs(CategoryPOJO.class);
     }
 
+    @Step(value = "Get a random category ID with token")
     public Integer getRandomCategoryId() {
         Random random  = new Random();
         List<Integer> categroiesIdList =  getAllCategories()

@@ -50,10 +50,6 @@ public class AuthService {
         UserService userService = new UserService();
         UserPOJO user = userService.createRandomUser();
 
-        Map<String, String> loginMap = new HashMap<>();
-        loginMap.put("email", user.getEmail());
-        loginMap.put("password", user.getPassword());
-
         return new AssertableResponse(given(prepareRequest(AUTH_LOGIN_PATH))
                 .body(user)
                 .when()
@@ -61,13 +57,10 @@ public class AuthService {
                 .then());
     }
 
-    @Step("Login with admin")
+    @Step("Login with admin user")
     public AssertableResponse logInAdminUser() {
 
         UserPOJO adminUser = getAdminUser();
- /*       Map<String, String> loginMap = new HashMap<>();
-        loginMap.put("email", adminUser.getEmail());
-        loginMap.put("password", adminUser.getPassword());*/
 
         return new AssertableResponse(given(prepareRequest(AUTH_LOGIN_PATH))
                 .body(adminUser)

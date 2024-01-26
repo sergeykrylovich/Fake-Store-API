@@ -19,7 +19,6 @@ import test.fakeapi.requests.FileService;
 import test.fakeapi.utils.JsonHelper;
 
 import java.io.File;
-import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static test.fakeapi.assertions.Conditions.hasStatusCode;
@@ -86,9 +85,8 @@ public class FileTests extends BaseApi {
     @DisplayName("Upload excel file")
     public void uploadFileTest() {
         String filePath = EXAMPLE_FILE;
-        String fileName = "Excel.xls";
-        String fileExtension = "xls";
-
+        String fileName = filePath.split("/")[3];
+        String fileExtension = filePath.substring(filePath.indexOf("."));
 
         FilePOJO actualFileResponse = fileService.uploadFile(filePath, token)
                 .should(hasStatusCode(201))

@@ -29,7 +29,7 @@ public class UserService {
     public static final String AVATAR_MUST_BE_A_URL_ADDRESS = "avatar must be a URL address";
 
 
-    @Step(value = "Create random user")
+    @Step(value = "Create a random user")
     public UserPOJO createRandomUser() {
 
         UserPOJO user = getRandomUser();
@@ -43,7 +43,7 @@ public class UserService {
                 .extract().as(UserPOJO.class);
     }
 
-    @Step(value = "Create single user")
+    @Step(value = "Create a single user")
     public AssertableResponse createUser(UserPOJO user) {
 
         return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
@@ -62,7 +62,7 @@ public class UserService {
                 .then());
     }
 
-    @Step(value = "Get all users")
+    @Step(value = "Get all users with token")
     public AssertableResponse getAllUsers(String token) {
 
         return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
@@ -116,7 +116,7 @@ public class UserService {
                 .then());
     }
 
-    @Step(value = "Update single user")
+    @Step(value = "Update single user with token")
     public AssertableResponse updateUser(int userId, UserPOJO updatableUser, String token) {
 
         return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
@@ -128,7 +128,7 @@ public class UserService {
                 .then());
     }
 
-    @Step(value = "Delete single user")
+    @Step(value = "Delete single user without token")
     public AssertableResponse deleteUser(int userId) {
 
         return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))
@@ -138,7 +138,7 @@ public class UserService {
                 .then());
     }
 
-    @Step(value = "Delete single user")
+    @Step(value = "Delete single user with token")
     public AssertableResponse deleteUser(int userId, String token) {
 
         return new AssertableResponse(given(prepareRequest(USER_BASE_PATH))

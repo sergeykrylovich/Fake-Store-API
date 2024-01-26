@@ -1,5 +1,6 @@
 package test.fakeapi.requests;
 
+import io.qameta.allure.Step;
 import test.fakeapi.assertions.AssertableResponse;
 
 import java.io.File;
@@ -14,6 +15,7 @@ public class FileService {
     public static final String EXAMPLE_FILE = "src/test/resources/Excel.xls";
 
 
+    @Step(value = "Uploading file with token")
     public AssertableResponse uploadFile(String filePath, String token) {
 
         return new AssertableResponse(given(prepareRequestForUploadFile(UPLOAD_FILE_PATH))
@@ -24,6 +26,7 @@ public class FileService {
                 .then());
     }
 
+    @Step(value = "Uploading example file with token")
     public AssertableResponse uploadExampleFile(File exampleFile, String token) {
 
         return new AssertableResponse(given(prepareRequestForUploadFile(UPLOAD_FILE_PATH))
@@ -34,6 +37,7 @@ public class FileService {
                 .then());
     }
 
+    @Step(value = "Get a file with token")
     public AssertableResponse getFile(String fileName, String token) {
 
         return new AssertableResponse(given(prepareRequestForUploadFile(FILES_PATH))

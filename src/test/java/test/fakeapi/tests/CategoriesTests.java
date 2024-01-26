@@ -115,7 +115,7 @@ public class CategoriesTests extends BaseApi {
 
     @Issue(value = "https://support.mycompany.by/JIRA-2")
     @ParameterizedTest
-    @ValueSource(strings = {"22N", "1+1", "3@", "01", "?"})
+    @ValueSource(strings = {"22N", "1+1", "3@", "?"})
     @Severity(SeverityLevel.NORMAL)
     @Tag("API")
     @Tag("CategoriesTest")

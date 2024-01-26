@@ -39,7 +39,7 @@ public class ProductService {
                 .then());
     }
 
-    @Step(value = "Get all products with pagination")
+    @Step(value = "Get all products with pagination and token")
     public AssertableResponse getAllProductsWithPagination(String token, int offset, int limit) {
 
         return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
@@ -50,7 +50,7 @@ public class ProductService {
                 .then());
     }
 
-    @Step(value = "get single product by product id")
+    @Step(value = "Get single product by product id")
     public JsonPath getSingleProduct(Object productId, String bearerToken, int statusCode) {
 
         return given()
@@ -65,7 +65,7 @@ public class ProductService {
                 .extract().jsonPath();
     }
 
-    @Step(value = "get single product by product id")
+    @Step(value = "Get single product by product id with token")
     public AssertableResponse getSingleProduct(int productId, String token) {
 
         return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
@@ -76,7 +76,7 @@ public class ProductService {
                 .then());
     }
 
-    @Step(value = "get single product by product id")
+    @Step(value = "Get single product by product id with token")
     public AssertableResponse getSingleProduct(String productId, String token) {
 
         return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
@@ -105,7 +105,7 @@ public class ProductService {
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath(PRODUCTS_JSON_SCHEMA))
                 .extract().jsonPath().getObject("", ProductsPOJO.class);
     }
-    @Step(value = "create product with arguments")
+    @Step(value = "Create new product ProductsPOJO object with token")
     public AssertableResponse createProduct(ProductsPOJO product, String token) {
 
         return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
@@ -116,7 +116,7 @@ public class ProductService {
                 .then());
     }
 
-    @Step(value = "create product without arguments")
+    @Step(value = "Create a random product with token")
     public AssertableResponse createRandomProduct(String token) {
 
         ProductsPOJO product = getRandomProduct();
@@ -128,7 +128,7 @@ public class ProductService {
                 .then());
     }
 
-    @Step(value = "update product with arguments")
+    @Step(value = "Update product by ProductsPOJO object with token")
     public AssertableResponse updateProduct(Integer productId, ProductsPOJO product, String token) {
 
         return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
@@ -140,7 +140,7 @@ public class ProductService {
                 .then());
     }
 
-    @Step(value = "delete product by product id")
+    @Step(value = "Delete product by product id with token")
     public AssertableResponse deleteSingleProduct(Integer productId, String token) {
 
         return new AssertableResponse(given(prepareRequest(PRODUCT_BASEPATH))
