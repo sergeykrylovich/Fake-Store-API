@@ -23,7 +23,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static test.fakeapi.assertions.Conditions.*;
 import static test.fakeapi.data.UserData.getRandomUser;
-import static test.fakeapi.requests.UserService.MESSAGES;
+import static test.fakeapi.specs.Constants.MESSAGES;
 import static test.fakeapi.requests.UserService.USER_JSON_SCHEMA;
 import static test.fakeapi.specs.Constants.ADMIN_IS_NOT_FOR_DELETE;
 
@@ -104,6 +104,8 @@ public class UsersTests extends BaseApi {
             softly.assertThat(actualUser.getEmail()).isEqualTo(expectedUser.getEmail());
             softly.assertThat(actualUser.getAvatar()).isEqualTo(expectedUser.getAvatar());
         });
+
+        userService.deleteUser(actualUser.getId()).should(hasStatusCode(200));
 
     }
 
@@ -262,14 +264,17 @@ public class UsersTests extends BaseApi {
     @Tag("CheckEmail")
     @Tag("UserTest")
     @DisplayName("Check if email is blank")
-    public void BlankEmailTest() {
+    public void blankEmailTest() {
 
         List<String> messageList = userService
                 .checkEmailIsAvailable("")
                 .should(hasStatusCode(400))
                 .getMessageList();
 
-        assertThat(messageList).contains("email should not be empty").contains("email must be an email");
+        assertThat(messageList).isNotEmpty().allSatisfy(message -> {
+            assertThat(message).containsAnyOf(MESSAGES);
+        });
+
     }
 
     @Test

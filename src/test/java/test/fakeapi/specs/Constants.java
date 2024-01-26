@@ -17,4 +17,10 @@ public class Constants {
     public static final String NOT_FOUND_ERROR = "EntityNotFoundError";
     public static final String ADMIN_IS_NOT_FOR_DELETE = "This user is not available for deleting; instead, create your own user to delete.";
 
+    public static final String[] MESSAGES = {"email must be an email",
+            "email should not be empty",
+            "password must be longer than or equal to 4 characters",
+            "password must contain only letters and numbers",
+            "role must be one of the following values: admin, customer",
+            "avatar must be a URL address"};
 }

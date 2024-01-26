@@ -19,11 +19,6 @@ public class UserService {
 
     public static final String[] ROLES = {"admin", "customer"};
 
-    public static final String[] MESSAGES = {"email must be an email",
-            "password must be longer than or equal to 4 characters",
-            "password must contain only letters and numbers",
-            "role must be one of the following values: admin, customer",
-            "avatar must be a URL address"};
     public static final String PASS_LONGER_OR_EQUAL_4_CHARS = "password must be longer than or equal to 4 characters";
     public static final String ONLY_LETTERS_AND_NUMBERS = "password must contain only letters and numbers";
     public static final String AVATAR_MUST_BE_A_URL_ADDRESS = "avatar must be a URL address";
