@@ -130,7 +130,7 @@ public class UsersTests extends BaseApi {
                 .getJWTToken();
 
         UserPOJO actualUserForUpdate = userService
-                .updateUser(createdUser.getId(),expectedUserForUpdate, accessToken)
+                .updateUser(createdUser.getId(), expectedUserForUpdate, accessToken)
                 .should(hasStatusCode(200))
                 .should(hasJsonSchema(USER_JSON_SCHEMA))
                 .extractAs(UserPOJO.class);
@@ -301,4 +301,5 @@ public class UsersTests extends BaseApi {
         assertThat(message).contains("email must be an email");
 
     }
+
 }

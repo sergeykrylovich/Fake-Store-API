@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import test.fakeapi.listeners.Smoke;
 import test.fakeapi.pojo.CategoryPOJO;
 import test.fakeapi.pojo.FilePOJO;
 import test.fakeapi.requests.AuthService;
@@ -22,6 +23,7 @@ import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static test.fakeapi.assertions.Conditions.hasStatusCode;
+import static test.fakeapi.requests.FileService.EXAMPLE_FILE;
 
 @Epic("Endpoints for working with files")
 public class FileTests extends BaseApi {
@@ -80,12 +82,13 @@ public class FileTests extends BaseApi {
     @Severity(SeverityLevel.NORMAL)
     @Tag("API")
     @Tag("FileTest")
-    @Tag("Smoke")
-    @DisplayName("Upload file")
+    @Smoke
+    @DisplayName("Upload excel file")
     public void uploadFileTest() {
+        String filePath = EXAMPLE_FILE;
         String fileName = "Excel.xls";
         String fileExtension = "xls";
-        String filePath = "src/test/resources/" + fileName;
+
 
         FilePOJO actualFileResponse = fileService.uploadFile(filePath, token)
                 .should(hasStatusCode(201))
@@ -105,7 +108,7 @@ public class FileTests extends BaseApi {
     @SneakyThrows
     public void getFileTest() {
 
-        File expectedFile = new File(FileService.EXAMPLE_FILE);
+        File expectedFile = new File(EXAMPLE_FILE);
 
         String filename = fileService.uploadExampleFile(expectedFile, token)
                 .extractAs(FilePOJO.class)
