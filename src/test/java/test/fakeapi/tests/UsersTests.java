@@ -10,9 +10,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import test.fakeapi.listeners.RetryListener;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.AuthService;
 import test.fakeapi.requests.BaseApi;
@@ -27,6 +29,7 @@ import static test.fakeapi.specs.Constants.MESSAGES;
 import static test.fakeapi.requests.UserService.USER_JSON_SCHEMA;
 import static test.fakeapi.specs.Constants.ADMIN_IS_NOT_FOR_DELETE;
 
+@ExtendWith(RetryListener.class)
 @Epic("API of User")
 @DisplayName("User API tests")
 public class UsersTests extends BaseApi {

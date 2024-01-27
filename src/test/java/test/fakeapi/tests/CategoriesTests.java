@@ -6,9 +6,11 @@ import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import test.fakeapi.listeners.RetryListener;
 import test.fakeapi.pojo.CategoryPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
 import test.fakeapi.pojo.UserPOJO;
@@ -22,7 +24,7 @@ import static test.fakeapi.assertions.Conditions.*;
 import static test.fakeapi.requests.CategoriesService.CATEGORY_JSON_SCHEMA;
 import static test.fakeapi.specs.Constants.*;
 
-
+@ExtendWith(RetryListener.class)
 @Epic("API of Categories")
 public class CategoriesTests extends BaseApi {
 
@@ -115,7 +117,7 @@ public class CategoriesTests extends BaseApi {
 
     @Issue(value = "https://support.mycompany.by/JIRA-2")
     @ParameterizedTest
-    @ValueSource(strings = {"22N", "1+1", "3@", "?"})
+    @ValueSource(strings = {"22N", "1+1", "3@", "?", "01"})
     @Severity(SeverityLevel.NORMAL)
     @Tag("API")
     @Tag("CategoriesTest")
