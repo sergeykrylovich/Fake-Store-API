@@ -5,10 +5,12 @@ import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import test.fakeapi.listeners.SaveFailedTests;
 import test.fakeapi.pojo.ProductsPOJO;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.AuthService;
@@ -25,6 +27,7 @@ import static test.fakeapi.requests.ProductService.PRODUCTS_JSON_SCHEMA;
 import static test.fakeapi.specs.Constants.NOT_FIND_ANY_ENTITY_OF_TYPE;
 import static test.fakeapi.specs.Constants.NUMERIC_STRING_IS_EXPECTED;
 
+@ExtendWith(SaveFailedTests.class)
 @Epic("API of products")
 public class ProductsTests extends BaseApi {
 
@@ -48,7 +51,7 @@ public class ProductsTests extends BaseApi {
                 .extractAs(UserPOJO.class)
                 .getId();
 
-        userService.deleteUser(id);
+        userService.deleteUser(id, token);
     }
 
 
@@ -224,7 +227,7 @@ public class ProductsTests extends BaseApi {
                 .should(hasStatusCode(200))
                 .getResultOfDelete();
 
-        assertThat(resultOfDelete).isTrue();
+        assertThat(resultOfDelete).as("Result of delete").isTrue();
     }
 
     @Test

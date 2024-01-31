@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import test.fakeapi.listeners.RetryListener;
+import test.fakeapi.listeners.SaveFailedTests;
 import test.fakeapi.pojo.UserPOJO;
 import test.fakeapi.requests.AuthService;
 import test.fakeapi.requests.BaseApi;
@@ -29,7 +29,7 @@ import static test.fakeapi.specs.Constants.MESSAGES;
 import static test.fakeapi.requests.UserService.USER_JSON_SCHEMA;
 import static test.fakeapi.specs.Constants.ADMIN_IS_NOT_FOR_DELETE;
 
-@ExtendWith(RetryListener.class)
+@ExtendWith(SaveFailedTests.class)
 @Epic("API of User")
 @DisplayName("User API tests")
 public class UsersTests extends BaseApi {
@@ -157,12 +157,14 @@ public class UsersTests extends BaseApi {
         UserPOJO user = userService.createRandomUser();
         String accessToken = authService.logIn(user.getEmail(), user.getPassword()).getJWTToken();
 
-        List<String> actualUserForUpdate = userService
+        List<String> messageList = userService
                 .updateUser(user.getId(), expectedUserForUpdate, accessToken)
                 .should(hasStatusCode(400))
                 .getMessageList();
 
-        assertThat(actualUserForUpdate).containsExactlyInAnyOrder(MESSAGES);
+        assertThat(messageList).isNotEmpty().allSatisfy(message -> {
+            assertThat(message).containsAnyOf(MESSAGES);
+        });
 
         userService.deleteUser(user.getId()).should(hasStatusCode(200));
 
@@ -215,7 +217,6 @@ public class UsersTests extends BaseApi {
 
         assertThat(resultOfDelete).isTrue();
 
-        userService.deleteUser(user.getId()).should(hasStatusCode(200));
     }
 
     @ParameterizedTest

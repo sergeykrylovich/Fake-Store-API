@@ -51,9 +51,9 @@ test {
     }
 }
 
-tasks.register("userTest", Test.class) {
+tasks.register("testsByTags", Test.class) {
 
-    String runTags = System.getProperty("userTags")
+    String runTags = System.getProperty("Tags")
     if (runTags != null) {
         useJUnitPlatform {
             for (String runByTag : runTags.split(",")) {

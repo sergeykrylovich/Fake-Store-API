@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import test.fakeapi.listeners.SaveFailedTests;
 import test.fakeapi.listeners.Smoke;
 import test.fakeapi.pojo.CategoryPOJO;
 import test.fakeapi.pojo.FilePOJO;
@@ -23,7 +25,7 @@ import java.io.File;
 import static org.assertj.core.api.Assertions.assertThat;
 import static test.fakeapi.assertions.Conditions.hasStatusCode;
 import static test.fakeapi.requests.FileService.EXAMPLE_FILE;
-
+@ExtendWith(SaveFailedTests.class)
 @Epic("Endpoints for working with files")
 public class FileTests extends BaseApi {
 

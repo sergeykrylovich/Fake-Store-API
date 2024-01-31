@@ -6,7 +6,7 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import test.fakeapi.addons.CustomTpl;
-import test.fakeapi.listeners.RetryListener;
+import test.fakeapi.listeners.SaveFailedTests;
 import test.fakeapi.specs.Constants;
 
 public class BaseApi {
@@ -22,7 +22,7 @@ public class BaseApi {
     }
     @AfterAll
     public static void savedFailedTest() {
-        RetryListener.saveFailedTests();
+        SaveFailedTests.saveFailedTests();
     }
 
 
