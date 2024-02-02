@@ -50,7 +50,7 @@ public class UsersTests extends BaseApi {
     @Tag("GetAllUsers")
     @Tag("UserTest")
     @Tag("Smoke")
-    @DisplayName("Get all users")
+    @DisplayName("Get all users and check that list of users is not empty")
     public void getAllUsersTest() {
 
         List<UserPOJO> listOfUsers = userService
@@ -89,7 +89,7 @@ public class UsersTests extends BaseApi {
     @Tag("CreateUser")
     @Tag("Smoke")
     @Tag("UserTest")
-    @DisplayName("Create new user")
+    @DisplayName("Create a new random user")
     public void createUserTest() {
 
         UserPOJO expectedUser = getRandomUser();
@@ -112,8 +112,8 @@ public class UsersTests extends BaseApi {
 
     }
 
+    @ParameterizedTest(name = "Parametrized test:")
     @MethodSource(value = "test.fakeapi.data.DataFotTests#dataForUpdateUser")
-    @ParameterizedTest()
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("UpdateUser")
@@ -144,8 +144,8 @@ public class UsersTests extends BaseApi {
 
     }
 
+    @ParameterizedTest(name = "Parametrized test:")
     @MethodSource(value = "test.fakeapi.data.DataFotTests#blankDataForUpdateUser")
-    @ParameterizedTest()
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("UpdateUser")
@@ -170,8 +170,8 @@ public class UsersTests extends BaseApi {
 
     }
 
+    @ParameterizedTest(name = "Parametrized test:")
     @MethodSource(value = "test.fakeapi.data.DataFotTests#dataForUpdateUserWithWrongAvatarAndPassword")
-    @ParameterizedTest()
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("UpdateUser")
@@ -219,7 +219,7 @@ public class UsersTests extends BaseApi {
 
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "Parametrized test:")
     @ValueSource(ints = {1, 2, 3})
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)

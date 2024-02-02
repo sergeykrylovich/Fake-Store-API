@@ -61,7 +61,7 @@ public class ProductsTests extends BaseApi {
     @Tag("ProductTest")
     @Tag("Integration")
     @Tag("Smoke")
-    @DisplayName("Get all products")
+    @DisplayName("Get all products and check that result is not empty")
     public void getAllProductsTest() {
 
         List<ProductsPOJO> listOfProducts = productService.getAllProducts(token)
@@ -73,14 +73,14 @@ public class ProductsTests extends BaseApi {
         assertThat(listOfProducts).isNotEmpty();
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "Parametrized test:")
     @CsvSource({"1,10", "0,10"})
     @Severity(SeverityLevel.MINOR)
     @Tag("API")
     @Tag("ProductTest")
     @Tag("Integration")
     @Tag("Smoke")
-    @DisplayName("Get all products with pagination")
+    @DisplayName("Get all products with pagination and check that result is equal to test data")
     public void getAllProductsWithPaginationTest(int offset, int limit) {
 
         List<ProductsPOJO> listOfProducts = productService.getAllProductsWithPagination(token, offset, limit)
@@ -98,7 +98,7 @@ public class ProductsTests extends BaseApi {
     @Tag("API")
     @Tag("ProductTest")
     @Tag("Smoke")
-    @DisplayName("Get an existing single product")
+    @DisplayName("Get a created single product")
     public void getSingleProductTest() {
 
         ProductsPOJO expectedProduct = productService.createRandomProduct(token)
@@ -138,13 +138,13 @@ public class ProductsTests extends BaseApi {
         assertThat(message).startsWith(NOT_FIND_ANY_ENTITY_OF_TYPE);
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "Parametrized test:")
     @ValueSource(strings = "22n")
     @Severity(SeverityLevel.NORMAL)
     @Tag("API")
     @Tag("ProductTest")
     @Tag("Integration")
-    @DisplayName("Get a non existing single product")
+    @DisplayName("Get a single product by product ID is not a number")
     public void getSingleProductTestWithIdNotANumber(String productId) {
 
         String message = productService.getSingleProduct(productId, token)
@@ -154,14 +154,15 @@ public class ProductsTests extends BaseApi {
         assertThat(message).isEqualTo(NUMERIC_STRING_IS_EXPECTED);
     }
 
+
+    @ParameterizedTest(name = "Parametrized test:")
     @MethodSource(value = "test.fakeapi.data.ProductsData#createRandomProduct")
-    @ParameterizedTest()
     @Severity(SeverityLevel.CRITICAL)
     @Tag("API")
     @Tag("ProductTest")
     @Tag("Integration")
     @Tag("Smoke")
-    @DisplayName("Create product")
+    @DisplayName("Create a single product")
     public void createProductTest(ProductsPOJO expectedProduct) {
 
         ProductsPOJO actualProduct = productService.createProduct(expectedProduct, token)
@@ -189,7 +190,7 @@ public class ProductsTests extends BaseApi {
         productService.deleteSingleProduct(actualProduct.getId(), token);
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "Parametrized test:")
     @MethodSource(value = "test.fakeapi.data.ProductsData#dataForUpdateTest")
     @Severity(SeverityLevel.NORMAL)
     @Tag("API")

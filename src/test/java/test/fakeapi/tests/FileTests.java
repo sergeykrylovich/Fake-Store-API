@@ -41,14 +41,16 @@ public class FileTests extends BaseApi {
     }
 
     @Test
+    @Tag("ExampleTestJSON")
     public void testFromFileJsonToObject() {
         CategoryPOJO categoryJSON = JsonHelper.readJsonFromFilePath("src/test/resources/file.json", CategoryPOJO.class);
-        System.out.println(categoryJSON.getImage());
-        System.out.println(categoryJSON.getName());
-        System.out.println(categoryJSON.getId());
+        assertThat(categoryJSON.getImage()).isNotEmpty();
+        assertThat(categoryJSON.getId()).isPositive();
+        assertThat(categoryJSON.getName()).isNotEmpty();
     }
 
     @Test
+    @Tag("ExampleTestJSON")
     public void testFromJsonStringToObject() {
         CategoryPOJO categoryToJSON = CategoryPOJO
                 .builder()
@@ -58,13 +60,16 @@ public class FileTests extends BaseApi {
                 .build();
         String cat = JsonHelper.toJson(categoryToJSON);
 
+        assertThat(cat).isNotEmpty();
+
         CategoryPOJO categoryJSON = JsonHelper.readJsonFromString(cat, CategoryPOJO.class);
-        System.out.println(categoryJSON.getImage());
-        System.out.println(categoryJSON.getName());
-        System.out.println(categoryJSON.getId());
+        assertThat(categoryJSON.getImage()).isNotEmpty();
+        assertThat(categoryJSON.getId()).isPositive();
+        assertThat(categoryJSON.getName()).isNotEmpty();
     }
 
     @Test
+    @Tag("ExampleTestJSON")
     @SneakyThrows
     public void testFromObjectToJson() {
         CategoryPOJO categoryToJSON = CategoryPOJO
@@ -75,8 +80,10 @@ public class FileTests extends BaseApi {
                 .build();
         String cat = JsonHelper.toJson(categoryToJSON);
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.writeValue(new File("src/test/resources/file1.json"), cat);
-        System.out.println(cat);
+        File expectedFile = new File("src/test/resources/file1.json");
+        objectMapper.writeValue(expectedFile, cat);
+
+        assertThat(expectedFile).isNotEmpty();
     }
 
     @Test
@@ -84,7 +91,7 @@ public class FileTests extends BaseApi {
     @Tag("API")
     @Tag("FileTest")
     @Smoke
-    @DisplayName("Upload excel file")
+    @DisplayName("Upload excel file from resources to API")
     public void uploadFileTest() {
         String filePath = EXAMPLE_FILE;
         String fileName = filePath.split("/")[3];
@@ -103,7 +110,7 @@ public class FileTests extends BaseApi {
     @Severity(SeverityLevel.NORMAL)
     @Tag("API")
     @Tag("FileTest")
-    @Tag("Smoke")
+    @Smoke
     @DisplayName("Get a downloaded file and compare with expected file")
     @SneakyThrows
     public void getFileTest() {
@@ -113,22 +120,15 @@ public class FileTests extends BaseApi {
         String filename = fileService.uploadExampleFile(expectedFile, token)
                 .extractAs(FilePOJO.class)
                 .getFilename();
-        File actulaFile = new File(filename);
+        File actualFile = new File("src/test/resources/" + filename);
 
         byte[] actualFileWithByteArray = fileService.getFile(filename, token)
                 .should(hasStatusCode(200))
                 .asByteArray();
-        FileUtils.writeByteArrayToFile(actulaFile, actualFileWithByteArray);
+        FileUtils.writeByteArrayToFile(actualFile, actualFileWithByteArray);
 
-        assertThat(FileUtils.contentEquals(actulaFile, expectedFile)).isTrue();
+        assertThat(FileUtils.contentEquals(actualFile, expectedFile)).isTrue();
 
-        FileUtils.deleteQuietly(actulaFile);
-    }
-
-    @Test
-    public void deleteFileTest() {
-
-        File downloadedFile = new File("src/test/resources/532f.pdf");
-        System.out.println(downloadedFile.delete());
+        FileUtils.deleteQuietly(actualFile);
     }
 }

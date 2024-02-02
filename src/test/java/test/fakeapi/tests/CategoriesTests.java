@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import test.fakeapi.listeners.InjectToken;
 import test.fakeapi.listeners.SaveFailedTests;
 import test.fakeapi.pojo.CategoryPOJO;
 import test.fakeapi.pojo.ProductsPOJO;
@@ -31,9 +32,9 @@ public class CategoriesTests extends BaseApi {
 
     CategoriesService categoriesService;
 
-    private AuthService authService;
+    public AuthService authService;
     private UserService userService;
-    private String token;
+    public String token;
     private Random random;
 
     @BeforeEach
@@ -59,7 +60,7 @@ public class CategoriesTests extends BaseApi {
     @Tag("CategoriesTest")
     @Tag("Smoke")
     @Tag("GetAllCategories")
-    @DisplayName(value = "Get all categories")
+    @DisplayName(value = "Get all categories and check that list if categories is not empty")
     void getAllCategoriesTest() {
 
         List<CategoryPOJO> expectedCategories = categoriesService.getAllCategories(token)
@@ -103,7 +104,7 @@ public class CategoriesTests extends BaseApi {
     @Tag("CategoriesTest")
     @Tag("GetSingleCategory")
     @Tag("NegativeTest")
-    @DisplayName("Get single category with non existed category id")
+    @DisplayName("Get a single category with non existent category id")
     public void testGetSingleCategoriesWithNonExistentId() {
         random = new Random();
         int maxCategoryId = categoriesService.getAllCategories(token).getMaxIdOfCategoryResponse();
@@ -134,13 +135,13 @@ public class CategoriesTests extends BaseApi {
         assertThat(actualMessage).isEqualTo(NUMERIC_STRING_IS_EXPECTED);
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "Parametrized test:")
     @MethodSource(value = "test.fakeapi.data.CategoryData#dataForCreateCategory")
     @Tag("API")
     @Tag("CreateCategory")
     @Tag("CategoriesTest")
     @Tag("Smoke")
-    @DisplayName("Create category")
+    @DisplayName("Create category with correct data using CategoryPOJO object")
     @Severity(SeverityLevel.CRITICAL)
     void createCategoryTest(CategoryPOJO expectedCategory) {
 
@@ -159,12 +160,12 @@ public class CategoriesTests extends BaseApi {
         });
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "Parametrized test:")
     @MethodSource(value = "test.fakeapi.data.CategoryData#dataForCreateCategory")
     @Tag("API")
     @Tag("UpdateCategory")
     @Tag("PositiveTest")
-    @DisplayName("Update category")
+    @DisplayName("Update category with correct data using CategoryPOJO object")
     @Severity(SeverityLevel.CRITICAL)
     void updateCategoryTest(CategoryPOJO category) {
 
@@ -191,7 +192,7 @@ public class CategoriesTests extends BaseApi {
     @Tag("DeleteCategory")
     @Tag("CategoriesTest")
     @Tag("Smoke")
-    @DisplayName("Delete category")
+    @DisplayName("Delete a randomly created category")
     @Severity(SeverityLevel.NORMAL)
     void deleteCategoryTest() {
 
@@ -208,7 +209,7 @@ public class CategoriesTests extends BaseApi {
     @Tag("GetAllProductsByCategory")
     @Tag("CategoriesTest")
     @Tag("Smoke")
-    @DisplayName("Get all products by category")
+    @DisplayName("Create a random product and find this product by request - get all products by category")
     @Severity(SeverityLevel.NORMAL)
     void getAllProductsByCategoryTest() {
 
