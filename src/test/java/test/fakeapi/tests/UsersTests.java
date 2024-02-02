@@ -4,151 +4,239 @@ import io.qameta.allure.Epic;
 import io.qameta.allure.Issue;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
-import io.restassured.path.json.JsonPath;
 import net.datafaker.Faker;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import test.fakeapi.listeners.SaveFailedTests;
 import test.fakeapi.pojo.UserPOJO;
-import test.fakeapi.requests.RequestUsers;
+import test.fakeapi.requests.AuthService;
+import test.fakeapi.requests.BaseApi;
+import test.fakeapi.requests.UserService;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static test.fakeapi.requests.RequestUsers.*;
+import static test.fakeapi.assertions.Conditions.*;
+import static test.fakeapi.data.UserData.getRandomUser;
+import static test.fakeapi.specs.Constants.MESSAGES;
+import static test.fakeapi.requests.UserService.USER_JSON_SCHEMA;
+import static test.fakeapi.specs.Constants.ADMIN_IS_NOT_FOR_DELETE;
 
+@ExtendWith(SaveFailedTests.class)
 @Epic("API of User")
-public class UsersTests {
+@DisplayName("User API tests")
+public class UsersTests extends BaseApi {
 
-    RequestUsers requestUsers = new RequestUsers();
-    Faker faker = new Faker();
+    private UserService userService;
+    private AuthService authService;
 
+
+    @BeforeEach
+    public void initTests() {
+        userService = new UserService();
+        authService = new AuthService();
+    }
 
     @Test
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
-    @Tag("GetAllUser")
-    @Tag("ForTest")
-    @DisplayName("Get all users")
+    @Tag("GetAllUsers")
+    @Tag("UserTest")
+    @Tag("Smoke")
+    @DisplayName("Get all users and check that list of users is not empty")
     public void getAllUsersTest() {
-        List<UserPOJO> listOfUsers = requestUsers
+
+        List<UserPOJO> listOfUsers = userService
                 .getAllUsers()
-                .getList("", UserPOJO.class);
+                .should(hasStatusCode(200))
+                .should(hasJsonSchema(USER_JSON_SCHEMA))
+                .should(hasResponseTime(5L))
+                .asList(UserPOJO.class);
 
-        assertThat(listOfUsers.size()).isGreaterThan(0);
-
+        assertThat(listOfUsers).isNotEmpty();
     }
 
     @Test
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("GetSingleUser")
-    @DisplayName("Get single user")
-    public void getSingleUserTest() {
-        int userId = 1;
-        UserPOJO user = requestUsers
-                .getSingleUser(userId)
-                .getObject("", UserPOJO.class);
+    @Tag("UserTest")
+    @DisplayName("Get admin user by id")
+    public void getAdminUserTest() {
 
-        assertThat(user.getId()).isEqualTo(userId);
+        int userAdminId = 1;
+        String token = authService.logInAdminUser().getJWTToken();
+        UserPOJO user = userService
+                .getSingleUser(userAdminId, token)
+                .should(hasStatusCode(200))
+                .should(hasJsonSchema(USER_JSON_SCHEMA))
+                .should(hasResponseTime(5l))
+                .extractAs(UserPOJO.class);
+
+        assertThat(user.getId()).isEqualTo(userAdminId);
     }
 
     @Test
     @Severity(SeverityLevel.CRITICAL)
     @Tag("API")
     @Tag("CreateUser")
-    @Tag("Integration")
-    @DisplayName("Create new user")
+    @Tag("Smoke")
+    @Tag("UserTest")
+    @DisplayName("Create a new random user")
     public void createUserTest() {
-        UserPOJO createdUser = requestUsers
-                .createUserWithoutArguments()
-                .getObject("", UserPOJO.class);
 
-        UserPOJO singleUser = requestUsers
-                .getSingleUser(createdUser.getId())
-                .getObject("", UserPOJO.class);
+        UserPOJO expectedUser = getRandomUser();
 
-        assertThat(createdUser.getId()).isEqualTo(singleUser.getId());
-        assertThat(createdUser.getName()).isEqualTo(singleUser.getName());
-        assertThat(createdUser.getRole()).isEqualTo(singleUser.getRole());
-        assertThat(createdUser.getAvatar()).isEqualTo(singleUser.getAvatar());
-        assertThat(createdUser.getPassword()).isEqualTo(singleUser.getPassword());
+        UserPOJO actualUser = userService
+                .createUser(expectedUser)
+                .should(hasStatusCode(201))
+                .should(hasJsonSchema(USER_JSON_SCHEMA))
+                .should(hasResponseTime(3l))
+                .extractAs(UserPOJO.class);
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(actualUser.getName()).isEqualTo(expectedUser.getName());
+            softly.assertThat(actualUser.getPassword()).isEqualTo(expectedUser.getPassword());
+            softly.assertThat(actualUser.getEmail()).isEqualTo(expectedUser.getEmail());
+            softly.assertThat(actualUser.getAvatar()).isEqualTo(expectedUser.getAvatar());
+        });
+
+        userService.deleteUser(actualUser.getId()).should(hasStatusCode(200));
 
     }
 
+    @ParameterizedTest(name = "Parametrized test:")
     @MethodSource(value = "test.fakeapi.data.DataFotTests#dataForUpdateUser")
-    @ParameterizedTest()
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("UpdateUser")
     @Tag("UserTest")
     @DisplayName("Update user by id")
-    public void updateUserTestWithAllArguments(String name, String email, String password, String avatar, String role) {
+    public void updateUserTestWithAllArguments(UserPOJO expectedUserForUpdate) {
 
-        UserPOJO user = requestUsers
-                .createUserWithoutArguments()
-                .getObject("", UserPOJO.class);
+        UserPOJO createdUser = userService.createRandomUser();
+        String accessToken = authService.logIn(createdUser.getEmail(), createdUser.getPassword())
+                .getJWTToken();
 
-        UserPOJO updatedUser = requestUsers
-                .updateUser(user.getId(), 200, name, email, password, avatar, role)
-                .getObject("", UserPOJO.class);
+        UserPOJO actualUserForUpdate = userService
+                .updateUser(createdUser.getId(), expectedUserForUpdate, accessToken)
+                .should(hasStatusCode(200))
+                .should(hasJsonSchema(USER_JSON_SCHEMA))
+                .extractAs(UserPOJO.class);
 
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(user.getId()).as("User id").isEqualTo(updatedUser.getId());
-            softly.assertThat(updatedUser.getName()).isEqualTo(name);
-            softly.assertThat(updatedUser.getAvatar()).isEqualTo(avatar);
-            softly.assertThat(updatedUser.getEmail()).isEqualTo(email);
-            softly.assertThat(updatedUser.getRole()).isEqualTo(role);
-            softly.assertThat(updatedUser.getPassword()).isEqualTo(password);
+            softly.assertThat(actualUserForUpdate.getId()).isEqualTo(createdUser.getId());
+            softly.assertThat(actualUserForUpdate.getName()).isEqualTo(expectedUserForUpdate.getName());
+            softly.assertThat(actualUserForUpdate.getAvatar()).isEqualTo(expectedUserForUpdate.getAvatar());
+            softly.assertThat(actualUserForUpdate.getEmail()).isEqualTo(expectedUserForUpdate.getEmail());
+            softly.assertThat(actualUserForUpdate.getRole()).isEqualTo(expectedUserForUpdate.getRole());
+            softly.assertThat(actualUserForUpdate.getPassword()).isEqualTo(expectedUserForUpdate.getPassword());
         });
 
+        userService.deleteUser(createdUser.getId()).should(hasStatusCode(200));
+
     }
 
-    @MethodSource(value = "test.fakeapi.data.DataFotTests#dataForUpdateUserNegative")
-    @ParameterizedTest()
+    @ParameterizedTest(name = "Parametrized test:")
+    @MethodSource(value = "test.fakeapi.data.DataFotTests#blankDataForUpdateUser")
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("UpdateUser")
     @Tag("UserTest")
     @Tag("NegativeTest")
-    @DisplayName("Update user by id without role")
-    public void updateUserTestWithoutRole(String name, String email, String password, String avatar, String role) {
+    @DisplayName("Update user by id with blank arguments")
+    public void updateUserWithBlankArgumentsTest(UserPOJO expectedUserForUpdate) {
 
-        UserPOJO user = requestUsers
-                .createUserWithoutArguments()
-                .getObject("", UserPOJO.class);
-        JsonPath errorUpdatedUser = requestUsers
-                .updateUser(user.getId(), 400, name, email, password, avatar, role);
+        UserPOJO user = userService.createRandomUser();
+        String accessToken = authService.logIn(user.getEmail(), user.getPassword()).getJWTToken();
 
-        assertThat(errorUpdatedUser.getList("message").get(0)).isEqualTo("role must be one of the following values: admin, customer");
+        List<String> messageList = userService
+                .updateUser(user.getId(), expectedUserForUpdate, accessToken)
+                .should(hasStatusCode(400))
+                .getMessageList();
+
+        assertThat(messageList).isNotEmpty().allSatisfy(message -> {
+            assertThat(message).containsAnyOf(MESSAGES);
+        });
+
+        userService.deleteUser(user.getId()).should(hasStatusCode(200));
 
     }
 
+    @ParameterizedTest(name = "Parametrized test:")
     @MethodSource(value = "test.fakeapi.data.DataFotTests#dataForUpdateUserWithWrongAvatarAndPassword")
-    @ParameterizedTest()
     @Tag("API")
     @Severity(SeverityLevel.NORMAL)
     @Tag("UpdateUser")
     @Tag("UserTest")
     @Tag("NegativeTest")
-    @DisplayName("Update user by id without role")
-    public void updateUserTestWithWrongFormatOfPasswordAndAvatar(String name, String email, String password, String avatar, String role) {
+    @DisplayName("Update user by id with wrong format of password and avatar")
+    public void updateUserTestWithWrongFormatOfPasswordAndAvatar(UserPOJO updatableUser) {
 
-        UserPOJO user = requestUsers
-                .createUserWithoutArguments()
-                .getObject("", UserPOJO.class);
-
-        JsonPath errorUpdatedUser = requestUsers
-                .updateUser(user.getId(), 400, name, email, password, avatar, role);
+        UserPOJO user = userService.createRandomUser();
+        String accessToken = authService.logIn(user.getEmail(), user.getPassword()).getJWTToken();
 
 
-        assertThat(errorUpdatedUser.getList("message"))
-                .contains(PASS_LONGER_OR_EQUAL_4_CHARS)
-                .contains(ONLY_LETTERS_AND_NUMBERS)
-                .contains(AVATAR_MUST_BE_A_URL_ADDRESS);
+        List<String> listOfMessages = userService
+                .updateUser(user.getId(), updatableUser, accessToken)
+                .should(hasStatusCode(400))
+                .getMessageList();
+
+
+        assertThat(listOfMessages).isNotEmpty().allSatisfy(message -> {
+            assertThat(message).containsAnyOf(MESSAGES);
+        });
+
+        userService.deleteUser(user.getId(), accessToken).should(hasStatusCode(200));
+    }
+
+    @Test
+    @Tag("API")
+    @Severity(SeverityLevel.NORMAL)
+    @Tag("GetSingleUser")
+    @Tag("UserTest")
+    @Tag("Smoke")
+    @DisplayName("Delete single user")
+    public void deleteSingleUserTest() {
+
+        UserPOJO user = userService.createRandomUser();
+        String accessToken = authService.logIn(user.getEmail(), user.getPassword()).getJWTToken();
+
+        boolean resultOfDelete = userService
+                .deleteUser(user.getId(), accessToken)
+                .should(hasStatusCode(200))
+                .getResultOfDelete();
+
+
+        assertThat(resultOfDelete).isTrue();
+
+    }
+
+    @ParameterizedTest(name = "Parametrized test:")
+    @ValueSource(ints = {1, 2, 3})
+    @Tag("API")
+    @Severity(SeverityLevel.NORMAL)
+    @Tag("DeleteUser")
+    @Tag("UserTest")
+    @Tag("Smoke")
+    @DisplayName("Delete admin users")
+    public void deleteAdminUsersTest(int userAdminId) {
+
+        String accessToken = authService.logInAdminUser().getJWTToken();
+        String message = userService
+                .deleteUser(userAdminId, accessToken)
+                .should(hasStatusCode(401))
+                .getMessage();
+
+        assertThat(message).isEqualTo(ADMIN_IS_NOT_FOR_DELETE);
+
     }
 
     @Test
@@ -158,15 +246,59 @@ public class UsersTests {
     @Tag("CheckEmail")
     @Tag("UserTest")
     @DisplayName("Check that email is available")
-    public void checkEmailPositiveTest() {
+    public void ExistingEmailTest() {
 
-        String email = faker.internet().emailAddress();
-        boolean result = requestUsers
-                .checkEmail(email)
-                .get("isAvailable");
+        Faker faker = new Faker();
 
-        assertThat(result).isTrue();
+        String email = faker.random().nextInt(Integer.MAX_VALUE) + faker.internet().emailAddress();
 
+        boolean emailIsAvailable = userService
+                .checkEmailIsAvailable(email)
+                .should(hasStatusCode(201))
+                .asJsonPath()
+                .getBoolean("isAvailable");
+
+        assertThat(emailIsAvailable).isTrue();
+    }
+
+
+    @Test
+    @Tag("API")
+    @Severity(SeverityLevel.MINOR)
+    @Tag("CheckEmail")
+    @Tag("UserTest")
+    @DisplayName("Check if email is blank")
+    public void blankEmailTest() {
+
+        List<String> messageList = userService
+                .checkEmailIsAvailable("")
+                .should(hasStatusCode(400))
+                .getMessageList();
+
+        assertThat(messageList).isNotEmpty().allSatisfy(message -> {
+            assertThat(message).containsAnyOf(MESSAGES);
+        });
 
     }
+
+    @Test
+    @Tag("API")
+    @Severity(SeverityLevel.MINOR)
+    @Tag("CheckEmail")
+    @Tag("UserTest")
+    @DisplayName("Check if email is not valid")
+    public void invalidEmailTest() {
+
+        Faker faker = new Faker();
+
+        String invalidEmail = faker.internet().username();
+        List<String> message = userService
+                .checkEmailIsAvailable(invalidEmail)
+                .should(hasStatusCode(400))
+                .getMessageList();
+
+        assertThat(message).contains("email must be an email");
+
+    }
+
 }

@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'io.freefair.lombok' version('8.2.2')
-    id 'io.qameta.allure' version('2.10.0')
+    id 'io.qameta.allure' version('2.11.2')
 }
 
 group = 'com.platzi.fakeapi'
@@ -13,9 +13,6 @@ repositories {
 
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
-/*tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}*/
 
 def junitVersion = "5.9.2",
     slf4jVersion = "1.7.32",
@@ -23,22 +20,13 @@ def junitVersion = "5.9.2",
     restAssuredVersion = "5.3.0",
     jacksonVersion = "2.15.2",
     assertJVersion = "3.23.1",
-    fakerVersion = "2.0.2"
+    fakerVersion = "2.0.2",
+    aspectJVersion = "1.9.20.1",
+    schemaValidator = "5.3.2",
+    allureAssertJVersion = "2.25.0",
+    ownerVersion = "1.0.12",
+    commonsVersion = "2.13.0"
 
-allure {
-    report {
-        version.set(allureVersion)
-
-    }
-    adapter {
-        aspectjWeaver.set(true)
-        frameworks {
-            junit5 {
-                adapterVersion.set(allureVersion)
-            }
-        }
-    }
-}
 
 dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
@@ -48,24 +36,37 @@ dependencies {
     testImplementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     implementation "org.assertj:assertj-core:$assertJVersion"
     testImplementation "net.datafaker:datafaker:$fakerVersion"
-    testImplementation "org.aspectj:aspectjweaver:1.9.20.1"
-    testImplementation "io.rest-assured:json-schema-validator:5.3.2"
-    testImplementation "io.qameta.allure:allure-assertj:2.25.0"
-    testImplementation "org.aeonbits.owner:owner-java8:1.0.12"
-
+    testImplementation "org.aspectj:aspectjweaver:$aspectJVersion"
+    testImplementation "io.rest-assured:json-schema-validator:$schemaValidator"
+    testImplementation "io.qameta.allure:allure-assertj:$allureAssertJVersion"
+    testImplementation "org.aeonbits.owner:owner-java8:$ownerVersion"
+    testImplementation "commons-io:commons-io:$commonsVersion"
 }
 
-tasks.withType(Test) {
-    systemProperties(System.getProperties())
-    useJUnitPlatform() {
-        includeTags("API")
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "started", "skipped", "failed", "standard_error", "standard_out"
+        exceptionFormat "full"
+    }
+}
+
+tasks.register("testsByTags", Test.class) {
+
+    String runTags = System.getProperty("Tags")
+    if (runTags != null) {
+        useJUnitPlatform {
+            for (String runByTag : runTags.split(",")) {
+                includeTags.add(runByTag)
+            }
+        }
     }
 
     testLogging {
         lifecycle {
             events "started", "skipped", "failed", "standard_error", "standard_out"
             exceptionFormat "full"
-            //showStandardStreams = true
+
         }
     }
 }
